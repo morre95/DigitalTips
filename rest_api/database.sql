@@ -1,0 +1,6 @@
+
+
+CREATE TABLE IF NOT EXISTS script_log (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    request_time INT NOT NULL
+);
