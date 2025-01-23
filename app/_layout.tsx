@@ -1,39 +1,40 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
-import 'react-native-reanimated';
+import React from 'react';
+import { Tabs, Redirect } from 'expo-router';
+import { Image, StyleSheet } from 'react-native';
+import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
+import Ionicons from '@expo/vector-icons/Ionicons';
 
-import { useColorScheme } from '@/hooks/useColorScheme';
-
-// Prevent the splash screen from auto-hiding before asset loading is complete.
-SplashScreen.preventAutoHideAsync();
-
-export default function RootLayout() {
-  const colorScheme = useColorScheme();
-  const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-  });
-
-  useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
-    }
-  }, [loaded]);
-
-  if (!loaded) {
-    return null;
-  }
-
+export default function AppLayout() {
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <Tabs>
+      <Tabs.Screen 
+        name="Maps" 
+        options={{ 
+          title: "Maps",
+          tabBarIcon: ({ focused }) => (
+            <FontAwesome5 name="map-marked-alt" size={24} color={ focused ? "rgba(0, 0, 0, 1)" : "rgba(0, 0, 0, 0.5)"} />
+          )
+        }} 
+      />
+      <Tabs.Screen 
+        name="Settings" 
+        options={{ 
+          title: "Settings",
+          tabBarIcon: ({ focused }) => (
+            <Ionicons name="settings" size={24} color={ focused ? "rgba(0, 0, 0, 1)" : "rgba(0, 0, 0, 0.5)"} />
+          )
+        }} 
+      />
+
+      <Tabs.Screen name="[...unmatched]" options={{ href: null }} />
+    </Tabs>
   );
 }
+
+const styles = StyleSheet.create({
+  icon: {
+    width: 24,
+    height: 24,
+    resizeMode: 'contain',
+  },
+});
