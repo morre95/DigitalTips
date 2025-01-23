@@ -13,9 +13,9 @@ export default function Home() {
 
     const apiLogin = async () => {
         try {
-            // Local Url
-            const url = 'http://10.0.2.2/myProjects/slimPhp4Test_Slask/users/all'
-            // const url = 'http://tipsdigitial.mygamesonline.org/users/all'
+
+            //const url = 'http://10.0.2.2/myProjects/slimPhp4Test_Slask/users/all' // Local Url
+            const url = 'http://tipsdigitial.mygamesonline.org/users/all'
 
             const response = await fetch(url, {
                 headers: {
