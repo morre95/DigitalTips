@@ -36,3 +36,7 @@ yarn-error.*
 *.tsbuildinfo
 
 app-example
+
+rest_api/update.php
+
+/rest_api/config/.env
