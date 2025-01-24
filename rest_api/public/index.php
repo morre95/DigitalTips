@@ -31,22 +31,6 @@ $containerBuilder->addDefinitions([
     LoggerInterface::class => function (ContainerInterface $c) {
         return get_logger($c);
     },
-    'settings' => [
-        'displayErrorDetails' => true, // Should be set to false in production
-        'db' => [
-            'host' => 'localhost',
-            'user' => 'root',
-            'pass' => '',
-            'dbname' => 'slimphp_test_project',
-            'port' => 3306,
-
-            /*'host' => 'fdb1030.awardspace.net',
-            'user' => '4578710_tipsdigital',
-            'pass' => 'Bananpaj123_',
-            'dbname' => '4578710_tipsdigital',
-            'port' => 3306,*/
-        ],
-    ],
 ]);
 
 try {
