@@ -80,7 +80,6 @@ export default function Maps() {
 
     };
 
-    // FIXME: när man har raderat en marker och lägger till en till så får två markers samma key. När man raderar igen raderas sissta och den nya
     const handleMarkerOnPress = (event: any, markerId: number) => {
         const deleteMarker = () => {
             setMarkers(prevMarkers =>
