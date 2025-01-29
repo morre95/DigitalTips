@@ -86,13 +86,17 @@ export default function Maps() {
                 prevMarkers.filter(marker => marker.id !== markerId)
             );
         }
-        Alert.alert('Delete marker', `Do you want to delete checkpoint ${markerId}`, [
+        Alert.alert('Delete marker', `Do you want to add question or delete checkpoint ${markerId}`, [
+            {
+                text: 'Add question',
+                onPress: () => console.log('Add question pressed'),
+            },
             {
                 text: 'Cancel',
                 onPress: () => console.log('Cancel Pressed'),
                 style: 'cancel',
             },
-            {text: 'Yes', onPress: () => {deleteMarker()}},
+            {text: 'Delete', onPress: () => {deleteMarker()}},
         ]);
     }
 

@@ -1,5 +1,6 @@
 import { ExpoConfig, ConfigContext } from 'expo/config';
 
+// TODO: fixa så att google api nyckeln laddas in på något vis
 export default ({ config }: ConfigContext): ExpoConfig => ({
     ...config,
     slug: 'my-app',
