@@ -1,12 +1,16 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, Alert, Image, Button } from 'react-native';
+import { StyleSheet, View, Text, Alert, Image, Button, TextInput } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
+
+import CheckBox from '@react-native-community/checkbox';
+
 
 import {SafeAreaView, SafeAreaProvider} from 'react-native-safe-area-context';
 
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import Feather from '@expo/vector-icons/Feather';
+import Entypo from '@expo/vector-icons/Entypo';
 
 
 const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
@@ -45,11 +49,23 @@ interface MarkerData {
     str: string;
 }
 
+interface AnswerData {
+    id: number;
+    value: string;
+    isRight: boolean;
+}
+
 export default function Maps() {
     const [markers, setMarkers] = useState<MarkerData[]>([]);
     const [showSearch, setShowSearch] = useState(true);
     const [showAddMarker, setShowAddMarker] = useState(true);
     const [addMarker, setAddMarker] = useState(false);
+
+    const [currentMarkerId, setCurrentMarkerId] = useState(0);
+    const [questionText, onChangeQuestionText] = useState('');
+    //const [answers, setAnswers] = useState<AnswerData[]>([]);
+    const [showAddQuestions, setShowAddQuestions] = useState(false);
+
 
     const initialRegion = {
         latitude: 58.317064,
@@ -89,7 +105,7 @@ export default function Maps() {
         Alert.alert('Delete marker', `Do you want to add question or delete checkpoint ${markerId}`, [
             {
                 text: 'Add question',
-                onPress: () => console.log('Add question pressed'),
+                onPress: () => {handleAddQuestionToMarker(event, markerId)},
             },
             {
                 text: 'Cancel',
@@ -98,6 +114,12 @@ export default function Maps() {
             },
             {text: 'Delete', onPress: () => {deleteMarker()}},
         ]);
+    }
+
+    const handleAddQuestionToMarker = (event: any, markerId: number) => {
+        console.log('Add question to marker', markerId);
+        setCurrentMarkerId(markerId);
+        setShowAddQuestions(true);
     }
 
     const handleDragEnd = (event: any, markerId: number) => {
@@ -145,6 +167,50 @@ export default function Maps() {
         ]);
 
     }
+
+
+    /*const addAnswersInput = () => {
+        const newAnswer: AnswerData = {
+            id: Date.now(),
+            value: '',
+            isRight: false,
+        }
+        setAnswers([...answers, newAnswer]);
+    };
+
+    const handleAnswerTextChange = (text: string, index: number) => {
+        const updatedInputs = [...answers];
+        updatedInputs[index].value = text;
+        setAnswers(updatedInputs);
+    };*/
+
+    const [currentAnswers, setCurrentAnswers] = useState<AnswerData[]>([]);
+
+    // Lägg till ett nytt fält (med text och checkbox-värde)
+    const addField = () => {
+        setCurrentAnswers([...currentAnswers, { id: Date.now(), value: '', isRight: false }]);
+    };
+
+    // Ta bort ett fält på en viss index
+    const removeField = (index : number) => {
+        const updatedFields = [...currentAnswers];
+        updatedFields.splice(index, 1);
+        setCurrentAnswers(updatedFields);
+    };
+
+    // Uppdaterar textvärdet i ett fält
+    const handleTextChange = (text: string, index: number) => {
+        const updatedFields = [...currentAnswers];
+        updatedFields[index].value = text;
+        setCurrentAnswers(updatedFields);
+    };
+
+    // Uppdaterar checkbox-värdet i ett fält
+    const handleCheckBoxChange = (value: boolean, index : number) => {
+        const updatedFields = [...currentAnswers];
+        updatedFields[index].isRight = value;
+        setCurrentAnswers(updatedFields);
+    };
 
     const addMarkerIcon = showSearch ? 'plussquareo' : 'minussquareo'
     return (
@@ -211,6 +277,46 @@ export default function Maps() {
                     </View>
                 ) : null }
 
+                {showAddQuestions ? (
+                    <View style={styles.bottomOverlay}>
+
+                        <Text>{`Add question for checkpoint #${currentMarkerId}`}</Text>
+                        <TextInput
+                            style={styles.input}
+                            onChangeText={onChangeQuestionText}
+                            value={questionText}
+                            placeholder="Enter question"
+                        />
+                        <Entypo.Button
+                            name="add-to-list"
+                            size={24}
+                            color="black"
+                            backgroundColor="rgba(52, 52, 52, 0)"
+                            style={styles.addAnswer}
+                            onPress={addField}/>
+
+                        {currentAnswers.map((field, index) => (
+                            <View key={index} style={styles.fieldRow}>
+                                <TextInput
+                                    style={styles.textInput}
+                                    placeholder={`Answer #${index + 1}`}
+                                    value={field.value}
+                                    onChangeText={(text) => handleTextChange(text, index)}
+                                />
+                                <CheckBox
+                                    value={field.isRight}
+                                    onValueChange={(newVal) => handleCheckBoxChange(newVal, index)}
+                                />
+                                <Button
+                                    title="Remove"
+                                    onPress={() => removeField(index)}
+                                />
+                            </View>
+                        ))}
+
+                    </View>
+                ) : null}
+
 
             </SafeAreaView>
         </SafeAreaProvider>
@@ -260,6 +366,16 @@ const styles = StyleSheet.create({
         width: 55,
         height: 50,
     },
+    addAnswer:{
+        /*position: 'absolute',
+        top: 5,
+        right: 0,
+        width: 55,
+        height: 50,*/
+        /*...StyleSheet.absoluteFillObject,*/
+        alignSelf: 'flex-end',
+        marginTop: -5,
+    },
     addMarkerText: {
         margin: 10,
         paddingVertical: 5,
@@ -277,5 +393,30 @@ const styles = StyleSheet.create({
         top: 0,
         left: 0,
         width: '100%'
-    }
+    },
+    bottomOverlay: {
+        position: 'absolute',
+        bottom: 0,
+        width: '100%',
+        backgroundColor: '#61dafb',
+    },
+    input: {
+        height: 40,
+        margin: 12,
+        borderWidth: 1,
+        padding: 10,
+    },
+    fieldRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 10,
+    },
+    textInput: {
+        flex: 1,
+        borderColor: '#ccc',
+        borderWidth: 1,
+        marginRight: 10,
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+    },
 });
