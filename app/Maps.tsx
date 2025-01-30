@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { StyleSheet, View, Text, Alert, Image, Button, TextInput } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 
-import CheckBox from '@react-native-community/checkbox';
+import Checkbox from 'expo-checkbox';
 
 
 import {SafeAreaView, SafeAreaProvider} from 'react-native-safe-area-context';
@@ -168,22 +168,6 @@ export default function Maps() {
 
     }
 
-
-    /*const addAnswersInput = () => {
-        const newAnswer: AnswerData = {
-            id: Date.now(),
-            value: '',
-            isRight: false,
-        }
-        setAnswers([...answers, newAnswer]);
-    };
-
-    const handleAnswerTextChange = (text: string, index: number) => {
-        const updatedInputs = [...answers];
-        updatedInputs[index].value = text;
-        setAnswers(updatedInputs);
-    };*/
-
     const [currentAnswers, setCurrentAnswers] = useState<AnswerData[]>([]);
 
     // Lägg till ett nytt fält (med text och checkbox-värde)
@@ -295,6 +279,7 @@ export default function Maps() {
                             style={styles.addAnswer}
                             onPress={addField}/>
 
+                        <Text>Answer|is right?|remove</Text>
                         {currentAnswers.map((field, index) => (
                             <View key={index} style={styles.fieldRow}>
                                 <TextInput
@@ -303,7 +288,7 @@ export default function Maps() {
                                     value={field.value}
                                     onChangeText={(text) => handleTextChange(text, index)}
                                 />
-                                <CheckBox
+                                <Checkbox
                                     value={field.isRight}
                                     onValueChange={(newVal) => handleCheckBoxChange(newVal, index)}
                                 />
@@ -313,6 +298,7 @@ export default function Maps() {
                                 />
                             </View>
                         ))}
+
 
                     </View>
                 ) : null}
