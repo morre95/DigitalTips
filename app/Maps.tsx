@@ -250,7 +250,13 @@ export default function Maps() {
                             backgroundColor="rgba(52, 52, 52, 0)"
                             onPress={handleAddMarkerPress} />
                     </View>
-                ) : null }
+                ) : (
+                    <View style={styles.inputSearchView}>
+                        <TextInput
+                            style={styles.inputSearch}
+                            placeholder="Search"/>
+                    </View>
+                ) }
 
                 {showAddQuestions ? (
                     <View style={styles.bottomOverlay}>
@@ -351,6 +357,19 @@ const styles = StyleSheet.create({
         right: 0,
         width: 65,
         height: 50,
+    },
+    inputSearchView: {
+        position: 'absolute',
+        top: 2,
+        left: 0,
+        //marginTop: -5
+    },
+    inputSearch: {
+        height: 40,
+        width: '100%',
+        margin: 12,
+        borderWidth: 1,
+        padding: 10,
     },
     newMarker: {
         position: 'absolute',
