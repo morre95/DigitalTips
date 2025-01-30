@@ -4,13 +4,15 @@ import MapView, { Marker } from 'react-native-maps';
 
 import Checkbox from 'expo-checkbox';
 
-
 import {SafeAreaView, SafeAreaProvider} from 'react-native-safe-area-context';
 
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import Feather from '@expo/vector-icons/Feather';
 import Entypo from '@expo/vector-icons/Entypo';
+
+
+import Autocomplete from '@/components/Autocomplete';
 
 
 const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
@@ -51,6 +53,10 @@ export default function Maps() {
     const [showAddQuestions, setShowAddQuestions] = useState(false);
 
     const [currentRoutes, setCurrentRoutes] = useState<RouteData[]>([]);
+
+
+
+    const [selectedItem, setSelectedItem] = useState(null);
 
 
     const initialRegion = {
@@ -130,7 +136,7 @@ export default function Maps() {
 
     const handleSearchPress = (event: any) => {
         setShowAddMarker(!showAddMarker);
-        Alert.alert("jo då här klickas det på sök allt")
+        //Alert.alert("jo då här klickas det på sök allt")
     }
     const handleAddMarkerPress = (event: any) => {
         setShowSearch(!showSearch);
@@ -251,11 +257,10 @@ export default function Maps() {
                             onPress={handleAddMarkerPress} />
                     </View>
                 ) : (
-                    <View style={styles.inputSearchView}>
-                        <TextInput
-                            style={styles.inputSearch}
-                            placeholder="Search"/>
-                    </View>
+                    <Autocomplete
+                        data={['Apple', 'Banana', 'Orange', 'Grapes', 'Pineapple', 'Foo', 'Bar']}
+                        onSelect={(item: string) => console.log('Selected item:', item)}
+                    />
                 ) }
 
                 {showAddQuestions ? (
@@ -358,19 +363,7 @@ const styles = StyleSheet.create({
         width: 65,
         height: 50,
     },
-    inputSearchView: {
-        position: 'absolute',
-        top: 2,
-        left: 0,
-        //marginTop: -5
-    },
-    inputSearch: {
-        height: 40,
-        width: '100%',
-        margin: 12,
-        borderWidth: 1,
-        padding: 10,
-    },
+
     newMarker: {
         position: 'absolute',
         top: 50,
