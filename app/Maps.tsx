@@ -58,7 +58,7 @@ export default function Maps() {
 
 
 
-    const [selectedItem, setSelectedItem] = useState(null);
+    const [editMode, setEditMode] = useState(false);
 
 
     const initialRegion = {
@@ -89,6 +89,10 @@ export default function Maps() {
     };
 
     const handleMarkerOnPress = (event: any, currentMarker: MarkerData) => {
+        if (!editMode) {
+            return;
+        }
+
         const deleteMarker = () => {
             setMarkers(prevMarkers =>
                 prevMarkers.filter(marker => marker.id !== currentMarker.id)
@@ -138,11 +142,12 @@ export default function Maps() {
 
     const handleSearchPress = (event: any) => {
         setShowAddMarker(!showAddMarker);
-        //Alert.alert("jo då här klickas det på sök allt")
     }
     const handleAddMarkerPress = (event: any) => {
         setShowSearch(!showSearch);
         setAddMarker(!addMarker);
+
+        setEditMode(!editMode);
     }
     const handleSaveMarkers = (event: any) => {
         if (markers.length !== currentRoutes.length) {
