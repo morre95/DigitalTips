@@ -31,7 +31,7 @@ interface MarkerData {
 
 interface AnswerData {
     id: number;
-    value: string;
+    text: string;
     isRight: boolean;
 }
 
@@ -167,32 +167,26 @@ export default function Maps() {
 
     }
 
-
-
-    // Lägg till ett nytt fält (med text och checkbox-värde)
-    const addField = () => {
-        setCurrentAnswers([...currentAnswers, { id: Date.now(), value: '', isRight: false }]);
+    const addAnswerField = () => {
+        setCurrentAnswers([...currentAnswers, { id: Date.now(), text: '', isRight: false }]);
     };
 
-    // Ta bort ett fält på en viss index
-    const removeField = (index : number) => {
-        const updatedFields = [...currentAnswers];
-        updatedFields.splice(index, 1);
-        setCurrentAnswers(updatedFields);
+    const removeAnswerField = (index : number) => {
+        const updatedAnswers = [...currentAnswers];
+        updatedAnswers.splice(index, 1);
+        setCurrentAnswers(updatedAnswers);
     };
 
-    // Uppdaterar textvärdet i ett fält
     const handleTextChange = (text: string, index: number) => {
-        const updatedFields = [...currentAnswers];
-        updatedFields[index].value = text;
-        setCurrentAnswers(updatedFields);
+        const updatedAnswers = [...currentAnswers];
+        updatedAnswers[index].text = text;
+        setCurrentAnswers(updatedAnswers);
     };
 
-    // Uppdaterar checkbox-värdet i ett fält
     const handleCheckBoxChange = (value: boolean, index : number) => {
-        const updatedFields = [...currentAnswers];
-        updatedFields[index].isRight = value;
-        setCurrentAnswers(updatedFields);
+        const updatedAnswers = [...currentAnswers];
+        updatedAnswers[index].isRight = value;
+        setCurrentAnswers(updatedAnswers);
     };
 
     const addMarkerIcon = showSearch ? 'plussquareo' : 'minussquareo'
@@ -305,7 +299,7 @@ export default function Maps() {
                             color="black"
                             backgroundColor="rgba(52, 52, 52, 0)"
                             style={styles.addAnswer}
-                            onPress={addField}/>
+                            onPress={addAnswerField}/>
 
                         <Text>Answer|is right?|remove</Text>
                         {currentAnswers.map((field, index) => (
@@ -313,7 +307,7 @@ export default function Maps() {
                                 <TextInput
                                     style={styles.textInput}
                                     placeholder={`Answer #${index + 1}`}
-                                    value={field.value}
+                                    value={field.text}
                                     onChangeText={(text) => handleTextChange(text, index)}
                                 />
                                 <Checkbox
@@ -322,7 +316,7 @@ export default function Maps() {
                                 />
                                 <Button
                                     title="Remove"
-                                    onPress={() => removeField(index)}
+                                    onPress={() => removeAnswerField(index)}
                                 />
                             </View>
                         ))}
