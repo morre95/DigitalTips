@@ -8,5 +8,8 @@ return [
         'pass' => $env['DB_pass'],
         'dbname' => $env['DB_dbname'],
         'port' => $env['DB_port'],
-    ]
+    ],
+    'jwt' => [
+       'secret_key' => $env['JWT_secret_key']
+    ],
 ];
