@@ -4,12 +4,14 @@ import {View, TextInput, FlatList, Text, TouchableOpacity, StyleSheet, StyleProp
 interface AutocompleteProps {
     data: string[];
     onSelect: (item: string) => void;
+    onSubmit: (item: string) => void;
     placeholder?: string;
 }
 
-const Autocomplete: React.FC<AutocompleteProps> = ({ data, onSelect, placeholder }) => {
+const Autocomplete: React.FC<AutocompleteProps> = ({ data, onSelect, onSubmit, placeholder = ''  }) => {
     const [query, setQuery] = useState('');
     const [filteredData, setFilteredData] = useState<string[]>([]);
+    const [isFocused, setIsFocused] = useState(false);
 
     const handleInputChange = (text: string) => {
         setQuery(text);
@@ -29,13 +31,21 @@ const Autocomplete: React.FC<AutocompleteProps> = ({ data, onSelect, placeholder
         onSelect(item);
     };
 
+    const handleOnSubmit = () => {
+        setFilteredData([]);
+        onSubmit(query);
+    };
+
     return (
         <View style={styles.container}>
             <TextInput
-                style={styles.input}
+                style={isFocused ? styles.fokusInput : styles.input}
                 value={query}
                 onChangeText={handleInputChange}
                 placeholder={placeholder}
+                onBlur={() => setIsFocused(false)}
+                onFocus={() => setIsFocused(true)}
+                onSubmitEditing={handleOnSubmit}
             />
             {filteredData.length > 0 && (
                 <FlatList
@@ -64,7 +74,15 @@ const styles = StyleSheet.create({
         width: '100%',
         margin: 12,
         borderWidth: 1,
-        borderRadius: 28,
+        borderRadius: 20,
+        padding: 10,
+    },
+    fokusInput: {
+        height: 40,
+        width: '100%',
+        margin: 12,
+        borderWidth: 2,
+        borderRadius: 14,
         padding: 10,
     },
     item: {

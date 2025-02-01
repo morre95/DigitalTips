@@ -261,6 +261,7 @@ export default function Maps() {
                     <Autocomplete
                         data={['Apple', 'Banana', 'Orange', 'Grapes', 'Pineapple', 'Foo', 'Bar']}
                         onSelect={(item: string) => console.log('Selected item:', item)}
+                        onSubmit={(item: string) => console.log('On Submit is item:', item)}
                     />
                 ) }
 
