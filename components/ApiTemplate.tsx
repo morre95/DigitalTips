@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import {View, FlatList, Text, Button, StyleSheet, ActivityIndicator} from 'react-native';
 
+import getJson from '../hooks/api/Get'
+
+
 interface Props {
     url?: string;
 }
@@ -19,16 +22,7 @@ const ApiTemplate: React.FC<Props> = ({ url = 'http://tipsdigitial.mygamesonline
 
     const get = async (url: string) => {
         try {
-            const response = await fetch(url, {
-            headers: {
-                'Authorization': 'auth_ThisIsMandatory'
-            }});
-            if(response.ok) {
-                const json = await response.json();
-                setData(json);
-            } else {
-                console.error(response);
-            }
+            setData(await getJson<Route[]>(url));
         } catch (error) {
             console.error(error);
         } finally {
