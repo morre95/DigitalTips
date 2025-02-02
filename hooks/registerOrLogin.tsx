@@ -31,7 +31,6 @@ const registerOrLogin = async () => {
     if (!username || !password) {
         let result : boolean = await register()
 
-        // FIXME: man blir inte inloggad efter att man blivit reggad
         if (retryCount <= 5) {
             retryCount++
             console.log(`${retryCount} register trys`)
