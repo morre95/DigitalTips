@@ -1,3 +1,5 @@
+import BaseUrl from './BaseUrl';
+
 /*
 *
 * @example
@@ -17,7 +19,7 @@
 * console.log(response);
 *
 */
-async function postJson<T, TReturn>(url: string, data: T): Promise<TReturn> {
+async function postJson<T, TReturn>(url: string, data: T, baseUrl: BaseUrl = BaseUrl.remote): Promise<TReturn> {
     const headers = new Headers();
     headers.set('Content-Type', 'application/json');
     headers.set('Authorization', 'auth_ThisIsMandatory');
@@ -26,6 +28,9 @@ async function postJson<T, TReturn>(url: string, data: T): Promise<TReturn> {
         headers: headers,
         body: JSON.stringify(data)
     };
+
+    url = url.startsWith('/') ? `${baseUrl}/${url.slice(1)}` : `${baseUrl}${url}`
+    //console.log(url)
 
     try {
         const response = await fetch(url, requestOptions);
@@ -40,3 +45,4 @@ async function postJson<T, TReturn>(url: string, data: T): Promise<TReturn> {
 }
 
 export default postJson;
+export { BaseUrl };

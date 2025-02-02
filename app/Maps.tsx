@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Text, Alert, Button, TextInput } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 
@@ -15,6 +15,9 @@ import Entypo from '@expo/vector-icons/Entypo';
 import Autocomplete from '@/components/Autocomplete';
 
 import MarkerImages from '../hooks/images'
+
+
+import registerOrLogin, { globals } from "@/hooks/registerOrLogin";
 
 
 const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
@@ -59,6 +62,22 @@ export default function Maps() {
 
 
     const [editMode, setEditMode] = useState(false);
+
+    const [JWT_token, setJWT_token] = useState<string>();
+
+    useEffect(() => {
+        (async () => {
+            await registerOrLogin();
+
+            if (globals.JWT_token) {
+                console.log('JWT token:', globals.JWT_token);
+                setJWT_token(globals.JWT_token)
+            } else {
+                console.log('inte inloggad');
+            }
+        })();
+    }, [])
+
 
 
     const initialRegion = {
@@ -216,6 +235,12 @@ export default function Maps() {
                         />
                     ))}
                 </MapView>
+
+                {/*Ska tas bort efter testning*/}
+                {JWT_token ? (
+                   <Text>Inloggad: {JWT_token}</Text>
+                ) : null}
+
                 {showSearch ? (
                     <View style={styles.search}>
                         <FontAwesome.Button

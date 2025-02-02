@@ -46,6 +46,8 @@ try {
 
 $app = AppFactory::create();
 
+$app->addBodyParsingMiddleware();
+
 $secret_key = $settings['jwt']['secret_key'];
 
 $app->post('/login', function (Request $request, Response $response) use ($secret_key, $app) {
@@ -83,6 +85,7 @@ $app->post('/login', function (Request $request, Response $response) use ($secre
 
         // 4. Returnera JSON-svar med token
         $responseData = [
+            'error' => false,
             'token' => $jwt,
             'message' => 'Login succeeded'
         ];
@@ -95,7 +98,16 @@ $app->post('/login', function (Request $request, Response $response) use ($secre
 
     $logger = get_logger($app->getContainer());
 
-    $logger->error("JWT error: Invalid credentials");
+    //$logger->error("JWT error: Invalid credentials: DBuser = {$user['username']}, DBpass = {$user['password']}, username = $username, password = $password");
+
+    $loggStr = "JWT error: Invalid credentials";
+
+    if ($user)
+    foreach ($user as $item) {
+        $loggStr += " $item,";
+    }
+
+    $logger->error($loggStr);
     // Felaktiga användaruppgifter
     $response->getBody()->write(json_encode(['error' => 'Invalid credentials']));
     return $response->withHeader('Content-Type', 'application/json')
@@ -109,7 +121,8 @@ $app->post('/register', function (Request $request, Response $response) use ($se
 
     $logger = get_logger($app->getContainer());
     if (empty($username) || empty($password)) {
-        $logger->error("Username or password is empty");
+        $logger->error("Username or password is empty. username: $username, password: $password");
+
         $response->getBody()->write(json_encode(['error' => 'Username or password is empty']));
         return $response->withHeader('Content-Type', 'application/json')
             ->withStatus(401);
@@ -137,6 +150,7 @@ $app->post('/register', function (Request $request, Response $response) use ($se
             ->withStatus(200);
     } catch (PDOException $e) {
         $logger->error("Can not register: " . $e->getMessage());
+        $logger->error("Can not register. username: $username, password: $password, hashedPassword: $hashedPassword");
         $response->getBody()->write(json_encode(['error' => 'Can not register']));
         return $response->withHeader('Content-Type', 'application/json')
             ->withStatus(401);
@@ -199,32 +213,7 @@ $beforeMiddleware = function (Request $request, RequestHandler $handler) use ($a
         $logger->error("Unauthorized don't exists. All Headers: $testResult");
 
         return $response->withStatus(401)->withHeader('Unauthorized', 'You_are');
-    } /*else  {
-        $logger->info("Authorization token exists. Authorization: '$auth'");
-    }*/
-
-    /*if (!isset($_SESSION['USER_AUTHORIZATION'])) {
-        $_SESSION['USER_AUTHORIZATION'] = "auth_ShouldBeAnEmptyString";
     }
-
-    if ($_SESSION['USER_AUTHORIZATION'] !== $auth) {
-        $response = $app->getResponseFactory()->createResponse();
-        $response->getBody()->write('Unauthorized');
-
-        $headers = $request->getHeaders();
-        $testResult = "";
-        foreach ($headers as $name => $values) {
-            $testResult .= $name . ": '" . implode(", ", $values) . "'; ";
-        }
-
-        $logger->error("USER_AUTHORIZATION token don't match! All Headers: $testResult");
-
-        return $response->withStatus(401)->withHeader('No-Token-You-Give-Me', 'Yes_you_have');
-    } else {
-        $logger->info("Authorization token and SESSION['USER_AUTHORIZATION'] is equal. SESSION['USER_AUTHORIZATION']: '{$_SESSION['USER_AUTHORIZATION']}'");
-    }
-
-    $_SESSION['USER_AUTHORIZATION'] = uniqid('auth_', true);*/
 
     // Proceed with the next middleware
     return $handler->handle($request);
@@ -276,6 +265,21 @@ $app->get('/users/all', \UserController::class . ':get_all');
 $app->get('/json/test', \TestController::class . ':test');
 $app->get('/routes/all', \RouteController::class . ':get_all');
 $app->get('/checkpoint/{id}', \RouteController::class . ':get_checkpoint');
+
+$app->post('/post/test', function (Request $request, Response $response) {
+    $params = $request->getParsedBody();
+    $foo = $params['foo'] ?? '';
+    $bar = $params['bar'] ?? '';
+
+    $responseData = [
+        'error' => false,
+        'message' => "Who would have thought that $foo is in love with $bar"
+    ];
+    $response->getBody()->write(json_encode($responseData));
+
+    return $response->withHeader('Content-Type', 'application/json')
+        ->withStatus(200);
+});
 
 // Alla API calls som behöver skyddas behöver ligga under den här gruppen
 // TODO: behöver provköras

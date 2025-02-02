@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {View, FlatList, Text, Button, StyleSheet, ActivityIndicator} from 'react-native';
 
-import getJson from '../hooks/api/Get'
-
+import getJson, { BaseUrl } from '../hooks/api/Get'
 
 interface Props {
     url?: string;
@@ -15,7 +14,7 @@ interface Route {
     is_right: boolean
 }
 
-const ApiTemplate: React.FC<Props> = ({ url = 'http://tipsdigitial.mygamesonline.org/json/test' }) => {
+const ApiTemplate: React.FC<Props> = ({ url = 'json/test' }) => {
 
     const [isLoading, setLoading] = useState(true);
     const [data, setData] = useState<Route[]>([]);

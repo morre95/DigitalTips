@@ -1,5 +1,7 @@
 
-async function getJson<T>(url: string): Promise<T> {
+import BaseUrl from './BaseUrl';
+
+async function getJson<T>(url: string, baseUrl: BaseUrl = BaseUrl.remote): Promise<T> {
     const headers = new Headers();
     headers.set('Content-Type', 'application/json');
     headers.set('Authorization', 'auth_ThisIsMandatory');
@@ -7,6 +9,8 @@ async function getJson<T>(url: string): Promise<T> {
         method: 'GET',
         headers: headers
     };
+
+    url = url.startsWith('/') ? `${baseUrl}/${url.slice(1)}` : `${baseUrl}${url}`
 
     try {
         const response = await fetch(url, requestOptions);
@@ -21,3 +25,4 @@ async function getJson<T>(url: string): Promise<T> {
 }
 
 export default getJson;
+export { BaseUrl };
