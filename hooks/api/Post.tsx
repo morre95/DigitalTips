@@ -40,7 +40,7 @@ async function postJson<T, TReturn>(url: string, data: T, baseUrl: BaseUrl = Bas
     try {
         const response = await fetch(url, requestOptions);
         if (!response.ok) {
-            throw new Error(`Blast! Our posted letter was not received favorably: ${response.statusText}`);
+            throw new Error(`Blast! Our posted letter was not received favorably: '${response.statusText}' (${response.status})`);
         }
         return await response.json();
     } catch (error) {

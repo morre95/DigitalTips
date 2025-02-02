@@ -18,6 +18,7 @@ import MarkerImages from '../hooks/images'
 
 
 import registerOrLogin, { globals } from "@/hooks/registerOrLogin";
+import ApiTestJwtToken from "@/components/ApiTestJwtToken";
 
 
 const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
@@ -238,7 +239,10 @@ export default function Maps() {
 
                 {/*Ska tas bort efter testning*/}
                 {JWT_token ? (
-                   <Text>Inloggad: {JWT_token}</Text>
+                    /*<View style={{position: 'absolute', top :10}}>
+                        <Text>Inloggad: {JWT_token}</Text>
+                    </View>*/
+                    <ApiTestJwtToken token={JWT_token} />
                 ) : null}
 
                 {showSearch ? (
@@ -355,6 +359,7 @@ export default function Maps() {
 
                     </View>
                 ) : null}
+
 
 
             </SafeAreaView>

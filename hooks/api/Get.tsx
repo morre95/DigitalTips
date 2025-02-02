@@ -1,10 +1,12 @@
 
 import BaseUrl from './BaseUrl';
 
-async function getJson<T>(url: string, baseUrl: BaseUrl = BaseUrl.remote): Promise<T> {
-    const headers = new Headers();
-    headers.set('Content-Type', 'application/json');
-    headers.set('Authorization', 'auth_ThisIsMandatory');
+async function getJson<T>(url: string, headers: any = null, baseUrl: BaseUrl = BaseUrl.remote): Promise<T> {
+    if (!headers) {
+        headers = new Headers();
+        headers.set('Content-Type', 'application/json');
+        headers.set('Authorization', 'auth_ThisIsMandatory');
+    }
     const requestOptions = {
         method: 'GET',
         headers: headers

@@ -65,7 +65,7 @@ $app->post('/login', function (Request $request, Response $response) use ($secre
     $stmt->execute([':username' => $username]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if (/*$username === 'demo' && $password === 'secret'*/ $user && password_verify($password, $user['password'])) {
+    if ($user && password_verify($password, $user['password'])) {
         // 2. Skapa JWT-payload
         $payload = [
             'iss' => 'http://tipsdigitial.mygamesonline.org', // issuer
@@ -94,6 +94,17 @@ $app->post('/login', function (Request $request, Response $response) use ($secre
 
         return $response->withHeader('Content-Type', 'application/json')
             ->withStatus(200);
+    } else if ($user) {
+        $responseData = [
+            'error' => true,
+            'token' => null,
+            'message' => 'Login failed'
+        ];
+
+        $response->getBody()->write(json_encode($responseData));
+
+        return $response->withHeader('Content-Type', 'application/json')
+            ->withStatus(200);
     }
 
     $logger = get_logger($app->getContainer());
@@ -109,7 +120,7 @@ $app->post('/login', function (Request $request, Response $response) use ($secre
 
     $logger->error($loggStr);
     // Felaktiga användaruppgifter
-    $response->getBody()->write(json_encode(['error' => 'Invalid credentials']));
+    $response->getBody()->write(json_encode(['error' => 'Invalid credentials', 'message' => 'Can not create JWT token']));
     return $response->withHeader('Content-Type', 'application/json')
         ->withStatus(401);
 });
@@ -128,10 +139,24 @@ $app->post('/register', function (Request $request, Response $response) use ($se
             ->withStatus(401);
     }
 
-    $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-
     $db = new Db();
     $pdo = $db->connect();
+
+    $sql = "SELECT COUNT(*) AS num FROM users WHERE username = :username";
+
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([':username' => $username]);
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($user['num'] > 0) {
+        $logger->error("Username '$username' already exists");
+        $response->getBody()->write(json_encode(['error' => 'Username already exists']));
+        return $response->withHeader('Content-Type', 'application/json')
+            ->withStatus(409);
+    }
+
+    $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+
     $sql = "INSERT INTO users (username, password) VALUES (:username, :password)";
     $stmt = $pdo->prepare($sql);
 
@@ -150,7 +175,7 @@ $app->post('/register', function (Request $request, Response $response) use ($se
             ->withStatus(200);
     } catch (PDOException $e) {
         $logger->error("Can not register: " . $e->getMessage());
-        $logger->error("Can not register. username: $username, password: $password, hashedPassword: $hashedPassword");
+        //$logger->error("Can not register. username: $username, password: $password, hashedPassword: $hashedPassword");
         $response->getBody()->write(json_encode(['error' => 'Can not register']));
         return $response->withHeader('Content-Type', 'application/json')
             ->withStatus(401);
@@ -160,17 +185,22 @@ $app->post('/register', function (Request $request, Response $response) use ($se
 $jwtMiddleware = function (Request $request, $handler) use ($secret_key, $app) {
     // Läs av Authorization-header
     $authHeader = $request->getHeaderLine('Authorization');
+
+    $logger = get_logger($app->getContainer());
     if (!$authHeader) {
         // Ingen header => 401
+        $logger->error("No token provided");
         $response = $app->getResponseFactory()->createResponse();
         $response->getBody()->write(json_encode(['error' => 'No token provided']));
         return $response->withStatus(401);
     }
 
-    // Förväntat format: "Bearer <token>"
-    if (preg_match('/Bearer\s(\S+)/', $authHeader, $matches)) {
+    // Förväntat format: "Bearer_<token>"
+    if (preg_match('/^Bearer_(\S+)/', $authHeader, $matches)) {
         $jwt = $matches[1];
     } else {
+        $logger->error("Token format is invalid: $authHeader");
+
         $response = $app->getResponseFactory()->createResponse();
         $response->getBody()->write(json_encode(['error' => 'Token format is invalid']));
         return $response->withStatus(401);
@@ -183,6 +213,8 @@ $jwtMiddleware = function (Request $request, $handler) use ($secret_key, $app) {
         $request = $request->withAttribute('decoded_token', $decoded);
     } catch (\Exception $e) {
         // Token invalid / utgången
+        $logger->error("Token is invalid or expired: " . $e->getMessage());
+
         $response = $app->getResponseFactory()->createResponse();
         $response->getBody()->write(json_encode(['error' => 'Token is invalid or expired']));
         return $response->withStatus(401);
@@ -283,11 +315,12 @@ $app->post('/post/test', function (Request $request, Response $response) {
 
 // Alla API calls som behöver skyddas behöver ligga under den här gruppen
 // TODO: behöver provköras
-$app->group('/api', function (\Slim\Routing\RouteCollectorProxy $group) {
+$app->group('/api/test', function (\Slim\Routing\RouteCollectorProxy $group) {
     $group->get('/protected', function (Request $request, Response $response) {
         // Här är route som är skyddad
         $decoded = $request->getAttribute('decoded_token');
         $response->getBody()->write(json_encode([
+            'key' => uniqid(),
             'success' => true,
             'decoded' => $decoded
         ]));
