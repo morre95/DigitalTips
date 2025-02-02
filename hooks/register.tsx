@@ -1,4 +1,4 @@
-import postJson from './api/Post'
+import postJson, {registerUser} from './api/Post'
 import * as Crypto from 'expo-crypto';
 import BaseUrl from "@/hooks/api/BaseUrl";
 
@@ -14,11 +14,11 @@ type ResponseProp = {
     message: string
 }
 
-const register = async () => {
+const register: () => Promise<boolean> = async () => {
     let savedUsername = await SecureStore.getItemAsync('username');
     if (savedUsername) {
         console.log('Det finns sparat lösen och användarnamn', savedUsername);
-        return;
+        return false;
     }
 
     const username = Crypto.randomUUID();
@@ -35,18 +35,23 @@ const register = async () => {
         password: pass
     }
 
-    const response = await postJson<BodyProp, ResponseProp>('register', body)
+    const response = await registerUser<BodyProp, ResponseProp>(body)
 
-    //console.log('svar:', response)
+    if (response.error) {
+
+        return false;
+    }
+
     if (!response.error) {
         //console.log('Japp sparad')
         await SecureStore.setItemAsync('username', username);
         await SecureStore.setItemAsync('password', pass);
+        console.log("Registered");
+
+        return true;
     }
 
-
-    console.log("Registered");
-
+    return false
 }
 
 export default register;

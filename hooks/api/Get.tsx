@@ -10,7 +10,7 @@ async function getJson<T>(url: string, baseUrl: BaseUrl = BaseUrl.remote): Promi
         headers: headers
     };
 
-    url = url.startsWith('/') ? `${baseUrl}/${url.slice(1)}` : `${baseUrl}${url}`
+    url = url.startsWith('/') ? `${baseUrl}${url.slice(1)}` : `${baseUrl}${url}`
 
     try {
         const response = await fetch(url, requestOptions);

@@ -19,6 +19,8 @@ type ResponseProp = {
     token: string
 }
 
+let retryCount = 0;
+
 const registerOrLogin = async () => {
     /*await SecureStore.deleteItemAsync('username');
     await SecureStore.deleteItemAsync('password');
@@ -27,8 +29,14 @@ const registerOrLogin = async () => {
     const username = await SecureStore.getItemAsync('username');
     const password = await SecureStore.getItemAsync('password');
     if (!username || !password) {
-        await register();
-        await registerOrLogin();
+        let result : boolean = await register()
+
+        // FIXME: man blir inte inloggad efter att man blivit reggad
+        if (retryCount <= 5) {
+            retryCount++
+            console.log(`${retryCount} register trys`)
+            await registerOrLogin();
+        }
     } else {
         const body : BodyProp = {
             username: username,
@@ -38,7 +46,7 @@ const registerOrLogin = async () => {
         const response = await postJson<BodyProp, ResponseProp>('login', body)
         if (!response.error) {
             globals.JWT_token = response.token
-            console.log(globals.JWT_token)
+            //console.log(globals.JWT_token)
         } else {
             console.error('Ingen token', response.message);
         }

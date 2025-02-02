@@ -1,5 +1,17 @@
 import BaseUrl from './BaseUrl';
 
+function prepareHeaders<T>(data: T) {
+    const headers = new Headers();
+    headers.set('Content-Type', 'application/json');
+    headers.set('Authorization', 'auth_ThisIsMandatory');
+    const requestOptions = {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify(data)
+    };
+    return requestOptions;
+}
+
 /*
 *
 * @example
@@ -20,16 +32,9 @@ import BaseUrl from './BaseUrl';
 *
 */
 async function postJson<T, TReturn>(url: string, data: T, baseUrl: BaseUrl = BaseUrl.remote): Promise<TReturn> {
-    const headers = new Headers();
-    headers.set('Content-Type', 'application/json');
-    headers.set('Authorization', 'auth_ThisIsMandatory');
-    const requestOptions = {
-        method: 'POST',
-        headers: headers,
-        body: JSON.stringify(data)
-    };
+    const requestOptions = prepareHeaders(data);
 
-    url = url.startsWith('/') ? `${baseUrl}/${url.slice(1)}` : `${baseUrl}${url}`
+    url = url.startsWith('/') ? `${baseUrl}${url.substring(1)}` : `${baseUrl}${url}`
     //console.log(url)
 
     try {
@@ -44,5 +49,32 @@ async function postJson<T, TReturn>(url: string, data: T, baseUrl: BaseUrl = Bas
     }
 }
 
+interface IError {
+    error: boolean,
+    message: string
+}
+
+async function registerUser<T, TReturn>(data: T): Promise<TReturn | IError> {
+    const requestOptions = prepareHeaders(data);
+    const url = `${BaseUrl.remote}register`
+
+    try {
+        const response = await fetch(url, requestOptions);
+        if (response.status === 409) {
+            console.error('Username already exists');
+            return new Promise((resolve) => {
+                const data: IError = { message: "Username already exists!", error: true };
+                resolve(data);
+            });
+        } else if (!response.ok) {
+            throw new Error(`Blast! Our posted letter was not received favorably: ${response.statusText}`);
+        }
+        return await response.json();
+    } catch (error) {
+        console.error(`Zounds! Our brave post attempt was met with defeat: `, error);
+        throw error;
+    }
+}
+
 export default postJson;
-export { BaseUrl };
+export { BaseUrl, registerUser};
