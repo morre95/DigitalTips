@@ -97,7 +97,7 @@ export default function Maps() {
     const handleAddMarkerPress = (event: any) => {
         router.push({
             pathname: "./Routes",
-            params: currentRegion
+            params: { data : JSON.stringify(currentRegion) }
         })
     }
 

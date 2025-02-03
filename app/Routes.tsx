@@ -17,7 +17,7 @@ import MarkerImages from '../hooks/images'
 import registerOrLogin, { globals } from "@/hooks/registerOrLogin";
 
 
-import { router } from 'expo-router';
+import {router, UnknownOutputParams, useLocalSearchParams} from 'expo-router';
 
 
 const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
@@ -44,6 +44,12 @@ type RouteData = {
     answers: AnswerData[];
 }
 
+type Region = {
+    latitude: number
+    latitudeDelta: number
+    longitude: number
+    longitudeDelta: number
+}
 
 
 export default function Maps() {
@@ -70,7 +76,7 @@ export default function Maps() {
             await registerOrLogin();
 
             if (globals.JWT_token) {
-                console.log('JWT token:', globals.JWT_token);
+                //console.log('JWT token:', globals.JWT_token);
                 setJWT_token(globals.JWT_token)
             } else {
                 console.log('inte inloggad');
@@ -80,12 +86,31 @@ export default function Maps() {
 
 
 
-    const initialRegion = {
-        latitude: 58.317064,
-        longitude: 15.102253,
-        latitudeDelta: 0.0622,
-        longitudeDelta: 0.0221,
+    const initialRegion : Region = {
+        latitude: 58.317054,
+        longitude: 15.102243,
+        latitudeDelta: 0.0621,
+        longitudeDelta: 0.0220,
     };
+
+    const [region, setRegion] = useState(initialRegion);
+    const mapRegion = useLocalSearchParams()
+
+    /*setRegion({
+        latitude: Number(mapRegion.laitude),
+        longitude: Number(mapRegion.longitude),
+        latitudeDelta: Number(mapRegion.latitudeDelta),
+        longitudeDelta: Number(mapRegion.longitudeDelta)
+    })*/
+    //console.log(mapRegion);
+    useEffect(() => {
+        const test : Region = JSON.parse(mapRegion.data as string)
+        console.log('Region', test);
+        setRegion(test)
+        console.log(JSON.parse(mapRegion.data as string) as Region);
+    }, [])
+
+
 
     const handleMapPress = (event: any) => {
         const { coordinate } = event.nativeEvent;
@@ -218,7 +243,8 @@ export default function Maps() {
                     style={styles.map}
                     initialRegion={initialRegion}
                     onPress={handleMapPress}
-                    onRegionChange={(region) => {console.log(region)}}
+                    //onRegionChange={(region) => {console.log(region)}}
+                    onRegionChange={setRegion}
                     onLongPress={(event) => {console.log(event.nativeEvent)}}
                     onMapReady={(event) => {console.log('Map ready')}}
                 >
