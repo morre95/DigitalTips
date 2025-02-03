@@ -47,6 +47,7 @@ export default function AppLayout() {
       />
 
       <Tabs.Screen name="[...unmatched]" options={{ href: null }} />
+      <Tabs.Screen name="Credits" options={{ href: null }} />
     </Tabs>
   );
 }

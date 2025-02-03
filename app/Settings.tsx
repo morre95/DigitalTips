@@ -1,25 +1,40 @@
+import { useRouter } from 'expo-router';
 import React from 'react';
-import { Alert, View, Text, StyleSheet, Button } from 'react-native';
+import { Alert, View, Text, StyleSheet, Button, Linking } from 'react-native';
 
 export default function Settings() {
+  const router = useRouter();  // Get the router instance
 
   const alertUser = (input : string) => {
     Alert.alert(input);
   }
 
+  const openURL = (url : string) => {
+    Linking.openURL(url).catch(err => console.error("Failed to open URL:", err));
+  }
+
+  const openAppSettings = () => {
+    Linking.openSettings();
+  }
+
+  const goToCredits = () => {
+    // Navigate programmatically to the "Credits" page
+    router.replace('/Credits');
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.buttonContainer}>
-        <Button onPress={() => {alertUser("credits");}} title="Credits" color="#1abc9c"/>
+        <Button onPress={() => {goToCredits();}} title="Credits" color="#1abc9c"/>
       </View>
       <View style={styles.buttonContainer}>
-        <Button onPress={() => {alertUser("permissions");}} title="Manage Permissions" color="#1abc9c"/>
+        <Button onPress={() => {openAppSettings();}} title="Manage Permissions" color="#1abc9c"/>
       </View>
       <View style={styles.buttonContainer}>
-        <Button onPress={() => {alertUser("privacy");}} title="Privacy Policy" color="#1abc9c"/>
+        <Button onPress={() => {openURL("https://www.yahoo.com");}} title="Privacy Policy" color="#1abc9c"/>
       </View>
       <View style={styles.buttonContainer}>
-        <Button onPress={() => {alertUser("terms");}} title="Terms & Conditions" color="#1abc9c"/>
+        <Button onPress={() => {openURL("https://www.google.com");}} title="Terms & Conditions" color="#1abc9c"/>
       </View>
     </View>
   );
