@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {View, FlatList, Text, Button, StyleSheet, ActivityIndicator} from 'react-native';
 
-import getJson, { BaseUrl } from '../hooks/api/Get'
+import getJson, { getRestricted } from '../hooks/api/Get'
 
 interface Props {
     token: string;
@@ -37,8 +37,7 @@ const ApiTestJwtToken: React.FC<Props> = ({ token, url = '/api/test/protected' }
 
     const get = async (url: string) => {
         try {
-            let newToken = `Bearer_${token}`
-            setData(await getJson<RootData>(url, {'Content-Type': 'application/json', 'Authorization': newToken}));
+            setData(await getRestricted<RootData>(url, token));
         } catch (error) {
             console.error(error);
         } finally {

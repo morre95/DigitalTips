@@ -26,5 +26,10 @@ async function getJson<T>(url: string, headers: any = null, baseUrl: BaseUrl = B
     }
 }
 
+async function getRestricted<T>(url: string, token: string, baseUrl: BaseUrl = BaseUrl.remote): Promise<T> {
+    let newToken = `Bearer_${token}`
+    return await getJson<T>(url, {'Content-Type': 'application/json', 'Authorization': newToken}, baseUrl);
+}
+
 export default getJson;
-export { BaseUrl };
+export { BaseUrl, getRestricted };
