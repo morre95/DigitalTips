@@ -26,10 +26,10 @@ class UserController
             $db = new Db();
             $conn = $db->connect();
             $stmt = $conn->query($sql);
-            $customers = $stmt->fetchAll(PDO::FETCH_OBJ);
+            $users = $stmt->fetchAll(PDO::FETCH_OBJ);
             $db = null;
 
-            $response->getBody()->write(json_encode($customers));
+            $response->getBody()->write(json_encode($users));
             return $response
                 ->withHeader('content-type', 'application/json')
                 ->withStatus(200);
