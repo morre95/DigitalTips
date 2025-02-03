@@ -26,6 +26,8 @@ async function getJson<T>(url: string, headers: any = null, baseUrl: BaseUrl = B
     }
 }
 
+// TODO: fixa så att den hämtar hem en ny token när den har gått ut.
+// TBD: Logga in och hämta token i getRestricted() istället eller kör registerOrLogin() så man inte behöver gör det i komponenterna
 async function getRestricted<T>(url: string, token: string, baseUrl: BaseUrl = BaseUrl.remote): Promise<T> {
     let newToken = `Bearer_${token}`
     return await getJson<T>(url, {'Content-Type': 'application/json', 'Authorization': newToken}, baseUrl);

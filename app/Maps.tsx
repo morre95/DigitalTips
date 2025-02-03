@@ -48,6 +48,13 @@ type RouteData = {
 }
 
 
+type Region = {
+    latitude: number
+    latitudeDelta: number
+    longitude: number
+    longitudeDelta: number
+}
+
 
 export default function Maps() {
     const [markers, setMarkers] = useState<MarkerData[]>([]);
@@ -70,7 +77,7 @@ export default function Maps() {
 
 
 
-    const initialRegion = {
+    const initialRegion : Region = {
         latitude: 58.317064,
         longitude: 15.102253,
         latitudeDelta: 0.0622,
@@ -88,10 +95,13 @@ export default function Maps() {
         setShowSearch(!showSearch);
     }
     const handleAddMarkerPress = (event: any) => {
-        router.push("./Routes")
+        router.push({
+            pathname: "./Routes",
+            params: currentRegion
+        })
     }
 
-
+    const [currentRegion, setCurrentRegion] = useState<Region>(initialRegion);
     return (
         <SafeAreaProvider>
             <SafeAreaView style={styles.container}>
@@ -99,6 +109,7 @@ export default function Maps() {
                     style={styles.map}
                     initialRegion={initialRegion}
                     onPress={handleMapPress}
+                    onRegionChange={setCurrentRegion}
                 >
                     {markers.map(marker => (
                         <Marker

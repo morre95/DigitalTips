@@ -6,19 +6,15 @@ import Checkbox from 'expo-checkbox';
 
 import {SafeAreaView, SafeAreaProvider} from 'react-native-safe-area-context';
 
-import FontAwesome from '@expo/vector-icons/FontAwesome';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import Feather from '@expo/vector-icons/Feather';
 import Entypo from '@expo/vector-icons/Entypo';
 
 
-import Autocomplete from '@/components/Autocomplete';
-
 import MarkerImages from '../hooks/images'
 
 
 import registerOrLogin, { globals } from "@/hooks/registerOrLogin";
-import ApiTestJwtToken from "@/components/ApiTestJwtToken";
 
 
 import { router } from 'expo-router';
@@ -94,7 +90,7 @@ export default function Maps() {
     const handleMapPress = (event: any) => {
         const { coordinate } = event.nativeEvent;
 
-        console.log('Japp här klickas det på kartan');
+        console.log('Japp här klickas det på kartan', coordinate);
         const newMarker: MarkerData = {
             //id: markers.length + 1,
             id: ++markersCount,
@@ -214,6 +210,7 @@ export default function Maps() {
         setCurrentAnswers(updatedAnswers);
     };
 
+
     return (
         <SafeAreaProvider>
             <SafeAreaView style={styles.container}>
@@ -221,6 +218,9 @@ export default function Maps() {
                     style={styles.map}
                     initialRegion={initialRegion}
                     onPress={handleMapPress}
+                    onRegionChange={(region) => {console.log(region)}}
+                    onLongPress={(event) => {console.log(event.nativeEvent)}}
+                    onMapReady={(event) => {console.log('Map ready')}}
                 >
                     {markers.map(marker => (
                         <Marker
@@ -265,55 +265,6 @@ export default function Maps() {
                         />
                     </View>
                 </View>
-
-                {/*{showSearch ? (
-                    <View style={styles.search}>
-                        <FontAwesome.Button
-                            name="search"
-                            size={35}
-                            color="black"
-                            backgroundColor="rgba(52, 52, 52, 0)"
-                            onPress={handleSearchPress} />
-                    </View>
-                ) : (
-                    <View style={styles.topContainer}>
-                        <Text style={styles.addMarkerText}>Add checkpoint by clicking on map</Text>
-                        <View style={styles.markerMenu}>
-                            <Feather.Button
-                                name="save"
-                                size={24}
-                                color="black"
-                                backgroundColor="rgba(52, 52, 52, 0)"
-                                onPress={handleSaveMarkers}
-                            />
-                            <AntDesign.Button
-                                name="delete"
-                                size={24}
-                                color="black"
-                                backgroundColor="rgba(52, 52, 52, 0)"
-                                onPress={handleDeleteAllMarkers}
-                            />
-                        </View>
-                    </View>
-                )
-                }*/}
-
-                {/*{showAddMarker ? (
-                    <View style={styles.newMarker}>
-                        <AntDesign.Button
-                            name="minussquareo"
-                            size={35}
-                            color="black"
-                            backgroundColor="rgba(52, 52, 52, 0)"
-                            onPress={handleAddMarkerPress} />
-                    </View>
-                ) : (
-                    <Autocomplete
-                        data={['Apple', 'Banana', 'Orange', 'Grapes', 'Pineapple', 'Foo', 'Bar']}
-                        onSelect={(item: string) => console.log('Selected item:', item)}
-                        onSubmit={(item: string) => console.log('On Submit is item:', item)}
-                    />
-                ) }*/}
 
                 {showAddQuestions ? (
                     <View style={styles.bottomOverlay}>
