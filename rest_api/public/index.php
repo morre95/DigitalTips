@@ -313,6 +313,22 @@ $app->post('/post/test', function (Request $request, Response $response) {
         ->withStatus(200);
 });
 
+$app->post('/add/routes', \RouteController::class . ':add_new');
+/*$app->post('/add/routes', function (Request $request, Response $response) use($app) {
+
+
+    $logger = get_logger($app->getContainer());
+    $logger->info("It is possible to add routs");
+    $responseData = [
+        'error' => false,
+        'message' => "test message"
+    ];
+    $response->getBody()->write(json_encode($responseData));
+
+    return $response->withHeader('Content-Type', 'application/json')
+        ->withStatus(200);
+});*/
+
 // Alla API calls som behöver skyddas behöver ligga under den här gruppen
 // TODO: behöver provköras
 $app->group('/api/test', function (\Slim\Routing\RouteCollectorProxy $group) {

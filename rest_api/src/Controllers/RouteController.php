@@ -13,6 +13,87 @@ class RouteController
         $this->logger = $logger;
     }
 
+    public function add_new(ServerRequestInterface $request, ResponseInterface $response, $args) {
+        //$this->logger->info("It is possible to add routs");
+        $json = $request->getParsedBody();
+        //$data = json_decode($json);
+
+        $this->logger->info("Add routs: " . var_export($json[0],true) /*$json[0]['marker']['question']*/);
+
+        $sql_routes = "INSERT INTO routes (name, description)
+                VALUES (:name, :description)";
+        try {
+            $db = new Db();
+            $pdo = $db->connect();
+            $statement = $pdo->prepare($sql_routes);
+            // TODO: bör updaters så det kommer från appen
+            $statement->execute([
+                ':name' => 'Min första PHP rutt',
+                ':description' => 'En rutt i centrala Mjölby.'
+            ]);
+            $route_id = $pdo->lastInsertId();
+
+            $sql_question = "INSERT INTO questions (question_text)
+                   VALUES (:question_text)";
+
+            $i = 0;
+            foreach ($json as $item) {
+                $statement = $pdo->prepare($sql_question);
+                $statement->execute([
+                    ':question_text' => $item['question']
+                ]);
+
+                $question_id = $pdo->lastInsertId();
+
+                $sql = "INSERT INTO answers (question_id, answer_text, is_correct)
+                        VALUES (:question_id, :answer_text, :is_correct)";
+                foreach ($item['answers'] as $answer) {
+                    $statement = $pdo->prepare($sql);
+                    $statement->execute([
+                        ':question_id' => $question_id,
+                        ':answer_text' => $answer['text'],
+                        ':is_correct' => $answer['isRight']
+                    ]);
+                }
+                $sql = "INSERT INTO checkpoints (route_id, latitude, longitude, question_id, checkpoint_order)
+                        VALUES (:route_id, :latitude, :longitude, :question_id, :checkpoint_order)";
+
+                $checkpoint = $item['marker'];
+                $statement = $pdo->prepare($sql);
+                $statement->execute([
+                    ':route_id' => $route_id,
+                    ':latitude' => $checkpoint['latitude'],
+                    ':longitude' => $checkpoint['longitude'],
+                    ':question_id' => $question_id,
+                    ':checkpoint_order' => $i++ // TODO: checkpoint_order bör komma från App sidan
+                ]);
+            }
+
+            $response->getBody()->write(json_encode(['route_id' => $route_id]));
+            return $response
+                ->withHeader('content-type', 'application/json')
+                ->withStatus(200);
+        } catch (PDOException $e) {
+            $error = array(
+                "message" => $e->getMessage()
+            );
+
+            $this->logger->error($error["message"]);
+
+            $response->getBody()->write(json_encode($error));
+            return $response
+                ->withHeader('content-type', 'application/json')
+                ->withStatus(500);
+        }
+
+
+        //$response->getBody()->write(json_encode($json));
+        /*$response->getBody()->write(json_encode($json[0]['question']));
+        return $response
+            ->withHeader('content-type', 'application/json')
+            ->withStatus(200);*/
+    }
+
     public function get_all(ServerRequestInterface $request, ResponseInterface $response, $args) {
         $sql = "SELECT
     r.route_id,

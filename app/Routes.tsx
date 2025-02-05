@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, Alert, Button, TextInput } from 'react-native';
+import React, {useState, useEffect, useRef, useLayoutEffect} from 'react';
+import {StyleSheet, View, Text, Alert, Button, TextInput, ActivityIndicator} from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 
 import Checkbox from 'expo-checkbox';
@@ -18,6 +18,12 @@ import registerOrLogin, { globals } from "@/hooks/registerOrLogin";
 
 
 import { router } from 'expo-router';
+
+import Map from '../components/Map'
+import postJson from "@/hooks/api/Post";
+
+
+
 
 
 const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
@@ -38,12 +44,17 @@ interface AnswerData {
     isRight: boolean;
 }
 
+// TODO: Det bör finnas checkpoint_order och name och eller description. Kolla in PHP kod för mer info under RouteController::add_new()
 type RouteData = {
     marker: MarkerData;
     question: string;
     answers: AnswerData[];
 }
 
+type TestData = {
+    error: boolean;
+    message: string;
+}
 
 
 export default function Maps() {
@@ -61,7 +72,7 @@ export default function Maps() {
 
 
 
-    const [editMode, setEditMode] = useState(false);
+    //const [editMode, setEditMode] = useState(false);
 
     const [JWT_token, setJWT_token] = useState<string>();
 
@@ -106,9 +117,6 @@ export default function Maps() {
     };
 
     const handleMarkerOnPress = (event: any, currentMarker: MarkerData) => {
-        if (!editMode) {
-            return;
-        }
 
         const deleteMarker = () => {
             setMarkers(prevMarkers =>
@@ -157,19 +165,26 @@ export default function Maps() {
 
     }
 
-    const handleAddMarkerPress = (event: any) => {
+    const handleGoToMapsPress = (event: any) => {
         /*setShowSearch(!showSearch);
         setAddMarker(!addMarker);
 
         setEditMode(!editMode);*/
 
-        router.push("./Maps")
+        router.replace("./Maps")
     }
-    const handleSaveMarkers = (event: any) => {
+    const handleSaveMarkers = async (event: any) => {
         if (markers.length !== currentRoutes.length) {
             Alert.alert('Antalet markers som har frågor stämmer inte överens med antalet markers', `Markers: ${markers.length}, RoutMarkers: ${currentRoutes.length}`);
         } else {
-            Alert.alert('Det är okej att spara')
+            const testData = require('../hooks/test.json');
+            console.log('save markers', testData);
+
+            //console.log(JSON.stringify(currentRoutes))
+            //console.log(testData)
+            const url = '/add/routes'
+            console.log(await postJson<RouteData[], TestData>(url, currentRoutes));
+            Alert.alert('The route is now saved')
         }
     }
 
@@ -210,16 +225,24 @@ export default function Maps() {
         setCurrentAnswers(updatedAnswers);
     };
 
+    const mapRef = useRef<MapView>(null);
 
+    useEffect(() => {
+        (async () => {
+            await delay(10);
+            setLoadMaps(true)
+        })();
+    }, [])
+
+    const [loadMaps, setLoadMaps] = useState<boolean>(false);
     return (
         <SafeAreaProvider>
             <SafeAreaView style={styles.container}>
-                <MapView
+                {loadMaps ? <MapView
+                    ref={mapRef}
                     style={styles.map}
                     initialRegion={initialRegion}
                     onPress={handleMapPress}
-                    onRegionChange={(region) => {console.log(region)}}
-                    onLongPress={(event) => {console.log(event.nativeEvent)}}
                     onMapReady={(event) => {console.log('Map ready')}}
                 >
                     {markers.map(marker => (
@@ -234,7 +257,13 @@ export default function Maps() {
                             onPress={(event) => handleMarkerOnPress(event, marker)}
                         />
                     ))}
-                </MapView>
+                </MapView> :(
+
+                    <View style={styles.loading}>
+                        <ActivityIndicator size='large' />
+                    </View>
+                )}
+
 
                 <View style={styles.topContainer}>
                     <Text style={styles.addMarkerText}>Add checkpoint by clicking on map</Text>
@@ -247,7 +276,7 @@ export default function Maps() {
                         size={35}
                         color="black"
                         backgroundColor="rgba(52, 52, 52, 0)"
-                        onPress={handleAddMarkerPress} />
+                        onPress={handleGoToMapsPress} />
                     <View style={styles.markerMenu}>
                         <Feather.Button
                             name="save"
@@ -275,7 +304,7 @@ export default function Maps() {
                                 size={24}
                                 color="black"
                                 backgroundColor="rgba(52, 52, 52, 0)"
-                                onPress={(e) => {
+                                onPress={async (e) => {
                                     Alert.alert('Saving, but only in memory')
                                     setShowAddQuestions(false);
                                     const route: RouteData = {
@@ -289,6 +318,7 @@ export default function Maps() {
 
                                     setCurrentAnswers([])
                                     setQuestionText('')
+
                                 }}
                                 style={styles.inputSaveButton}
                             />
@@ -316,6 +346,7 @@ export default function Maps() {
                                     placeholder={`Answer #${index + 1}`}
                                     value={field.text}
                                     onChangeText={(text) => handleTextChange(text, index)}
+                                    onSubmitEditing={addAnswerField}
                                 />
                                 <Checkbox
                                     value={field.isRight}
@@ -444,4 +475,13 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         flexWrap: 'wrap',
     },
+    loading: {
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        top: 0,
+        bottom: 0,
+        alignItems: 'center',
+        justifyContent: 'center'
+    }
 });

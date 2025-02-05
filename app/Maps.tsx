@@ -22,6 +22,8 @@ import ApiTestJwtToken from "@/components/ApiTestJwtToken";
 
 import { router } from 'expo-router';
 
+import Map from '../components/Map'
+
 
 const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
@@ -95,13 +97,18 @@ export default function Maps() {
         setShowSearch(!showSearch);
     }
     const handleAddMarkerPress = (event: any) => {
-        router.push({
+        /*router.push({
+            pathname: "./Routes",
+            params: currentRegion
+        })*/
+        router.replace({
             pathname: "./Routes",
             params: currentRegion
         })
     }
 
     const [currentRegion, setCurrentRegion] = useState<Region>(initialRegion);
+
     return (
         <SafeAreaProvider>
             <SafeAreaView style={styles.container}>
