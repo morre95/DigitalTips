@@ -103,7 +103,7 @@ export default function Maps() {
         })*/
         router.replace({
             pathname: "./Routes",
-            params: currentRegion
+            params: { data : JSON.stringify(currentRegion) }
         })
     }
 
