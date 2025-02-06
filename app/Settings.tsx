@@ -43,7 +43,10 @@ export default function Settings() {
           console.log(city); }} title="Nyköping" color="#1abc9c"/>
       </View>
       <View style={styles.buttonContainer}>
-        <Button onPress={() => {fetchCityName("48.855321", "2.345764")}} title="Paris" color="#1abc9c"/>
+        <Button onPress={async () => {
+          let city = await fetchCityName("48.855321", "2.345764");
+          console.log(city);
+          }} title="Paris" color="#1abc9c"/>
       </View>
     </View>
   );
