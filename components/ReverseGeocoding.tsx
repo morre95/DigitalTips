@@ -13,7 +13,7 @@ export async function fetchCityName(latitude: string, longitude: string) {
     const json = await response.json();
     
     if(json.address){
-      cityName = json.address.city || json.address.town || json.address.village || "Unknown";
+      cityName = json.address.city || json.address.town || json.address.village || "";
       return cityName;
     } else {
       console.warn("No address information found in the response");
@@ -27,5 +27,5 @@ export async function fetchCityName(latitude: string, longitude: string) {
     }
   }
 
-  return "Unknown";
+  return "";
 }
