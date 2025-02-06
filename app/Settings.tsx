@@ -1,6 +1,7 @@
 import { useRouter } from 'expo-router';
 import React from 'react';
 import { Alert, View, Text, StyleSheet, Button, Linking } from 'react-native';
+import { fetchCityName } from '@/components/ReverseGeocoding';
 
 export default function Settings() {
   const router = useRouter();  // Get the router instance
@@ -35,6 +36,12 @@ export default function Settings() {
       </View>
       <View style={styles.buttonContainer}>
         <Button onPress={() => {openURL("https://www.google.com");}} title="Terms & Conditions" color="#1abc9c"/>
+      </View>
+      <View style={styles.buttonContainer}>
+        <Button onPress={() => {fetchCityName("58.753001", "17.008733").then(city => console.log(city));}} title="Nyköping" color="#1abc9c"/>
+      </View>
+      <View style={styles.buttonContainer}>
+        <Button onPress={() => {fetchCityName("48.855321", "2.345764").then(city => console.log(city));}} title="Paris" color="#1abc9c"/>
       </View>
     </View>
   );

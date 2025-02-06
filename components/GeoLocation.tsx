@@ -14,8 +14,6 @@ export async function getLocation() {
       latitude : location.coords.latitude,
       longitude : location.coords.longitude
   }
-
-  console.log(coords);
-
+  
   return coords;
 }
