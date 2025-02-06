@@ -11,14 +11,18 @@ CREATE TABLE IF NOT EXISTS `rate_limit` (
 
 CREATE TABLE `users` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
-  `uniq_id` varchar(150) NOT NULL,
-  `username` varchar(150) NOT NULL
+  `username` VARCHAR(50) NOT NULL UNIQUE,
+  `password` VARCHAR(255) NOT NULL
 );
 
 
-INSERT INTO `users` (`id`, `uniq_id`, `username`) VALUES
-(1, '1456-98754-5241578', 'KalleValle'),
-(2, '198745-98654-9654874', 'VemFooBar');
+INSERT INTO `users` (`username`, `password`) VALUES
+('0b781403-5c0d-4db3-b15b-e5dd1620fa8b', 'b44002618b1d785563d483e27f6fb46ed7b5fafa1be41d5b1e5527c268061841'),
+('64d97ba6-b4b6-4159-be44-79c38506d331', 'bda746f3e27928e87eb0de23f82b8261adc385bf025cb5c09cf0fae78e02f269'),
+('0bd6d135-3d64-447c-837e-882771413171', '06472b6b853c4c932ac8ca66c6cca8c34eb7c64b338c31322d319be812f10f6c'),
+('c786b0f6-8bb8-4521-9f1e-7a34c9fd759e', '6682be8515df2421b1f6c90abb3279b39ed502d180c4cb9c6fc36c97e6a0ecd3');
+
+
 
 
 CREATE TABLE routes (

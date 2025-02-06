@@ -67,7 +67,7 @@ const styles = StyleSheet.create({
         position: 'absolute',
         top: 2,
         left: 0,
-        width: '80%',
+        width: '90%',
     },
     input: {
         height: 40,

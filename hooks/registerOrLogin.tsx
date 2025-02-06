@@ -26,6 +26,10 @@ const registerOrLogin = async () => {
     await SecureStore.deleteItemAsync('password');
     return;*/
 
+    if (globals.JWT_token) {
+        return;
+    }
+
     const username = await SecureStore.getItemAsync('username');
     const password = await SecureStore.getItemAsync('password');
     if (!username || !password) {

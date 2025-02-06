@@ -1,0 +1,56 @@
+[
+  {
+    "marker": {
+      "id": 1,
+      "latitude": 58.324757322441855,
+      "longitude": 15.10348107665777,
+      "title": "Marker 1",
+      "description": "Raderar markör 1, lat: 58.324757322441855, lon: 15.10348107665777"
+    },
+    "question": "Fråga 1",
+    "answers": [
+      {
+        "id": 1738753702030,
+        "text": "Rätt",
+        "isRight": true
+      },
+      {
+        "id": 1738753734014,
+        "text": "Fel svar",
+        "isRight": false
+      }
+    ]
+  },
+  {
+    "marker": {
+      "id": 2,
+      "latitude": 58.32449059837577,
+      "longitude": 15.103993713855743,
+      "title": "Marker 2",
+      "description": "Raderar markör 1,lat: 58.32449059837577, lon: 15.103993713855743"
+    },
+    "question": "Fråga 2",
+    "answers": [
+      {
+        "id": 1738753868280,
+        "text": "Fel svar 1",
+        "isRight": false
+      },
+      {
+        "id": 1738753868280,
+        "text": "Fel svar 2",
+        "isRight": false
+      },
+      {
+        "id": 1738753882896,
+        "text": "Detta är rätt svar",
+        "isRight": true
+      },
+      {
+        "id": 1738753868280,
+        "text": "Fel svar 3",
+        "isRight": false
+      }
+    ]
+  }
+]

@@ -7,7 +7,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 export default function AppLayout() {
   return (
     <Tabs>
-        <Tabs.Screen
+        {/*<Tabs.Screen
             name="Users"
             options={{
                 title: "Users",
@@ -15,9 +15,13 @@ export default function AppLayout() {
                     <Ionicons name="home" size={24} color={ focused ? "rgba(0, 0, 0, 1)" : "rgba(0, 0, 0, 0.5)"} />
                 )
             }}
+        />*/}
+        <Tabs.Screen
+            name="Users"
+            options={{ href: null }}
         />
 
-        <Tabs.Screen
+        {/*<Tabs.Screen
             name="Routes"
             options={{
                 title: "Routes",
@@ -25,6 +29,10 @@ export default function AppLayout() {
                     <FontAwesome5 name="route" size={24} color={ focused ? "rgba(0, 0, 0, 1)" : "rgba(0, 0, 0, 0.5)"} />
                 )
             }}
+        />*/}
+        <Tabs.Screen
+            name="Routes"
+            options={{ href: null }}
         />
 
       <Tabs.Screen 

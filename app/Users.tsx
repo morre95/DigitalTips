@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {ActivityIndicator, FlatList, Text, View, StyleSheet, Button} from 'react-native';
+import ApiTemplate from "@/components/ApiTemplate";
 
 interface User {
     id: number;
@@ -62,6 +63,8 @@ export default function Home() {
                     )}
                 />
             )}
+
+            <ApiTemplate  />
 
         </View>
     );
