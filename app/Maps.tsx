@@ -1,33 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, Alert, Button, TextInput } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
-
-import Checkbox from 'expo-checkbox';
 
 import {SafeAreaView, SafeAreaProvider} from 'react-native-safe-area-context';
 
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import AntDesign from '@expo/vector-icons/AntDesign';
-import Feather from '@expo/vector-icons/Feather';
-import Entypo from '@expo/vector-icons/Entypo';
 
 
 import Autocomplete from '@/components/Autocomplete';
 
-import MarkerImages from '../hooks/images'
+import {MarkerImages} from '@/hooks/images'
 
 
 import registerOrLogin, { globals } from "@/hooks/registerOrLogin";
 import ApiTestJwtToken from "@/components/ApiTestJwtToken";
 
 import {router, useLocalSearchParams} from 'expo-router';
-
-import Map from '../components/Map'
-
-
-const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
-
-let markersCount = 0;
 
 interface MarkerData {
     id: number;
@@ -37,19 +26,6 @@ interface MarkerData {
     description: string;
 }
 
-interface AnswerData {
-    id: number;
-    text: string;
-    isRight: boolean;
-}
-
-type RouteData = {
-    marker: MarkerData;
-    question: string;
-    answers: AnswerData[];
-}
-
-
 type Region = {
     latitude: number
     latitudeDelta: number
@@ -57,7 +33,7 @@ type Region = {
     longitudeDelta: number
 }
 
-
+// TODO: Ladda in den rutt som blivit sparad på routes sidan
 export default function Maps() {
     const [markers, setMarkers] = useState<MarkerData[]>([]);
     const [showSearch, setShowSearch] = useState(true);
@@ -122,7 +98,7 @@ export default function Maps() {
             <SafeAreaView style={styles.container}>
                 <MapView
                     style={styles.map}
-                    initialRegion={initialRegion}
+                    initialRegion={currentRegion}
                     onPress={handleMapPress}
                     onRegionChange={setCurrentRegion}
                 >
@@ -134,7 +110,7 @@ export default function Maps() {
                             //description={marker.description}
                             //draggable
                             //onDragEnd={(event) => handleDragEnd(event, marker.id)}
-                            image={{uri: MarkerImages.MarkerImages}}
+                            image={{uri: MarkerImages}}
                             //onPress={(event) => handleMarkerOnPress(event, marker)}
                         />
                     ))}
