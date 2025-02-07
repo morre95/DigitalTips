@@ -20,7 +20,7 @@ import MarkerImages from '../hooks/images'
 import registerOrLogin, { globals } from "@/hooks/registerOrLogin";
 import ApiTestJwtToken from "@/components/ApiTestJwtToken";
 
-import { router } from 'expo-router';
+import {router, useLocalSearchParams} from 'expo-router';
 
 import Map from '../components/Map'
 
@@ -106,6 +106,14 @@ export default function Maps() {
             params: { data : JSON.stringify(currentRegion) }
         })
     }
+
+    const {routerData} = useLocalSearchParams();
+    useEffect(() => {
+        if (routerData) {
+            const newRegion: Region = JSON.parse(routerData as string)
+            setCurrentRegion(newRegion)
+        }
+    }, [routerData])
 
     const [currentRegion, setCurrentRegion] = useState<Region>(initialRegion);
 
