@@ -101,8 +101,10 @@ export default function Maps() {
     }, [])
 
     const handleMapPress = (event: any) => {
-
-        if (editMode) return
+        if (editMode) {
+            cancelAddQuestions()
+            return
+        }
 
         const { coordinate } = event.nativeEvent;
 
@@ -123,9 +125,9 @@ export default function Maps() {
 
     const handleMarkerOnPress = (event: any, marker: MarkerData) => {
         if (editMode) {
-            cancelAddQuestions()
             return
         }
+
         setEditMode(true)
 
         let savedMarker : MarkerData | null = null;
@@ -144,10 +146,10 @@ export default function Maps() {
 
         const deleteMarker = () => {
             setMarkers(prevMarkers =>
-                prevMarkers.filter(marker => marker.id !== marker.id)
+                prevMarkers.filter(pMarker => pMarker.id !== marker.id)
             )
             setCurrentRoutes(prevRoutes =>
-                prevRoutes.filter(route => route.marker.id === marker.id)
+                prevRoutes.filter(route => route.marker.id !== marker.id)
             )
             setEditMode(false)
         }
