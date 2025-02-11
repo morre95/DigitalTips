@@ -39,6 +39,11 @@ export default function Maps() {
     const [showSearch, setShowSearch] = useState(true);
 
     const [JWT_token, setJWT_token] = useState<string>();
+    /*
+        {JWT_token ? (
+            <ApiTestJwtToken token={JWT_token} />
+        ) : null}
+    */
 
     useEffect(() => {
         (async () => {
@@ -63,6 +68,11 @@ export default function Maps() {
     };
 
     const handleMapPress = (event: any) => {
+        if (showSearch) {
+            setShowSearch(false)
+            return
+        }
+
         const { coordinate } = event.nativeEvent;
 
         console.log(`Klickat på karten vid lat: ${coordinate.latitude}, lon: ${coordinate.longitude}`);
@@ -73,10 +83,6 @@ export default function Maps() {
         setShowSearch(!showSearch);
     }
     const handleAddMarkerPress = (event: any) => {
-        /*router.push({
-            pathname: "./Routes",
-            params: currentRegion
-        })*/
         router.replace({
             pathname: "./Routes",
             params: { data : JSON.stringify(currentRegion) }
@@ -116,13 +122,7 @@ export default function Maps() {
                     ))}
                 </MapView>
 
-                {/*Ska tas bort efter testning*/}
-                {JWT_token ? (
-                    /*<View style={{position: 'absolute', top :10}}>
-                        <Text>Inloggad: {JWT_token}</Text>
-                    </View>*/
-                    <ApiTestJwtToken token={JWT_token} />
-                ) : null}
+
 
                 {showSearch ? (
                     <View style={styles.search}>
@@ -136,8 +136,14 @@ export default function Maps() {
                 ) : (
                     <Autocomplete
                         data={['Apple', 'Banana', 'Orange', 'Grapes', 'Pineapple', 'Foo', 'Bar']}
-                        onSelect={(item: string) => console.log('Selected item:', item)}
-                        onSubmit={(item: string) => console.log('On Submit is item:', item)}
+                        onSelect={(item: any) => {
+                            console.log('Selected item:', item.name, ', id:', item.routeId)
+                            setShowSearch(false)
+                        }}
+                        onSubmit={(item: string) => {
+                            console.log('On Submit is item:', item)
+                            setShowSearch(false)
+                        }}
                     />
                 ) }
 

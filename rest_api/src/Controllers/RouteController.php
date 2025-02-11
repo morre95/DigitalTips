@@ -18,7 +18,7 @@ class RouteController
         $json = $request->getParsedBody();
         //$data = json_decode($json);
 
-        $this->logger->info("Add routs: " . var_export($json,true) /*$json[0]['marker']['question']*/);
+        $this->logger->info("Add routes: " . var_export($json,true) /*$json[0]['marker']['question']*/);
 
         $sql_routes = "INSERT INTO routes (name, city, description)
                 VALUES (:name, :city, :description)";
@@ -93,6 +93,46 @@ class RouteController
         return $response
             ->withHeader('content-type', 'application/json')
             ->withStatus(200);*/
+    }
+
+    public function search(ServerRequestInterface $request, ResponseInterface $response, $args) {
+
+        $sql = "SELECT * FROM `routes` WHERE `name` LIKE :keyword OR `description` LIKE :keyword2";
+        $this->logger->info("Search routes: " . var_export($args,true));
+
+        try {
+            $db = new Db();
+            $conn = $db->connect();
+            $stmt = $conn->prepare($sql);
+
+            $keyword = "%{$args["keyword"]}%";
+            $stmt->bindValue(":keyword", $keyword, PDO::PARAM_STR);
+            $stmt->bindValue(":keyword2", $keyword, PDO::PARAM_STR);
+            $stmt->execute();
+            $routes = $stmt->fetchAll(PDO::FETCH_OBJ);
+
+            $db = null;
+
+            $result = (object) ["routes" => $routes, "count" => count($routes), "error" => false];
+
+            $response->getBody()->write(json_encode($result));
+            return $response
+                ->withHeader('content-type', 'application/json')
+                ->withStatus(200);
+        } catch (PDOException $e) {
+            $error = array(
+                "error" => true,
+                "message" => $e->getMessage()
+            );
+
+            $this->logger->error($error["message"]);
+
+            $response->getBody()->write(json_encode($error));
+            return $response
+                ->withHeader('content-type', 'application/json')
+                ->withStatus(500);
+        }
+
     }
 
     public function get_all(ServerRequestInterface $request, ResponseInterface $response, $args) {
