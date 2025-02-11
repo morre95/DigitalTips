@@ -1,5 +1,5 @@
-import React, {useState, useEffect, useRef, useLayoutEffect} from 'react';
-import {StyleSheet, View, Text, Alert, Button, TextInput, ActivityIndicator} from 'react-native';
+import React, {useState, useEffect, useRef } from 'react';
+import {StyleSheet, View, Text, Alert, Button, TextInput, ActivityIndicator } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 
 import Checkbox from 'expo-checkbox';
@@ -11,22 +11,15 @@ import Feather from '@expo/vector-icons/Feather';
 import Entypo from '@expo/vector-icons/Entypo';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
-
-import MarkerImages from '../hooks/images'
-
+import {MarkerImages} from '@/hooks/images'
 
 import registerOrLogin, { globals } from "@/hooks/registerOrLogin";
 
-
 import { router, useLocalSearchParams } from 'expo-router';
 
-import Map from '../components/Map'
-import postJson from "@/hooks/api/Post";
-
+import NextRoutesOverlay from '@/components/NextRoutesOverlay'
 
 const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
-
-let markersCount = 0;
 
 interface MarkerData {
     id: number;
@@ -49,11 +42,6 @@ type RouteData = {
     answers: AnswerData[];
 }
 
-type TestData = {
-    error: boolean;
-    message: string;
-}
-
 type Region = {
     latitude: number
     latitudeDelta: number
@@ -64,9 +52,6 @@ type Region = {
 
 export default function Maps() {
     const [markers, setMarkers] = useState<MarkerData[]>([]);
-    /*const [showSearch, setShowSearch] = useState(true);
-    const [showAddMarker, setShowAddMarker] = useState(true);
-    const [addMarker, setAddMarker] = useState(false);*/
 
     const [markerToSave , setMarkerToSave] = useState<MarkerData>();
     const [questionText, setQuestionText] = useState('');
@@ -106,16 +91,17 @@ export default function Maps() {
             return
         }
 
+        activateNextButton()
+
         const { coordinate } = event.nativeEvent;
 
         console.log('Japp här klickas det på kartan', coordinate);
         const newMarker: MarkerData = {
-            //id: markers.length + 1,
-            id: ++markersCount,
+            id: markers.length + 1, //++markersCount,
             latitude: coordinate.latitude,
             longitude: coordinate.longitude,
-            //title: `Marker ${markers.length + 1}`,
-            title: `Marker ${markersCount}`,
+            title: `Marker ${markers.length + 1}`,
+            //title: `Marker ${markersCount}`,
             description: `Raderar markör ${markers.length + 1}, lat: ${coordinate.latitude}, lon: ${coordinate.longitude}`
         };
         setMarkers([...markers, newMarker]);
@@ -211,11 +197,7 @@ export default function Maps() {
         console.log('onDragEnd:', coordinate);
     }
 
-    const handleGoToMapsPress = (event: any) => {
-        /*setShowSearch(!showSearch);
-        setAddMarker(!addMarker);
-
-        setEditMode(!editMode);*/
+    const handleGoToMapsPress = () => {
 
         router.replace({
             pathname: "./Maps",
@@ -224,22 +206,22 @@ export default function Maps() {
             }
         })
     }
-    const handleSaveMarkers = async (event: any) => {
+
+    /*const [routeName, setRouteName] = useState<string>('')
+    const [routeCity, setRouteCity] = useState<string>('')
+    const [routeDescription, setRouteDescription] = useState<string>('')*/
+
+    const [showNext, setShowNext] = useState<boolean>(false)
+    //const handleSaveMarkers = async (event: any) => {
+    const handleSaveMarkers = async () => {
         if (markers.length !== currentRoutes.length) {
             Alert.alert('Antalet markers som har frågor stämmer inte överens med antalet markers', `Markers: ${markers.length}, RoutMarkers: ${currentRoutes.length}`);
         } else {
-            const testData = require('../hooks/test.json');
-            console.log('save markers', testData);
-
-            //console.log(JSON.stringify(currentRoutes))
-            //console.log(testData)
-            const url = '/add/routes'
-            console.log(await postJson<RouteData[], TestData>(url, currentRoutes));
-            Alert.alert('The route is now saved')
+            setShowNext(true)
         }
     }
 
-    const handleDeleteAllMarkers = (event: any) => {
+    const handleDeleteAllMarkers = () => {
         Alert.alert('Delete checkpoints', 'Du you really want to delete all checkpoints?', [
             {
                 text: 'Cancel',
@@ -276,6 +258,7 @@ export default function Maps() {
         setCurrentAnswers(updatedAnswers);
     };
 
+
     const mapRef = useRef<MapView>(null);
 
     const mapsParams = useLocalSearchParams();
@@ -283,6 +266,7 @@ export default function Maps() {
         (async () => {
             const newRegion: Region = JSON.parse(mapsParams.data as string)
             setCurrentRegion(newRegion)
+            console.log('New region is set', newRegion, 'Init is: ', initialRegion)
 
             await delay(10);
             setLoadMaps(true)
@@ -298,6 +282,22 @@ export default function Maps() {
     }
 
     const [loadMaps, setLoadMaps] = useState<boolean>(false);
+    const [nextButtonActive, setNextButtonActive] = useState(false);
+    const [nextButtonText, setNextButtonText] = useState('Add checkpoint by clicking on map');
+
+    const activateNextButton = () => {
+        setNextButtonActive(true);
+        setNextButtonText('Next >>>')
+    }
+    const handleNextPress = () => {
+        if (nextButtonActive) {
+            console.log('Next button active');
+            handleSaveMarkers()
+        } else {
+            console.log('Next button is not active!!!');
+        }
+
+    }
     return (
         <SafeAreaProvider>
             <SafeAreaView style={styles.container}>
@@ -306,7 +306,7 @@ export default function Maps() {
                     style={styles.map}
                     initialRegion={currentRegion}
                     onPress={handleMapPress}
-                    onMapReady={(event) => {console.log('Map ready')}}
+                    onMapReady={() => {console.log('Map ready')}}
                     onRegionChange={setCurrentRegion}
                 >
                     {markers.map(marker => (
@@ -317,7 +317,7 @@ export default function Maps() {
                             //description={marker.description}
                             draggable
                             onDragEnd={(event) => handleDragEnd(event, marker.id)}
-                            image={{uri: MarkerImages.MarkerImages}}
+                            image={{uri: MarkerImages}}
                             onPress={(event) => handleMarkerOnPress(event, marker)}
                         />
                     ))}
@@ -330,8 +330,11 @@ export default function Maps() {
 
 
                 <View style={styles.topContainer}>
-                    <Text style={styles.addMarkerText}>Add checkpoint by clicking on map</Text>
-
+                    {/*<Text style={styles.addMarkerText}>Add checkpoint by clicking on map</Text>*/}
+                    <Button
+                        title={nextButtonText}
+                        onPress={handleNextPress}
+                    />
                 </View>
 
                 <View style={styles.newMarker}>
@@ -342,13 +345,13 @@ export default function Maps() {
                         backgroundColor="rgba(52, 52, 52, 0)"
                         onPress={handleGoToMapsPress} />
                     <View style={styles.markerMenu}>
-                        <Feather.Button
+                        {/*<Feather.Button
                             name="save"
                             size={24}
                             color="black"
                             backgroundColor="rgba(52, 52, 52, 0)"
                             onPress={handleSaveMarkers}
-                        />
+                        />*/}
                         <AntDesign.Button
                             name="delete"
                             size={24}
@@ -368,8 +371,14 @@ export default function Maps() {
                                 size={24}
                                 color="black"
                                 backgroundColor="rgba(52, 52, 52, 0)"
-                                onPress={async (e) => {
-                                    //Alert.alert('Saving, but only in memory')
+                                onPress={async () => {
+                                    const isRightCount = currentAnswers.filter((ans) => ans.isRight).length;
+
+                                    if (isRightCount <= 0) {
+                                        Alert.alert('You need to tick at least one answer to be the right one')
+                                        return
+                                    }
+
                                     const route: RouteData = {
                                         marker: markerToSave as MarkerData,
                                         question: questionText,
@@ -397,6 +406,7 @@ export default function Maps() {
                             onChangeText={setQuestionText}
                             value={questionText}
                             placeholder="Enter question"
+                            onSubmitEditing={addAnswerField}
                         />
                         <Entypo.Button
                             name="add-to-list"
@@ -416,6 +426,7 @@ export default function Maps() {
                                     value={field.text}
                                     onChangeText={(text) => handleTextChange(text, index)}
                                     onSubmitEditing={addAnswerField}
+                                    autoFocus={currentAnswers.length === index + 1}
                                 />
                                 <Checkbox
                                     value={field.isRight}
@@ -431,9 +442,15 @@ export default function Maps() {
 
                     </View>
                 ) : null}
-
-
-
+                {showNext && <NextRoutesOverlay currentRoutes={currentRoutes} onFinish={() => {
+                        setCurrentRoutes([])
+                        setMarkers([])
+                        setNextButtonText('Add checkpoint by clicking on map')
+                    }}
+                    onClose={() => {
+                        setShowNext(false)
+                    }}
+                />}
             </SafeAreaView>
         </SafeAreaProvider>
     );

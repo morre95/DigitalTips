@@ -18,18 +18,19 @@ class RouteController
         $json = $request->getParsedBody();
         //$data = json_decode($json);
 
-        $this->logger->info("Add routs: " . var_export($json[0],true) /*$json[0]['marker']['question']*/);
+        $this->logger->info("Add routs: " . var_export($json,true) /*$json[0]['marker']['question']*/);
 
-        $sql_routes = "INSERT INTO routes (name, description)
-                VALUES (:name, :description)";
+        $sql_routes = "INSERT INTO routes (name, city, description)
+                VALUES (:name, :city, :description)";
         try {
             $db = new Db();
             $pdo = $db->connect();
             $statement = $pdo->prepare($sql_routes);
             // TODO: bör updaters så det kommer från appen
             $statement->execute([
-                ':name' => 'Min första PHP rutt',
-                ':description' => 'En rutt i centrala Mjölby.'
+                ':name' => $json["name"],
+                ':city' => $json["city"],
+                ':description' => $json["description"]
             ]);
             $route_id = $pdo->lastInsertId();
 
@@ -37,7 +38,7 @@ class RouteController
                    VALUES (:question_text)";
 
             $i = 0;
-            foreach ($json as $item) {
+            foreach ($json["data"] as $item) {
                 $statement = $pdo->prepare($sql_question);
                 $statement->execute([
                     ':question_text' => $item['question']

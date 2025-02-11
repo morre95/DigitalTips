@@ -28,10 +28,13 @@ INSERT INTO `users` (`username`, `password`) VALUES
 CREATE TABLE routes (
     route_id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
+    city VARCHAR(100) NOT NULL,
     description TEXT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
+
+/*ALTER TABLE routes ADD city VARCHAR(100) NOT NULL;*/
 
 CREATE TABLE questions (
     question_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -70,8 +73,8 @@ CREATE TABLE checkpoints (
 ) ENGINE=InnoDB;
 
 
-INSERT INTO routes (name, description)
-VALUES ('Min första rutt', 'En rutt i centrala stan.');
+INSERT INTO routes (name, city, description)
+VALUES ('Min första rutt', 'Stora huvudstaden', 'En rutt i centrala stan.');
 
 INSERT INTO questions (question_text)
 VALUES ('Vad heter Sveriges huvudstad?');
