@@ -1,32 +1,38 @@
 import React, { useState } from 'react';
 import {View, TextInput, FlatList, Text, TouchableOpacity, StyleSheet, StyleProp,} from 'react-native';
 
+import getJson, {getSearch} from '@/hooks/api/Get'
+
+interface SearchResponse {
+    routeId: number;
+    name: string;
+}
+
 interface AutocompleteProps {
     data: string[];
-    onSelect: (item: string) => void;
+    onSelect: (item: SearchResponse) => void;
     onSubmit: (item: string) => void;
     placeholder?: string;
 }
 
 const Autocomplete: React.FC<AutocompleteProps> = ({ data, onSelect, onSubmit, placeholder = ''  }) => {
     const [query, setQuery] = useState('');
-    const [filteredData, setFilteredData] = useState<string[]>([]);
+    const [filteredData, setFilteredData] = useState<SearchResponse[]>([]);
     const [isFocused, setIsFocused] = useState(false);
 
-    const handleInputChange = (text: string) => {
+    const handleInputChange = async (text: string) => {
         setQuery(text);
-        if (text) {
-            const filtered = data.filter(item =>
-                item.toLowerCase().includes(text.toLowerCase())
-            );
+        if (text.length > 2) {
+            const filtered = await getSearch(text)
+            if (filtered !== null)
             setFilteredData(filtered);
         } else {
             setFilteredData([]);
         }
     };
 
-    const handleSelect = (item: string) => {
-        setQuery(item);
+    const handleSelect = (item: SearchResponse) => {
+        setQuery(item.name);
         setFilteredData([]);
         onSelect(item);
     };
@@ -50,10 +56,10 @@ const Autocomplete: React.FC<AutocompleteProps> = ({ data, onSelect, onSubmit, p
             {filteredData.length > 0 && (
                 <FlatList
                     data={filteredData}
-                    keyExtractor={(item) => item}
+                    keyExtractor={(item) => item.routeId.toString()}
                     renderItem={({ item }) => (
                         <TouchableOpacity onPress={() => handleSelect(item)}>
-                            <Text style={styles.item}>{item}</Text>
+                            <Text style={styles.item}>{item.name}</Text>
                         </TouchableOpacity>
                     )}
                 />

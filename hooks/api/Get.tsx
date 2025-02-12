@@ -16,9 +16,17 @@ async function getJson<T>(url: string, headers: any = null, baseUrl: BaseUrl = B
 
     try {
         const response = await fetch(url, requestOptions);
+
+        if (response.headers.has('X-RateLimit-Remaining')) {
+            const timestamp = Number(response.headers.get('X-RateLimit-Reset')) * 1000
+            const date = new Date(timestamp)
+            console.log('Rate limit remaining', response.headers.get('X-RateLimit-Remaining'), 'it will be restored', date);
+        }
+
         if (!response.ok) {
             throw new Error('Forsooth, a scourge upon our fetch quest: ' + response.statusText);
         }
+
         return await response.json();
     } catch (error) {
         console.error(`Zounds! Our valiant attempt was met with defeat: `, error);
@@ -33,5 +41,34 @@ async function getRestricted<T>(url: string, token: string, baseUrl: BaseUrl = B
     return await getJson<T>(url, {'Content-Type': 'application/json', 'Authorization': newToken}, baseUrl);
 }
 
+interface SearchResponse {
+    routeId: number;
+    name: string;
+}
+
+async function getSearch(keyword: string): Promise<SearchResponse[]|null> {
+    interface IResp {
+        routes: IRoute[]
+        count: number
+        error: boolean
+    }
+
+    interface IRoute {
+        route_id: number
+        name: string
+        description: string
+        created_at: string
+        updated_at: string
+        city: string
+    }
+    const url = `${BaseUrl.remote}search/routes/${encodeURIComponent(keyword)}`
+
+    const response = await getJson<IResp>(`search/routes/${encodeURIComponent(keyword)}`)
+
+    if (response.error) return null;
+
+    return response.routes.map(r => ({name: r.name, routeId: r.route_id}))
+}
+
 export default getJson;
-export { BaseUrl, getRestricted };
+export { BaseUrl, getRestricted, getSearch };

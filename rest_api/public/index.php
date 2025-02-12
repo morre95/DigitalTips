@@ -282,8 +282,18 @@ if (count($pieces) >= 2 && $pieces[count($pieces) - 2] === 'slimPhp4Test_Slask')
 }
 
 
-// TBD: Bör tas bort vid prodution
-$app->addErrorMiddleware(true, true, true);
+/**
+ * Add Error Middleware
+ *
+ * @param bool                  $displayErrorDetails -> Should be set to false in production
+ * @param bool                  $logErrors -> Parameter is passed to the default ErrorHandler
+ * @param bool                  $logErrorDetails -> Display error details in error log
+ * @param LoggerInterface|null  $logger -> Optional PSR-3 Logger
+ *
+ * Note: This middleware should be added last. It will not handle any exceptions/errors
+ * for middleware added after it.
+ */
+$errorMiddleware = $app->addErrorMiddleware(true, true, true, get_logger($app->getContainer()));
 
 $app->get('/', function (Request $request, Response $response, $args) {
     //$logger = $this->get('logger');
@@ -293,6 +303,7 @@ $app->get('/', function (Request $request, Response $response, $args) {
     return $response;
 });
 
+/* Test script */
 $app->get('/users/all', \UserController::class . ':get_all');
 $app->get('/json/test', \TestController::class . ':test');
 $app->get('/routes/all', \RouteController::class . ':get_all');
@@ -312,22 +323,11 @@ $app->post('/post/test', function (Request $request, Response $response) {
     return $response->withHeader('Content-Type', 'application/json')
         ->withStatus(200);
 });
+/* Slut på test script */
 
 $app->post('/add/routes', \RouteController::class . ':add_new');
-/*$app->post('/add/routes', function (Request $request, Response $response) use($app) {
 
-
-    $logger = get_logger($app->getContainer());
-    $logger->info("It is possible to add routs");
-    $responseData = [
-        'error' => false,
-        'message' => "test message"
-    ];
-    $response->getBody()->write(json_encode($responseData));
-
-    return $response->withHeader('Content-Type', 'application/json')
-        ->withStatus(200);
-});*/
+$app->get('/search/routes/{keyword}', \RouteController::class . ':search');
 
 // Alla API calls som behöver skyddas behöver ligga under den här gruppen
 // TODO: behöver provköras
