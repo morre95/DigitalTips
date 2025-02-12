@@ -7,24 +7,16 @@ import {SafeAreaView, SafeAreaProvider} from 'react-native-safe-area-context';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import AntDesign from '@expo/vector-icons/AntDesign';
 
-
 import Autocomplete from '@/components/Autocomplete';
 
 import {MarkerImages} from '@/hooks/images'
-
 
 import registerOrLogin, { globals } from "@/hooks/registerOrLogin";
 import ApiTestJwtToken from "@/components/ApiTestJwtToken";
 
 import {router, useLocalSearchParams} from 'expo-router';
 
-interface MarkerData {
-    id: number;
-    latitude: number;
-    longitude: number;
-    title: string;
-    description: string;
-}
+import checkpointsData from "../assets/checkpoints.json";   //TODO: Remove later this json import, since we wont use it in the future
 
 type Region = {
     latitude: number
@@ -33,10 +25,41 @@ type Region = {
     longitudeDelta: number
 }
 
+interface Checkpoint {
+    checkpoint_id:    number;
+    route_id:         number;
+    latitude:         string;
+    longitude:        string;
+    question_id:      number;
+    checkpoint_order: number;
+    created_at:       Date;
+    updated_at:       Date;
+    question:         Question;
+}
+
+interface Question {
+    text:    string;
+    answers: Answer[];
+}
+
+interface Answer {
+    text:      string;
+    isCorrect: boolean;
+}
+
 // TODO: Ladda in den rutt som blivit sparad på routes sidan
 export default function Maps() {
-    const [markers, setMarkers] = useState<MarkerData[]>([]);
+    const [checkpoints, setCheckpoints] = useState<Checkpoint[]>([]);
     const [showSearchButton, setShowSearchButton] = useState(true);
+
+    const initialRegion : Region = {
+        latitude: 58.317064,
+        longitude: 15.102253,
+        latitudeDelta: 0.0622,
+        longitudeDelta: 0.0221,
+    };
+
+    const [currentRegion, setCurrentRegion] = useState<Region>(initialRegion);
 
     const [JWT_token, setJWT_token] = useState<string>();
     /*
@@ -56,16 +79,32 @@ export default function Maps() {
                 console.log('inte inloggad');
             }
         })();
-    }, [])
+    }, []);
 
+    const {routerData} = useLocalSearchParams();
+    useEffect(() => {
+        if (routerData) {
+            const newRegion: Region = JSON.parse(routerData as string)
+            setCurrentRegion(newRegion)
+        }
+    }, [routerData]);
 
+    //TODO: This will removed in the future, but the code in here can be used to load the checkpoints used for 
+    const handleLoadPress = (event: any) => {
+        console.log("loading json file");
 
-    const initialRegion : Region = {
-        latitude: 58.317064,
-        longitude: 15.102253,
-        latitudeDelta: 0.0622,
-        longitudeDelta: 0.0221,
-    };
+        try{
+            const checkpoints: Checkpoint[] = checkpointsData.checkpoints.map((cp: any) => ({
+                ...cp,
+                created_at: new Date(cp.created_at),
+                updated_at: new Date(cp.updated_at),
+            }));
+            setCheckpoints(checkpoints);
+
+        } catch (error) {
+            console.error("An error occurred", error);
+        }
+    }
 
     const handleMapPress = (event: any) => {
         if (!showSearchButton) {
@@ -78,26 +117,16 @@ export default function Maps() {
         console.log(`Klickat på karten vid lat: ${coordinate.latitude}, lon: ${coordinate.longitude}`);
     };
 
-
     const handleSearchPress = (event: any) => {
         setShowSearchButton(!showSearchButton);
     }
+
     const handleAddMarkerPress = (event: any) => {
         router.replace({
             pathname: "./Routes",
             params: { data : JSON.stringify(currentRegion) }
         })
     }
-
-    const {routerData} = useLocalSearchParams();
-    useEffect(() => {
-        if (routerData) {
-            const newRegion: Region = JSON.parse(routerData as string)
-            setCurrentRegion(newRegion)
-        }
-    }, [routerData])
-
-    const [currentRegion, setCurrentRegion] = useState<Region>(initialRegion);
 
     return (
         <SafeAreaProvider>
@@ -107,11 +136,12 @@ export default function Maps() {
                     initialRegion={currentRegion}
                     onPress={handleMapPress}
                     onRegionChange={setCurrentRegion}
+                    showsUserLocation={true}
                 >
-                    {markers.map(marker => (
+                    {checkpoints.map(checkpoint => (
                         <Marker
-                            key={marker.id}
-                            coordinate={{ latitude: marker.latitude, longitude: marker.longitude }}
+                            key={checkpoint.checkpoint_id}
+                            coordinate={{ latitude: Number(checkpoint.latitude), longitude: Number(checkpoint.longitude)  }}
                             //title={marker.title}
                             //description={marker.description}
                             //draggable
@@ -121,9 +151,7 @@ export default function Maps() {
                         />
                     ))}
                 </MapView>
-
-
-
+                
                 {showSearchButton ? (
                     <View style={styles.search}>
                         <FontAwesome.Button
@@ -156,9 +184,14 @@ export default function Maps() {
                         onPress={handleAddMarkerPress} />
                 </View>
 
-
-
-
+                <View style={styles.loadButton}>
+                    <AntDesign.Button
+                        name="hdd"
+                        size={35}
+                        color="black"
+                        backgroundColor="rgba(52, 52, 52, 0)"
+                        onPress={handleLoadPress}/>
+                </View>
             </SafeAreaView>
         </SafeAreaProvider>
     );
@@ -199,7 +232,14 @@ const styles = StyleSheet.create({
         right: 0,
         width: 65,
         height: 50,
+    },
 
+    loadButton: {
+        position: 'absolute',
+        top: 100,
+        right: 0,
+        width: 65,
+        height: 50,
     },
 
 });
