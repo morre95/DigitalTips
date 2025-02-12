@@ -105,11 +105,29 @@ export default function Maps() {
             description: `Raderar markör ${markers.length + 1}, lat: ${coordinate.latitude}, lon: ${coordinate.longitude}`
         };
         setMarkers([...markers, newMarker]);
-        console.log(newMarker);
+        //console.log(newMarker);
 
+        setEditMode(true)
+        Alert.alert('Marker Added', 'Add question or cancel', [
+            {
+                text: `Add Random question`,
+                onPress: () => { console.log('Add Random question, not implemented yet'); },
+                style: 'default'
+            },
+            {
+                text: `Add question`,
+                onPress: () => {handleAddQuestionToMarker(newMarker, null, [])},
+                style: 'default'
+            },
+            {
+                text: 'Cancel',
+                onPress: () => console.log('Cancel Pressed'),
+                style: 'cancel',
+            },
+        ])
     };
 
-    const handleMarkerOnPress = (event: any, marker: MarkerData) => {
+    const handleMarkerOnPress = (marker: MarkerData) => {
         if (editMode) {
             return
         }
@@ -142,23 +160,27 @@ export default function Maps() {
 
         const addOrDelete = savedMarker ? "Edit" : "Add";
 
-        Alert.alert(`${addOrDelete} marker`, `Do you want to ${addOrDelete.toLowerCase()} question or delete checkpoint ${marker.id}`, [
-            {
-                text: `${addOrDelete} question`,
-                onPress: () => {handleAddQuestionToMarker(event, marker, question, answers)},
-            },
-            {
-                text: 'Cancel',
-                onPress: () => console.log('Cancel Pressed'),
-                style: 'cancel',
-            },
-            {text: 'Delete', onPress: () => {deleteMarker()}},
-        ]);
-
-
+        Alert.alert(
+            `${addOrDelete} marker`, `Do you want to ${addOrDelete.toLowerCase()} question or delete checkpoint ${marker.id}`,
+            [
+                {
+                    text: `${addOrDelete} question`,
+                    onPress: () => {handleAddQuestionToMarker(marker, question, answers)},
+                },
+                {
+                    text: 'Cancel',
+                    onPress: () => console.log('Cancel Pressed'),
+                    style: 'cancel',
+                },
+                {
+                    text: 'Delete',
+                    onPress: () => {deleteMarker()},
+                    style: 'destructive'
+                },
+            ]);
     }
 
-    const handleAddQuestionToMarker = (event: any, marker: MarkerData, question: string | null, answers: AnswerData[]) => {
+    const handleAddQuestionToMarker = (marker: MarkerData, question: string | null, answers: AnswerData[]) => {
         console.log('Add question to marker', marker);
         setMarkerToSave(marker);
         setShowAddQuestions(true);
@@ -318,7 +340,7 @@ export default function Maps() {
                             draggable
                             onDragEnd={(event) => handleDragEnd(event, marker.id)}
                             image={{uri: MarkerImages}}
-                            onPress={(event) => handleMarkerOnPress(event, marker)}
+                            onPress={() => handleMarkerOnPress(marker)}
                         />
                     ))}
                 </MapView> :(
