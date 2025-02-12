@@ -121,7 +121,12 @@ export default function Maps() {
             },
             {
                 text: 'Cancel',
-                onPress: () => console.log('Cancel Pressed'),
+                onPress: () => {
+                    console.log('Cancel Pressed')
+                    setMarkers(prevMarkers =>
+                        prevMarkers.filter(pMarker => pMarker.id !== newMarker.id)
+                    )
+                },
                 style: 'cancel',
             },
         ])
