@@ -72,5 +72,11 @@ async function getSearch(keyword: string): Promise<SearchResponse[]|null> {
     return response.routes.map(r => ({name: r.name, routeId: r.route_id, city: r.city, date: (r.created_at < r.updated_at) ? r.updated_at : r.created_at}))
 }
 
+
+async function getCheckpoints<T>(id: number): Promise<T> {
+    const url = `get/checkpoints/${id}`;
+    return await getJson<T>(url);
+}
+
 export default getJson;
-export { BaseUrl, getRestricted, getSearch, SearchResponse };
+export { BaseUrl, getRestricted, getSearch, SearchResponse, getCheckpoints };

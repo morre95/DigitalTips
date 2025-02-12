@@ -18,6 +18,9 @@ import {router, useLocalSearchParams} from 'expo-router';
 
 import checkpointsData from "../assets/checkpoints.json";   //TODO: Remove later this json import, since we wont use it in the future
 
+import getJson, {SearchResponse, getCheckpoints} from '@/hooks/api/Get'
+import {makeShareableCloneRecursive} from "react-native-reanimated";
+
 type Region = {
     latitude: number
     latitudeDelta: number
@@ -128,6 +131,18 @@ export default function Maps() {
         })
     }
 
+    const handelAutoOnSelect = async (item: SearchResponse) => {
+        //console.log('Selected item:', item.name, ', id:', item.routeId)
+        setShowSearchButton(true)
+        setCheckpoints([]);
+        type Markers = {
+            checkpoints: Checkpoint[];
+        }
+        const markers = await getCheckpoints<Markers>(item.routeId)
+
+        setCheckpoints(markers.checkpoints);
+    }
+
     return (
         <SafeAreaProvider>
             <SafeAreaView style={styles.container}>
@@ -164,10 +179,7 @@ export default function Maps() {
                 ) : (
                     <Autocomplete
                         data={['Apple', 'Banana', 'Orange', 'Grapes', 'Pineapple', 'Foo', 'Bar']}
-                        onSelect={(item: any) => {
-                            console.log('Selected item:', item.name, ', id:', item.routeId)
-                            setShowSearchButton(true)
-                        }}
+                        onSelect={handelAutoOnSelect}
                         onSubmit={(item: string) => {
                             console.log('On Submit is item:', item)
                             setShowSearchButton(true)
