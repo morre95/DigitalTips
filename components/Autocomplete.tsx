@@ -1,12 +1,8 @@
 import React, { useState } from 'react';
-import {View, TextInput, FlatList, Text, TouchableOpacity, StyleSheet, StyleProp,} from 'react-native';
+import {View, TextInput, FlatList, Text, TouchableOpacity, StyleSheet, } from 'react-native';
 
-import getJson, {getSearch} from '@/hooks/api/Get'
+import {getSearch, SearchResponse} from '@/hooks/api/Get'
 
-interface SearchResponse {
-    routeId: number;
-    name: string;
-}
 
 interface AutocompleteProps {
     data: string[];
@@ -42,6 +38,19 @@ const Autocomplete: React.FC<AutocompleteProps> = ({ data, onSelect, onSubmit, p
         onSubmit(query);
     };
 
+    const Item = (item: SearchResponse) => {
+        const maxLength = 128;
+        const truncatedName = item.name.length > maxLength ? item.name.slice(0, maxLength) + '...' : item.name;
+
+        return (
+            <TouchableOpacity onPress={() => handleSelect(item)}>
+                <Text style={styles.item}>{truncatedName}</Text>
+                <Text style={styles.date}>{item.date.toLocaleString()}</Text>
+                <Text style={styles.city}>{item.city}</Text>
+            </TouchableOpacity>
+        )
+    }
+
     return (
         <View style={styles.container}>
             <TextInput
@@ -58,9 +67,7 @@ const Autocomplete: React.FC<AutocompleteProps> = ({ data, onSelect, onSubmit, p
                     data={filteredData}
                     keyExtractor={(item) => item.routeId.toString()}
                     renderItem={({ item }) => (
-                        <TouchableOpacity onPress={() => handleSelect(item)}>
-                            <Text style={styles.item}>{item.name}</Text>
-                        </TouchableOpacity>
+                        <Item routeId={item.routeId} name={item.name} city={item.city} date={item.date}/>
                     )}
                 />
             )}
@@ -92,11 +99,28 @@ const styles = StyleSheet.create({
         padding: 10,
     },
     item: {
-        padding: 10,
+        padding: 12,
         backgroundColor: '#fff',
         borderBottomWidth: 1,
         borderBottomColor: '#ccc',
+        /*textAlign: 'center'*/
     },
+    date: {
+        position: 'absolute',
+        top: 0,
+        left: 3,
+        /*bottom: 0,
+        right: 5,*/
+
+        fontSize: 10,
+    },
+    city: {
+        position: 'absolute',
+        bottom: 0,
+        right: 5,
+
+        fontSize: 10,
+    }
 });
 
 export default Autocomplete;
