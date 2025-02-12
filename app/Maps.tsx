@@ -50,7 +50,7 @@ interface Answer {
 // TODO: Ladda in den rutt som blivit sparad på routes sidan
 export default function Maps() {
     const [checkpoints, setCheckpoints] = useState<Checkpoint[]>([]);
-    const [showSearch, setShowSearch] = useState(true);
+    const [showSearchButton, setShowSearchButton] = useState(true);
 
     const initialRegion : Region = {
         latitude: 58.317064,
@@ -107,8 +107,8 @@ export default function Maps() {
     }
 
     const handleMapPress = (event: any) => {
-        if (showSearch) {
-            setShowSearch(false)
+        if (!showSearchButton) {
+            setShowSearchButton(true)
             return
         }
 
@@ -118,7 +118,7 @@ export default function Maps() {
     };
 
     const handleSearchPress = (event: any) => {
-        setShowSearch(!showSearch);
+        setShowSearchButton(!showSearchButton);
     }
 
     const handleAddMarkerPress = (event: any) => {
@@ -151,8 +151,8 @@ export default function Maps() {
                         />
                     ))}
                 </MapView>
-
-                {showSearch ? (
+                
+                {showSearchButton ? (
                     <View style={styles.search}>
                         <FontAwesome.Button
                             name="search"
@@ -166,11 +166,11 @@ export default function Maps() {
                         data={['Apple', 'Banana', 'Orange', 'Grapes', 'Pineapple', 'Foo', 'Bar']}
                         onSelect={(item: any) => {
                             console.log('Selected item:', item.name, ', id:', item.routeId)
-                            setShowSearch(false)
+                            setShowSearchButton(true)
                         }}
                         onSubmit={(item: string) => {
                             console.log('On Submit is item:', item)
-                            setShowSearch(false)
+                            setShowSearchButton(true)
                         }}
                     />
                 ) }
