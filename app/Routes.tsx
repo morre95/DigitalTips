@@ -1,6 +1,6 @@
 import React, {useState, useEffect, useRef } from 'react';
 import {StyleSheet, View, Text, Alert, Button, TextInput, ActivityIndicator } from 'react-native';
-import MapView, { Marker } from 'react-native-maps';
+import MapView, {Marker, PROVIDER_GOOGLE} from 'react-native-maps';
 
 import Checkbox from 'expo-checkbox';
 
@@ -8,16 +8,21 @@ import {SafeAreaView, SafeAreaProvider} from 'react-native-safe-area-context';
 
 import AntDesign from '@expo/vector-icons/AntDesign';
 import Feather from '@expo/vector-icons/Feather';
-import Entypo from '@expo/vector-icons/Entypo';
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-
-import {MarkerImages} from '@/hooks/images'
+import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 
 import registerOrLogin, { globals } from "@/hooks/registerOrLogin";
 
 import { router, useLocalSearchParams } from 'expo-router';
 
 import NextRoutesOverlay from '@/components/NextRoutesOverlay'
+
+import AddQuestionFromDb from '@/components/AddQuestionFromDb'
+
+import CircleMarker from "@/components/CircleMarker";
+
+import {Picker} from '@react-native-picker/picker';
 
 const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
@@ -27,6 +32,7 @@ interface MarkerData {
     longitude: number;
     title: string;
     description: string;
+    markerOrder: number;
 }
 
 interface AnswerData {
@@ -35,11 +41,10 @@ interface AnswerData {
     isRight: boolean;
 }
 
-// TODO: Det bör finnas checkpoint_order och name och eller description. Kolla in PHP kod för mer info under RouteController::add_new()
 type RouteData = {
     marker: MarkerData;
-    question: string;
-    answers: AnswerData[];
+    question?: string;
+    answers?: AnswerData[];
 }
 
 type Region = {
@@ -49,10 +54,40 @@ type Region = {
     longitudeDelta: number
 }
 
+function updateMarkerOrderForRoutes(
+    routes: RouteData[],
+    targetId: number,
+    newOrder: number
+): RouteData[] {
+    // Skapa en kopia av arrayen och sortera utifrån marker.markerOrder
+    const sortedRoutes = [...routes].sort((a, b) => a.marker.markerOrder - b.marker.markerOrder);
 
-export default function Maps() {
-    const [markers, setMarkers] = useState<MarkerData[]>([]);
+    // Hitta index för den RouteData som innehåller marker med targetId
+    const currentIndex = sortedRoutes.findIndex(route => route.marker.id === targetId);
+    if (currentIndex === -1) {
+        throw new Error(`Marker med id ${targetId} hittades inte.`);
+    }
 
+    // Ta bort objektet som ska flyttas
+    const [targetRoute] = sortedRoutes.splice(currentIndex, 1);
+
+    // Beräkna nytt index utifrån newOrder (notera att newOrder börjar på 1)
+    const newIndex = Math.max(0, Math.min(newOrder - 1, sortedRoutes.length));
+
+    // Infoga targetRoute på den nya positionen
+    sortedRoutes.splice(newIndex, 0, targetRoute);
+
+    // Uppdatera markerOrder för varje RouteData så att de blir sekventiella
+    sortedRoutes.forEach((route, index) => {
+        route.marker.markerOrder = index + 1;
+    });
+
+    return sortedRoutes;
+}
+
+
+
+export default function Routes() {
     const [markerToSave , setMarkerToSave] = useState<MarkerData>();
     const [questionText, setQuestionText] = useState('');
     const [currentAnswers, setCurrentAnswers] = useState<AnswerData[]>([]);
@@ -61,16 +96,21 @@ export default function Maps() {
     const [currentRoutes, setCurrentRoutes] = useState<RouteData[]>([]);
 
     const initialRegion: Region = {
-        latitude: 58.317064,
-        longitude: 15.102253,
+        latitude: 58.317435384,
+        longitude: 15.123921353,
         latitudeDelta: 0.0622,
-        longitudeDelta: 0.0221,
+        longitudeDelta: 0.0700,
     };
 
     const [currentRegion, setCurrentRegion] = useState<Region>(initialRegion);
+
+    // TODO: ta bort denna state och använd showAddQuestions istället
     const [editMode, setEditMode] = useState(false);
 
     const [JWT_token, setJWT_token] = useState<string>();
+
+    const [showDbQuestionSelect, setShowDbQuestionSelect] = useState<boolean>(false)
+    const [returnRandomQuestion, setReturnRandomQuestion] = useState<boolean>(false);
 
     useEffect(() => {
         (async () => {
@@ -95,37 +135,40 @@ export default function Maps() {
 
         const { coordinate } = event.nativeEvent;
 
-        console.log('Japp här klickas det på kartan', coordinate);
+        const len = currentRoutes.length
         const newMarker: MarkerData = {
-            id: markers.length + 1, //++markersCount,
+            id: len + 1, //++markersCount,
             latitude: coordinate.latitude,
             longitude: coordinate.longitude,
-            title: `Marker ${markers.length + 1}`,
+            title: `Marker ${len + 1}`,
             //title: `Marker ${markersCount}`,
-            description: `Raderar markör ${markers.length + 1}, lat: ${coordinate.latitude}, lon: ${coordinate.longitude}`
+            description: `Raderar markör ${len + 1}, lat: ${coordinate.latitude}, lon: ${coordinate.longitude}`,
+            markerOrder: len + 1
         };
-        setMarkers([...markers, newMarker]);
-        //console.log(newMarker);
 
         setEditMode(true)
-        Alert.alert('Marker Added', 'Add question or cancel', [
+        Alert.alert('Marker Added', 'Add question or click cancel to delete checkpoint', [
             {
                 text: `Add Random question`,
-                onPress: () => { console.log('Add Random question, not implemented yet'); },
+                onPress: () => {
+                    setShowAddQuestions(true)
+                    setReturnRandomQuestion(true)
+                    setShowDbQuestionSelect(true)
+                    setMarkerToSave(newMarker);
+                },
                 style: 'default'
             },
             {
                 text: `Add question`,
-                onPress: () => {handleAddQuestionToMarker(newMarker, null, [])},
+                onPress: () => {handleAddQuestionToMarker(newMarker, undefined, [])},
                 style: 'default'
             },
             {
                 text: 'Cancel',
                 onPress: () => {
-                    console.log('Cancel Pressed')
-                    setMarkers(prevMarkers =>
-                        prevMarkers.filter(pMarker => pMarker.id !== newMarker.id)
-                    )
+                    console.log('handleMapPress()', 'Cancel Pressed')
+                    setMarkerToSave(undefined)
+                    setEditMode(false)
                 },
                 style: 'cancel',
             },
@@ -134,17 +177,17 @@ export default function Maps() {
 
     const handleMarkerOnPress = (marker: MarkerData) => {
         if (editMode) {
+            console.log('MarkerOnPress', 'editMode:', editMode);
             return
         }
 
         setEditMode(true)
 
         let savedMarker : MarkerData | null = null;
-        let question : string | null = null;
-        let answers : AnswerData[];
+        let question : string | undefined;
+        let answers : AnswerData[] | undefined;
 
-        for (let [key, routerData] of Object.entries(currentRoutes)) {
-            console.log(`Key: ${key}, routerData: `, routerData);
+        for (let [_, routerData] of Object.entries(currentRoutes)) {
             if (routerData.marker.id === marker.id) {
                 savedMarker = routerData.marker
                 question = routerData.question
@@ -154,27 +197,39 @@ export default function Maps() {
         }
 
         const deleteMarker = () => {
-            setMarkers(prevMarkers =>
-                prevMarkers.filter(pMarker => pMarker.id !== marker.id)
-            )
             setCurrentRoutes(prevRoutes =>
                 prevRoutes.filter(route => route.marker.id !== marker.id)
             )
+
+            setCurrentRoutes(prevRoutes =>
+                prevRoutes.map((route, index) => {
+                    if (typeof currentRoutes[index + 1].marker !== "undefined" && currentRoutes[index].marker.markerOrder + 1 < currentRoutes[index + 1].marker.markerOrder) {
+                        currentRoutes[index + 1].marker.markerOrder = currentRoutes[index + 1].marker.markerOrder - 1;
+                        return currentRoutes[index + 1];
+                    }
+                    return route
+                })
+            )
+
             setEditMode(false)
         }
 
         const addOrDelete = savedMarker ? "Edit" : "Add";
 
         Alert.alert(
-            `${addOrDelete} marker`, `Do you want to ${addOrDelete.toLowerCase()} question or delete checkpoint ${marker.id}`,
+            `${addOrDelete} marker`,
+            `Do you want to ${addOrDelete.toLowerCase()} question or delete checkpoint ${marker.id}`,
             [
                 {
                     text: `${addOrDelete} question`,
-                    onPress: () => {handleAddQuestionToMarker(marker, question, answers)},
+                    onPress: () => {handleAddQuestionToMarker(marker, question, answers || [])},
                 },
                 {
                     text: 'Cancel',
-                    onPress: () => console.log('Cancel Pressed'),
+                    onPress: () => {
+                        console.log('MarkerOnPress', 'Cancel Pressed')
+                        setEditMode(false)
+                    },
                     style: 'cancel',
                 },
                 {
@@ -185,8 +240,7 @@ export default function Maps() {
             ]);
     }
 
-    const handleAddQuestionToMarker = (marker: MarkerData, question: string | null, answers: AnswerData[]) => {
-        console.log('Add question to marker', marker);
+    const handleAddQuestionToMarker = (marker: MarkerData, question: string | undefined, answers: AnswerData[]) => {
         setMarkerToSave(marker);
         setShowAddQuestions(true);
         if (question && answers.length > 0) {
@@ -197,16 +251,6 @@ export default function Maps() {
 
     const handleDragEnd = (event: any, markerId: number) => {
         const { coordinate } = event.nativeEvent;
-
-        setMarkers(prevMarkers =>
-            prevMarkers.map(marker =>
-                marker.id === markerId ? {
-                    ...marker,
-                        latitude: coordinate.latitude,
-                        longitude: coordinate.longitude
-                } : marker
-            )
-        );
 
         setCurrentRoutes(prevRoutes =>
             prevRoutes.map(route =>
@@ -221,7 +265,6 @@ export default function Maps() {
             )
         );
 
-        console.log('onDragEnd:', coordinate);
     }
 
     const handleGoToMapsPress = () => {
@@ -234,29 +277,32 @@ export default function Maps() {
         })
     }
 
-    /*const [routeName, setRouteName] = useState<string>('')
-    const [routeCity, setRouteCity] = useState<string>('')
-    const [routeDescription, setRouteDescription] = useState<string>('')*/
-
     const [showNext, setShowNext] = useState<boolean>(false)
-    //const handleSaveMarkers = async (event: any) => {
     const handleSaveMarkers = async () => {
-        if (markers.length !== currentRoutes.length) {
-            Alert.alert('Antalet markers som har frågor stämmer inte överens med antalet markers', `Markers: ${markers.length}, RoutMarkers: ${currentRoutes.length}`);
+        //if (markers.length !== currentRoutes.length) {
+        if (currentRoutes.find(route => route.question === undefined)) {
+            // TODO: tala om vilken markerOrder som inte har en fråga
+            Alert.alert(
+                'Antalet markers som har frågor stämmer inte överens med antalet markers',
+                'The rout contains checkpoints without question'
+            );
         } else {
             setShowNext(true)
         }
     }
 
     const handleDeleteAllMarkers = () => {
-        Alert.alert('Delete checkpoints', 'Du you really want to delete all checkpoints?', [
+        Alert.alert(
+            'Delete checkpoints',
+            'Du you really want to delete all checkpoints?',
+            [
             {
                 text: 'Cancel',
-                onPress: () => console.log('Cancel Pressed'),
+                onPress: () => console.log('handleDeleteAllMarkers()', 'Cancel Pressed'),
                 style: 'cancel',
             },
             {text: 'Yes', onPress: () => {
-                    setMarkers([])
+                    //setMarkers([])
                     setCurrentRoutes([])
                 }},
         ]);
@@ -290,15 +336,18 @@ export default function Maps() {
 
     const mapsParams = useLocalSearchParams();
     useEffect(() => {
-        (async () => {
-            const newRegion: Region = JSON.parse(mapsParams.data as string)
-            setCurrentRegion(newRegion)
-            console.log('New region is set', newRegion, 'Init is: ', initialRegion)
 
+        (async () => {
+            if (mapsParams.data) {
+                const newRegion: Region = JSON.parse(mapsParams.data as string)
+                setCurrentRegion(newRegion)
+                console.log('New region is set', newRegion, 'Init is: ', initialRegion)
+            }
+            console.log('Denna laddas')
             await delay(10);
             setLoadMaps(true)
         })();
-    }, [])
+    }, [mapsParams.data])
 
     const cancelAddQuestions = () => {
         setMarkerToSave(undefined)
@@ -318,36 +367,40 @@ export default function Maps() {
     }
     const handleNextPress = () => {
         if (nextButtonActive) {
-            console.log('Next button active');
+            console.log('handleNextPress()', 'Next button active');
             handleSaveMarkers()
         } else {
-            console.log('Next button is not active!!!');
+            console.log('handleNextPress()', 'Next button is not active!!!');
         }
 
     }
+
+
     return (
         <SafeAreaProvider>
             <SafeAreaView style={styles.container}>
                 {loadMaps ? <MapView
                     ref={mapRef}
+                    provider={PROVIDER_GOOGLE}
                     style={styles.map}
                     initialRegion={currentRegion}
                     onPress={handleMapPress}
                     onMapReady={() => {console.log('Map ready')}}
                     onRegionChange={setCurrentRegion}
                 >
-                    {markers.map(marker => (
-                        <Marker
-                            key={marker.id}
-                            coordinate={{ latitude: marker.latitude, longitude: marker.longitude }}
-                            //title={marker.title}
-                            //description={marker.description}
-                            draggable
-                            onDragEnd={(event) => handleDragEnd(event, marker.id)}
-                            image={{uri: MarkerImages}}
-                            onPress={() => handleMarkerOnPress(marker)}
-                        />
-                    ))}
+                    {
+                        currentRoutes.map((route, index) => (
+                            <Marker
+                                key={index}
+                                coordinate={{ latitude: route.marker.latitude, longitude: route.marker.longitude }}
+                                draggable
+                                onDragEnd={(event) => handleDragEnd(event, route.marker.id)}
+                                onPress={() => handleMarkerOnPress(route.marker)}
+                            >
+                                <CircleMarker number={route.marker.markerOrder} />
+                            </Marker>
+                        ))
+                    }
                 </MapView> :(
 
                     <View style={styles.loading}>
@@ -357,7 +410,6 @@ export default function Maps() {
 
 
                 <View style={styles.topContainer}>
-                    {/*<Text style={styles.addMarkerText}>Add checkpoint by clicking on map</Text>*/}
                     <Button
                         title={nextButtonText}
                         onPress={handleNextPress}
@@ -372,13 +424,6 @@ export default function Maps() {
                         backgroundColor="rgba(52, 52, 52, 0)"
                         onPress={handleGoToMapsPress} />
                     <View style={styles.markerMenu}>
-                        {/*<Feather.Button
-                            name="save"
-                            size={24}
-                            color="black"
-                            backgroundColor="rgba(52, 52, 52, 0)"
-                            onPress={handleSaveMarkers}
-                        />*/}
                         <AntDesign.Button
                             name="delete"
                             size={24}
@@ -406,26 +451,79 @@ export default function Maps() {
                                         return
                                     }
 
-                                    const route: RouteData = {
-                                        marker: markerToSave as MarkerData,
-                                        question: questionText,
-                                        answers: currentAnswers
-                                    }
+                                    if (markerToSave) {
+                                        const marker = markerToSave
 
-                                    setCurrentRoutes([...currentRoutes, route]);
+                                        console.log('Is time to edit:', currentRoutes.filter(route => route.marker === marker).length > 0)
+
+                                        const isTimeToEdit = currentRoutes.filter(route => route.marker === marker).length > 0
+
+                                        if (isTimeToEdit) {
+                                            setCurrentRoutes(prevRoutes =>
+                                                prevRoutes.map(route =>
+                                                    route.marker.id === marker.id ? {
+                                                        ...route,
+                                                        question: questionText,
+                                                        answers: currentAnswers
+                                                    } : route
+                                                )
+                                            );
+                                        } else {
+                                            const newRoute: RouteData = {
+                                                marker: marker,
+                                                question: questionText,
+                                                answers: currentAnswers
+                                            }
+                                            setCurrentRoutes([...currentRoutes, newRoute]);
+                                        }
+                                    }
 
                                     cancelAddQuestions()
 
                                 }}
                                 style={styles.inputSaveButton}
                             />
-                            <MaterialIcons
-                                name="cancel"
+                            <MaterialCommunityIcons.Button
+                                name="database-plus"
                                 size={24}
                                 color="black"
                                 backgroundColor="rgba(52, 52, 52, 0)"
                                 style={styles.inputSaveButton}
-                                onPress={cancelAddQuestions} />
+                                onPress={() => {
+                                    setReturnRandomQuestion(false)
+                                    setShowDbQuestionSelect(true)
+                                }}
+                            />
+                            <FontAwesome.Button
+                                name="random"
+                                size={24}
+                                color="black"
+                                backgroundColor="rgba(52, 52, 52, 0)"
+                                style={styles.addAnswer}
+                                onPress={async () => {
+                                    setReturnRandomQuestion(true)
+                                    setShowDbQuestionSelect(true)
+                                }}
+                            />
+
+                            <Text>Set Marker order:</Text>
+                            {markerToSave && <Picker
+                                selectedValue={markerToSave.id}
+                                onValueChange={(itemValue) =>
+                                    //setMarkers(updateMarkerOrder(markers, markerToSave.id, itemValue))
+                                    setCurrentRoutes(updateMarkerOrderForRoutes(currentRoutes, markerToSave.id, itemValue))
+                                }
+                                style={{width: 100, height: 50, marginTop: -18}}
+                                mode={'dropdown'}
+                            >
+                                {
+                                    currentRoutes.map((route, index) => (
+                                        <Picker.Item key={index} label={route.marker.markerOrder.toString()} value={route.marker.markerOrder}/>
+                                    ))
+                                }
+
+                            </Picker>}
+
                         </View>
 
                         <TextInput
@@ -435,16 +533,16 @@ export default function Maps() {
                             placeholder="Enter question"
                             onSubmitEditing={addAnswerField}
                         />
-                        <Entypo.Button
-                            name="add-to-list"
+
+                        <FontAwesome6.Button
+                            name="add"
                             size={24}
                             color="black"
                             backgroundColor="rgba(52, 52, 52, 0)"
                             style={styles.addAnswer}
-                            onPress={addAnswerField}/>
+                            onPress={addAnswerField}
+                        />
 
-
-                        <Text>Answer|is right?|remove</Text>
                         {currentAnswers.map((field, index) => (
                             <View key={index} style={styles.fieldRow}>
                                 <TextInput
@@ -469,15 +567,49 @@ export default function Maps() {
 
                     </View>
                 ) : null}
-                {showNext && <NextRoutesOverlay currentRoutes={currentRoutes} onFinish={() => {
+                
+                {showNext && <NextRoutesOverlay
+                    currentRoutes={currentRoutes}
+                    onFinish={() => {
                         setCurrentRoutes([])
-                        setMarkers([])
+                        //setMarkers([])
                         setNextButtonText('Add checkpoint by clicking on map')
                     }}
                     onClose={() => {
                         setShowNext(false)
                     }}
                 />}
+
+                {showDbQuestionSelect &&
+                    <AddQuestionFromDb
+                        returnRandomQuestion={returnRandomQuestion}
+                        onSelectedQuestion={async (question: any) => {
+                            //console.log('selected question', question)
+                            await delay(150)
+                            setShowDbQuestionSelect(false)
+
+                            setQuestionText(question.question)
+
+                            let answers: AnswerData[] = []
+                            let newAnswers: AnswerData = {
+                                id: answers.length + 1,
+                                text: question.correct_answer,
+                                isRight: true,
+                            }
+                            answers.push(newAnswers)
+                            for (let incorrect of question.incorrect_answers) {
+                                newAnswers = {
+                                    id: answers.length + 1,
+                                    text: incorrect,
+                                    isRight: false,
+                                }
+                                answers.push(newAnswers)
+                            }
+
+                            setCurrentAnswers(answers)
+                        }}
+                    />
+                }
             </SafeAreaView>
         </SafeAreaProvider>
     );

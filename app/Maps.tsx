@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View } from 'react-native';
-import MapView, { Marker } from 'react-native-maps';
+import { StyleSheet, View, Text, Alert } from 'react-native';
+import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 
 import {SafeAreaView, SafeAreaProvider} from 'react-native-safe-area-context';
 
@@ -17,6 +17,9 @@ import ApiTestJwtToken from "@/components/ApiTestJwtToken";
 import {router, useLocalSearchParams} from 'expo-router';
 
 import checkpointsData from "../assets/checkpoints.json";   //TODO: Remove later this json import, since we wont use it in the future
+
+import getJson, {SearchResponse, getCheckpoints} from '@/hooks/api/Get'
+
 
 type Region = {
     latitude: number
@@ -52,11 +55,11 @@ export default function Maps() {
     const [checkpoints, setCheckpoints] = useState<Checkpoint[]>([]);
     const [showSearchButton, setShowSearchButton] = useState(true);
 
-    const initialRegion : Region = {
-        latitude: 58.317064,
-        longitude: 15.102253,
+    const initialRegion: Region = {
+        latitude: 58.317435384,
+        longitude: 15.123921353,
         latitudeDelta: 0.0622,
-        longitudeDelta: 0.0221,
+        longitudeDelta: 0.0700,
     };
 
     const [currentRegion, setCurrentRegion] = useState<Region>(initialRegion);
@@ -121,33 +124,59 @@ export default function Maps() {
         setShowSearchButton(!showSearchButton);
     }
 
-    const handleAddMarkerPress = (event: any) => {
+    const handleAddMarkerPress = () => {
         router.replace({
             pathname: "./Routes",
             params: { data : JSON.stringify(currentRegion) }
         })
     }
 
+    const handelAutoOnSelect = async (item: SearchResponse) => {
+        //console.log('Selected item:', item.name, ', id:', item.routeId)
+        setShowSearchButton(true)
+        setCheckpoints([]);
+        type Markers = {
+            checkpoints: Checkpoint[];
+        }
+        const markers = await getCheckpoints<Markers>(item.routeId)
+
+        setCheckpoints(markers.checkpoints);
+    }
+
     return (
         <SafeAreaProvider>
             <SafeAreaView style={styles.container}>
                 <MapView
+                    provider={PROVIDER_GOOGLE}
                     style={styles.map}
                     initialRegion={currentRegion}
                     onPress={handleMapPress}
                     onRegionChange={setCurrentRegion}
                     showsUserLocation={true}
+                    onLongPress={() => {
+                        Alert.alert('Create new routes', 'Du you want to create new route?', [
+                            {
+                                text: 'Cancel',
+                                onPress: () => console.log('Create new routes', 'Cancel Pressed'),
+                                style: 'cancel',
+                            },
+                            {text: 'OK', onPress: () => router.navigate({
+                                    pathname: "./Routes",
+                                    params: { data : JSON.stringify(currentRegion) }
+                                })},
+                        ]);
+                    }}
                 >
                     {checkpoints.map(checkpoint => (
                         <Marker
                             key={checkpoint.checkpoint_id}
                             coordinate={{ latitude: Number(checkpoint.latitude), longitude: Number(checkpoint.longitude)  }}
-                            //title={marker.title}
+                            title={`Checkpoint: ${checkpoint.checkpoint_order}`}
                             //description={marker.description}
                             //draggable
                             //onDragEnd={(event) => handleDragEnd(event, marker.id)}
                             image={{uri: MarkerImages}}
-                            //onPress={(event) => handleMarkerOnPress(event, marker)}
+                            onPress={() => console.log(`CheckPointOrder: ${checkpoint.checkpoint_order}`, {latitude: Number(checkpoint.latitude), longitude: Number(checkpoint.longitude)})}
                         />
                     ))}
                 </MapView>
@@ -164,10 +193,7 @@ export default function Maps() {
                 ) : (
                     <Autocomplete
                         data={['Apple', 'Banana', 'Orange', 'Grapes', 'Pineapple', 'Foo', 'Bar']}
-                        onSelect={(item: any) => {
-                            console.log('Selected item:', item.name, ', id:', item.routeId)
-                            setShowSearchButton(true)
-                        }}
+                        onSelect={handelAutoOnSelect}
                         onSubmit={(item: string) => {
                             console.log('On Submit is item:', item)
                             setShowSearchButton(true)
@@ -175,7 +201,7 @@ export default function Maps() {
                     />
                 ) }
 
-                <View style={styles.newMarker}>
+                {/*<View style={styles.newMarker}>
                     <AntDesign.Button
                         name="plussquareo"
                         size={35}
@@ -191,7 +217,8 @@ export default function Maps() {
                         color="black"
                         backgroundColor="rgba(52, 52, 52, 0)"
                         onPress={handleLoadPress}/>
-                </View>
+                </View>*/}
+
             </SafeAreaView>
         </SafeAreaProvider>
     );

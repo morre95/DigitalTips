@@ -44,6 +44,10 @@ async function getRestricted<T>(url: string, token: string, baseUrl: BaseUrl = B
 interface SearchResponse {
     routeId: number;
     name: string;
+    city: string;
+    date: Date;
+    count: number;
+    description: string;
 }
 
 async function getSearch(keyword: string): Promise<SearchResponse[]|null> {
@@ -57,9 +61,10 @@ async function getSearch(keyword: string): Promise<SearchResponse[]|null> {
         route_id: number
         name: string
         description: string
-        created_at: string
-        updated_at: string
+        created_at: Date
+        updated_at: Date
         city: string
+        marker_count: number
     }
     const url = `${BaseUrl.remote}search/routes/${encodeURIComponent(keyword)}`
 
@@ -67,8 +72,15 @@ async function getSearch(keyword: string): Promise<SearchResponse[]|null> {
 
     if (response.error) return null;
 
-    return response.routes.map(r => ({name: r.name, routeId: r.route_id}))
+    return response.routes.map(r =>
+        ({count: r.marker_count, name: r.name, description: r.description, routeId: r.route_id, city: r.city, date: (r.created_at < r.updated_at) ? r.updated_at : r.created_at}))
+}
+
+
+async function getCheckpoints<T>(id: number): Promise<T> {
+    const url = `get/checkpoints/${id}`;
+    return await getJson<T>(url);
 }
 
 export default getJson;
-export { BaseUrl, getRestricted, getSearch };
+export { BaseUrl, getRestricted, getSearch, SearchResponse, getCheckpoints };

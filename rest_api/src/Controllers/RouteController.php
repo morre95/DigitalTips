@@ -66,7 +66,7 @@ class RouteController
                     ':latitude' => $checkpoint['latitude'],
                     ':longitude' => $checkpoint['longitude'],
                     ':question_id' => $question_id,
-                    ':checkpoint_order' => $i++ // TODO: checkpoint_order bör komma från App sidan
+                    ':checkpoint_order' => $checkpoint['markerOrder'] 
                 ]);
             }
 
@@ -110,6 +110,20 @@ class RouteController
             $stmt->bindValue(":keyword2", $keyword, PDO::PARAM_STR);
             $stmt->execute();
             $routes = $stmt->fetchAll(PDO::FETCH_OBJ);
+
+
+
+            for($i = 0; $i < count($routes); $i++) {
+                $route = $routes[$i];
+
+                $sql = "SELECT COUNT(*) as num FROM `checkpoints` WHERE `route_id` = :route_id";
+                $stmt = $conn->prepare($sql);
+                $stmt->bindValue(":route_id", $route->route_id, PDO::PARAM_INT);
+                $stmt->execute();
+                
+                $marker_count = $stmt->fetch(PDO::FETCH_OBJ);
+                $routes[$i]->marker_count = $marker_count->num;
+            }
 
             $db = null;
 
@@ -179,51 +193,114 @@ ORDER BY r.route_id, c.checkpoint_order, a.answer_id";
         }
     }
 
-    public function get_checkpoint(ServerRequestInterface $request, ResponseInterface $response, $args) {
-        $sql = "SELECT
-            q.question_text,
-            a.answer_text,
-            a.is_correct
-            FROM questions q
-            JOIN answers a ON q.question_id = a.question_id
-        WHERE q.question_id = :id
-        ORDER BY q.question_id";
+    public function get_checkpoints(ServerRequestInterface $request, ResponseInterface $response, $args) {
 
-        $db = new Db();
-        $conn = $db->connect();
-        $stmt = $conn->prepare($sql);
+        try {
+            $db = new Db();
+            $sql = "SELECT * FROM checkpoints WHERE route_id = :route_id";
+            $conn = $db->connect();
+            $stmt = $conn->prepare($sql);
 
-        $id = $args['id'];
-        $stmt->bindParam(":id", $id);
-        $questions = $stmt->fetchAll(PDO::FETCH_OBJ);
+            $id = $args['id'];
+            $stmt->bindParam(":route_id", $id);
+            $stmt->execute();
 
-        $db = null;
-        $result = [];
-        if (count($questions) > 0) {
-            $result = (object) array('question' => $questions[0]->question_text, "answers" => array());
-            foreach ($questions as $question) {
-                $result["answers"] = (object) array("text" => $question->answer_text, "is_correct" => $question->is_correct);
+            $checkpoints = $stmt->fetchAll(PDO::FETCH_OBJ);
+
+            $result = ["checkpoints" => []];
+            foreach ($checkpoints as $checkpoint) {
+                $sql = "SELECT
+                    q.question_text,
+                    a.answer_text,
+                    a.is_correct
+                    FROM questions q
+                    JOIN answers a ON q.question_id = a.question_id
+                WHERE q.question_id = :question_id
+                ORDER BY q.question_id";
+                $stmt = $conn->prepare($sql);
+
+                $question_id = $checkpoint->question_id;
+                $stmt->bindValue(":question_id", $question_id);
+                $stmt->execute();
+
+                $questions = $stmt->fetchAll(PDO::FETCH_OBJ);
+
+                if (count($questions) > 0) {
+                    $answers = [];
+                    foreach ($questions as $question) {
+                        //$question_result["answers"][] = (object) ["answer" => $question->answer_text, "isCorrect" => $question->is_correct === 1];
+                        $answers[] = (object) ["text" => $question->answer_text, "isCorrect" => $question->is_correct === 1];
+                        $this->logger->info("question: " . var_export($question,true));
+                    }
+                    $checkpoint->question = new stdClass();
+                    $checkpoint->question->text = $questions[0]->question_text;
+                    $checkpoint->question->answers = $answers;
+                    $result["checkpoints"][] = $checkpoint;
+                } else {
+                    // TBD: Hit ska inte skritet komma eftersom alla checkpoints ska ha frågor. Men om det är något fel i appen så finns det ett meddelande i alla fall
+                    $result = (object) array(
+                        "error" => true,
+                        "message" => 'No question found'
+                    );
+                    break;
+                }
             }
+
+            /*foreach ($checkpoints as $checkpoint) {
+                $sql = "SELECT
+                    q.question_text,
+                    a.answer_text,
+                    a.is_correct
+                    FROM questions q
+                    JOIN answers a ON q.question_id = a.question_id
+                WHERE q.question_id = :question_id
+                ORDER BY q.question_id";
+                $stmt = $conn->prepare($sql);
+
+                $question_id = $checkpoint->question_id;
+                $stmt->bindValue(":question_id", $question_id);
+                $stmt->execute();
+
+                $questions = $stmt->fetchAll(PDO::FETCH_OBJ);
+
+                if (count($questions) > 0) {
+                    $answers = [];
+                    foreach ($questions as $question) {
+                        //$question_result["answers"][] = (object) ["answer" => $question->answer_text, "isCorrect" => $question->is_correct === 1];
+                        $answers[] = (object) ["text" => $question->answer_text, "isCorrect" => $question->is_correct === 1];
+                        $this->logger->info("question: " . var_export($question,true));
+                    }
+                    $result[] = (object) ["checkpoint" => $checkpoint, "question" => $questions[0]->question_text, "answers" => $answers];
+                } else {
+                    // TBD: Hit ska inte skritet komma eftersom alla checkpoints ska ha frågor. Men om det är något fel i appen så finns det ett meddelande i alla fall
+                    $result = (object) array(
+                        "error" => true,
+                        "message" => 'No question found'
+                    );
+                    break;
+                }
+            }*/
+
+            $response->getBody()->write(json_encode($result));
+            return $response
+                ->withHeader('content-type', 'application/json')
+                ->withStatus(200);
+        } catch (PDOException $e) {
+            $error = array(
+                "error" => true,
+                "message" => $e->getMessage()
+            );
+
+            $this->logger->error($error["message"]);
+
+            $response->getBody()->write(json_encode($error));
+            return $response
+                ->withHeader('content-type', 'application/json')
+                ->withStatus(500);
         }
 
-        $result = (object) array('question' => $questions[0]->question_text, "answers" => array());
-        foreach ($questions as $question) {
-            $result["answers"] = (object) array("text" => $question->answer_text, "is_correct" => $question->is_correct);
-        }
 
-        foreach ($result as $value) {
-            $response->getBody()->write($value->question_text);
-            echo "\n";
-            foreach ($value->answers as $answer) {
-                echo $answer->answer_text;
-                echo "\n";
-            }
-        }
-        $response->getBody()->write("Hej");
-        return $response;
-        /*$response->getBody()->write(json_encode($result));
-        return $response
-            ->withHeader('content-type', 'application/json')
-            ->withStatus(200);*/
+
+
     }
 }

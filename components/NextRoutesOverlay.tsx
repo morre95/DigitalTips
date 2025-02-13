@@ -14,6 +14,7 @@ interface MarkerData {
     longitude: number;
     title: string;
     description: string;
+    markerOrder: number;
 }
 
 interface AnswerData {
@@ -24,8 +25,8 @@ interface AnswerData {
 
 type RouteData = {
     marker: MarkerData;
-    question: string;
-    answers: AnswerData[];
+    question?: string;
+    answers?: AnswerData[];
 }
 
 type ResponseData = {

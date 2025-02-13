@@ -1,21 +1,31 @@
 import React, { useState } from 'react';
-import {View, TextInput, FlatList, Text, TouchableOpacity, StyleSheet, StyleProp,} from 'react-native';
+import {View, TextInput, FlatList, Text, TouchableOpacity, StyleSheet, } from 'react-native';
 
-import getJson, {getSearch} from '@/hooks/api/Get'
+import {getSearch, SearchResponse} from '@/hooks/api/Get'
 
-interface SearchResponse {
+import Tooltip, {Position} from "@/components/Tooltip";
+
+import EvilIcons from '@expo/vector-icons/EvilIcons';
+
+
+interface IItem {
     routeId: number;
     name: string;
+    city: string;
+    date: Date;
+    count: number;
+    description: string;
 }
 
-interface AutocompleteProps {
+
+interface IAutocompleteProps {
     data: string[];
     onSelect: (item: SearchResponse) => void;
     onSubmit: (item: string) => void;
     placeholder?: string;
 }
 
-const Autocomplete: React.FC<AutocompleteProps> = ({ data, onSelect, onSubmit, placeholder = ''  }) => {
+const Autocomplete: React.FC<IAutocompleteProps> = ({ data, onSelect, onSubmit, placeholder = ''  }) => {
     const [query, setQuery] = useState('');
     const [filteredData, setFilteredData] = useState<SearchResponse[]>([]);
     const [isFocused, setIsFocused] = useState(false);
@@ -42,6 +52,29 @@ const Autocomplete: React.FC<AutocompleteProps> = ({ data, onSelect, onSubmit, p
         onSubmit(query);
     };
 
+    const Item = (item: IItem) => {
+        //const maxLength = 25;
+        //const truncatedName = item.name.length > maxLength ? item.name.slice(0, maxLength) + '...' : item.name;
+        const truncatedName = item.name
+
+        return (
+            <TouchableOpacity onPress={() => handleSelect(item)}>
+
+                <View style={[styles.item, styles.row]}>
+                    <Text style={{maxWidth: '96%'}}>{truncatedName} </Text>
+                    <View style={{flex: 1, alignItems: 'flex-end', marginRight: 3}}>
+                        <Tooltip content={`${item.description}\n(With ${item.count} checkpoints)`} position={Position.Left}>
+                            <EvilIcons name="question" size={24} color="black" />
+                        </Tooltip>
+                    </View>
+                </View>
+                <Text style={styles.date}>{item.date.toLocaleString()}</Text>
+                <Text style={styles.city}>{item.city}</Text>
+
+            </TouchableOpacity>
+        )
+    }
+
     return (
         <View style={styles.container}>
             <TextInput
@@ -58,9 +91,7 @@ const Autocomplete: React.FC<AutocompleteProps> = ({ data, onSelect, onSubmit, p
                     data={filteredData}
                     keyExtractor={(item) => item.routeId.toString()}
                     renderItem={({ item }) => (
-                        <TouchableOpacity onPress={() => handleSelect(item)}>
-                            <Text style={styles.item}>{item.name}</Text>
-                        </TouchableOpacity>
+                        <Item description={item.description} count={item.count} routeId={item.routeId} name={item.name} city={item.city} date={item.date}/>
                     )}
                 />
             )}
@@ -73,12 +104,13 @@ const styles = StyleSheet.create({
         position: 'absolute',
         top: 2,
         left: 0,
-        width: '90%',
+        width: '95%',
     },
     input: {
         height: 40,
         width: '100%',
         margin: 12,
+        marginBottom: 5,
         borderWidth: 1,
         borderRadius: 20,
         padding: 10,
@@ -92,11 +124,38 @@ const styles = StyleSheet.create({
         padding: 10,
     },
     item: {
-        padding: 10,
+        flex: 1,
+        paddingTop: 12,
+        paddingBottom: 12,
+        paddingLeft: 5,
+        paddingRight: 18,
         backgroundColor: '#fff',
         borderBottomWidth: 1,
         borderBottomColor: '#ccc',
+        borderRadius: 8,
+        /*textAlign: 'center'*/
+        width: '100%',
+        marginLeft: 20,
     },
+    date: {
+        position: 'absolute',
+        top: 0,
+        left: 25,
+        /*bottom: 0,
+        right: 5,*/
+
+        fontSize: 10,
+    },
+    city: {
+        position: 'absolute',
+        bottom: 0,
+        right: 5,
+
+        fontSize: 10,
+    },
+    row: {
+        flexDirection: 'row'
+    }
 });
 
 export default Autocomplete;
