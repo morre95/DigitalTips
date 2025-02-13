@@ -108,7 +108,10 @@ export default function Maps() {
         //console.log(newMarker);
 
         setEditMode(true)
-        Alert.alert('Marker Added', 'Add question or cancel', [
+        Alert.alert(
+            'Marker Added',
+            'Add question or cancel',
+            [
             {
                 text: `Add Random question`,
                 onPress: () => { console.log('Add Random question, not implemented yet'); },
@@ -129,7 +132,14 @@ export default function Maps() {
                 },
                 style: 'cancel',
             },
-        ])
+        ],{
+            cancelable: true,
+            onDismiss: () => {
+                setMarkers(prevMarkers =>
+                    prevMarkers.filter(pMarker => pMarker.id !== newMarker.id)
+                )
+            }
+        })
     };
 
     const handleMarkerOnPress = (marker: MarkerData) => {
@@ -166,7 +176,8 @@ export default function Maps() {
         const addOrDelete = savedMarker ? "Edit" : "Add";
 
         Alert.alert(
-            `${addOrDelete} marker`, `Do you want to ${addOrDelete.toLowerCase()} question or delete checkpoint ${marker.id}`,
+            `${addOrDelete} marker`,
+            `Do you want to ${addOrDelete.toLowerCase()} question or delete checkpoint ${marker.id}`,
             [
                 {
                     text: `${addOrDelete} question`,
@@ -182,7 +193,11 @@ export default function Maps() {
                     onPress: () => {deleteMarker()},
                     style: 'destructive'
                 },
-            ]);
+            ],{
+                cancelable: true,
+                onDismiss: () =>
+                    console.log('Add/Edit marker was dismissed by tapping outside of the alert dialog.')
+            });
     }
 
     const handleAddQuestionToMarker = (marker: MarkerData, question: string | null, answers: AnswerData[]) => {
@@ -242,24 +257,34 @@ export default function Maps() {
     //const handleSaveMarkers = async (event: any) => {
     const handleSaveMarkers = async () => {
         if (markers.length !== currentRoutes.length) {
-            Alert.alert('Antalet markers som har frågor stämmer inte överens med antalet markers', `Markers: ${markers.length}, RoutMarkers: ${currentRoutes.length}`);
+            Alert.alert(
+                'Antalet markers som har frågor stämmer inte överens med antalet markers',
+                `Markers: ${markers.length}, RoutMarkers: ${currentRoutes.length}`);
         } else {
             setShowNext(true)
         }
     }
 
     const handleDeleteAllMarkers = () => {
-        Alert.alert('Delete checkpoints', 'Du you really want to delete all checkpoints?', [
+        Alert.alert(
+            'Delete checkpoints',
+            'Du you really want to delete all checkpoints?',
+            [
+                    {
+                        text: 'Cancel',
+                        onPress: () => console.log('Cancel Pressed'),
+                        style: 'cancel',
+                    },
+                    {text: 'Yes', onPress: () => {
+                            setMarkers([])
+                            setCurrentRoutes([])
+                        }},
+                ],
             {
-                text: 'Cancel',
-                onPress: () => console.log('Cancel Pressed'),
-                style: 'cancel',
-            },
-            {text: 'Yes', onPress: () => {
-                    setMarkers([])
-                    setCurrentRoutes([])
-                }},
-        ]);
+            cancelable: true,
+                onDismiss: () =>
+                    console.log('Delete checkpoints alert was dismissed by tapping outside of the alert dialog.'),
+        });
 
     }
 
