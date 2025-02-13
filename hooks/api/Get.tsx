@@ -46,6 +46,8 @@ interface SearchResponse {
     name: string;
     city: string;
     date: Date;
+    count: number;
+    description: string;
 }
 
 async function getSearch(keyword: string): Promise<SearchResponse[]|null> {
@@ -62,6 +64,7 @@ async function getSearch(keyword: string): Promise<SearchResponse[]|null> {
         created_at: Date
         updated_at: Date
         city: string
+        marker_count: number
     }
     const url = `${BaseUrl.remote}search/routes/${encodeURIComponent(keyword)}`
 
@@ -69,7 +72,8 @@ async function getSearch(keyword: string): Promise<SearchResponse[]|null> {
 
     if (response.error) return null;
 
-    return response.routes.map(r => ({name: r.name, routeId: r.route_id, city: r.city, date: (r.created_at < r.updated_at) ? r.updated_at : r.created_at}))
+    return response.routes.map(r =>
+        ({count: r.marker_count, name: r.name, description: r.description, routeId: r.route_id, city: r.city, date: (r.created_at < r.updated_at) ? r.updated_at : r.created_at}))
 }
 
 

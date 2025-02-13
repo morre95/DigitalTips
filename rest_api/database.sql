@@ -1,12 +1,22 @@
 
 
+CREATE TABLE IF NOT EXISTS `secrets` (
+    `id` INT AUTO_INCREMENT PRIMARY KEY,
+    `name` VARCHAR(50) NOT NULL UNIQUE,
+    `secret` VARCHAR(255) NOT NULL
+);
+
+INSERT INTO `secrets` (`name`, `secret`) VALUES
+    ('GOOGLE_MAP_API_KEY',   'YOUR_GOOGLE_MAP_API_KEY_HERE');
+
+
 CREATE TABLE IF NOT EXISTS `rate_limit` (
     `id` INT AUTO_INCREMENT PRIMARY KEY,
     `client_key` VARCHAR(255) NOT NULL,
     `count` INT NOT NULL DEFAULT 0,
     `expires_at` INT NOT NULL,
     UNIQUE KEY `unique_client_key` (`client_key`)
-    );
+);
 
 
 CREATE TABLE `users` (
@@ -16,12 +26,11 @@ CREATE TABLE `users` (
 );
 
 
-INSERT INTO `users` (`username`, `password`) VALUES
-('0b781403-5c0d-4db3-b15b-e5dd1620fa8b', 'b44002618b1d785563d483e27f6fb46ed7b5fafa1be41d5b1e5527c268061841'),
-('64d97ba6-b4b6-4159-be44-79c38506d331', 'bda746f3e27928e87eb0de23f82b8261adc385bf025cb5c09cf0fae78e02f269'),
-('0bd6d135-3d64-447c-837e-882771413171', '06472b6b853c4c932ac8ca66c6cca8c34eb7c64b338c31322d319be812f10f6c'),
-('c786b0f6-8bb8-4521-9f1e-7a34c9fd759e', '6682be8515df2421b1f6c90abb3279b39ed502d180c4cb9c6fc36c97e6a0ecd3');
 
+INSERT INTO `users` (`username`, `password`) VALUES
+('get-api-key-user', '$2y$10$yMolD8GWZEcYBUTVqAUMMOboxUmV5tneJGgjbptlUc2MioA6aYPRu');
+/*Detta är för lösen*/
+/*password="566c2772a2efc526a114cf338fbc18c40f043cd348f1b91c27e53966b471063b"*/
 
 
 
@@ -119,4 +128,12 @@ SELECT
     JOIN answers a ON q.question_id = a.question_id
 WHERE q.question_id = ?
 ORDER BY q.question_id;
+
+
+
+SELECT * FROM checkpoints WHERE route_id = ?;
+
+
+
+SELECT * FROM `routes` WHERE `name` LIKE '%min%' OR `description` LIKE '%test%';
 

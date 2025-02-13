@@ -304,10 +304,8 @@ $app->get('/', function (Request $request, Response $response, $args) {
 });
 
 /* Test script */
-$app->get('/users/all', \UserController::class . ':get_all');
 $app->get('/json/test', \TestController::class . ':test');
 $app->get('/routes/all', \RouteController::class . ':get_all');
-$app->get('/checkpoint/{id}', \RouteController::class . ':get_checkpoint');
 
 $app->post('/post/test', function (Request $request, Response $response) {
     $params = $request->getParsedBody();
@@ -328,20 +326,11 @@ $app->post('/post/test', function (Request $request, Response $response) {
 $app->post('/add/routes', \RouteController::class . ':add_new');
 
 $app->get('/search/routes/{keyword}', \RouteController::class . ':search');
+$app->get('/get/checkpoints/{id}', \RouteController::class . ':get_checkpoints');
 
 // Alla API calls som behöver skyddas behöver ligga under den här gruppen
-// TODO: behöver provköras
-$app->group('/api/test', function (\Slim\Routing\RouteCollectorProxy $group) {
-    $group->get('/protected', function (Request $request, Response $response) {
-        // Här är route som är skyddad
-        $decoded = $request->getAttribute('decoded_token');
-        $response->getBody()->write(json_encode([
-            'key' => uniqid(),
-            'success' => true,
-            'decoded' => $decoded
-        ]));
-        return $response->withHeader('Content-Type', 'application/json');
-    });
+$app->group('/api', function (\Slim\Routing\RouteCollectorProxy $group) {
+    $group->get('/get/google/key', UserController::class . ':get_google_api_key');
 })->add($jwtMiddleware);
 
 $app->run();
