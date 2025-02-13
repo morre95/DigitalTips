@@ -39,8 +39,9 @@ const Autocomplete: React.FC<AutocompleteProps> = ({ data, onSelect, onSubmit, p
     };
 
     const Item = (item: SearchResponse) => {
-        const maxLength = 128;
-        const truncatedName = item.name.length > maxLength ? item.name.slice(0, maxLength) + '...' : item.name;
+        //const maxLength = 25;
+        //const truncatedName = item.name.length > maxLength ? item.name.slice(0, maxLength) + '...' : item.name;
+        const truncatedName = item.name
 
         return (
             <TouchableOpacity onPress={() => handleSelect(item)}>
