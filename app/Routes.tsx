@@ -172,6 +172,9 @@ export default function Routes() {
                     console.log('handleMapPress()', 'Cancel Pressed')
                     setMarkerToSave(undefined)
                     setEditMode(false)
+                    if (currentRoutes.length <= 0) {
+                        deactivateNextButton()
+                    }
                 },
                 style: 'cancel',
             },
@@ -205,11 +208,16 @@ export default function Routes() {
         }
 
         const deleteMarker = () => {
-            setCurrentRoutes(prevRoutes =>
-                prevRoutes.filter(route => route.marker.id !== marker.id)
+            setCurrentRoutes(prevRoutes => {
+                    const newRoutes = prevRoutes.filter(route => route.marker.id !== marker.id)
+                    if (newRoutes.length <= 0) {
+                        deactivateNextButton()
+                    }
+                    return newRoutes
+                }
             )
 
-            setCurrentRoutes(prevRoutes =>
+            /*setCurrentRoutes(prevRoutes =>
                 prevRoutes.map((route, index) => {
                     if (typeof currentRoutes[index + 1].marker !== "undefined" && currentRoutes[index].marker.markerOrder + 1 < currentRoutes[index + 1].marker.markerOrder) {
                         currentRoutes[index + 1].marker.markerOrder = currentRoutes[index + 1].marker.markerOrder - 1;
@@ -217,7 +225,7 @@ export default function Routes() {
                     }
                     return route
                 })
-            )
+            )*/
 
             setEditMode(false)
         }
@@ -242,7 +250,9 @@ export default function Routes() {
                 },
                 {
                     text: 'Delete',
-                    onPress: () => {deleteMarker()},
+                    onPress: () => {
+                        deleteMarker()
+                    },
                     style: 'destructive'
                 },
             ]);
@@ -310,8 +320,8 @@ export default function Routes() {
                 style: 'cancel',
             },
             {text: 'Yes', onPress: () => {
-                    //setMarkers([])
                     setCurrentRoutes([])
+                    deactivateNextButton()
                 }},
         ]);
 
@@ -372,6 +382,11 @@ export default function Routes() {
     const activateNextButton = () => {
         setNextButtonActive(true);
         setNextButtonText('Next >>>')
+    }
+
+    const deactivateNextButton = () => {
+        setNextButtonActive(false);
+        setNextButtonText('Add checkpoint by clicking on map')
     }
     const handleNextPress = () => {
         if (nextButtonActive) {
