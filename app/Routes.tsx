@@ -147,7 +147,10 @@ export default function Routes() {
         };
 
         setEditMode(true)
-        Alert.alert('Marker Added', 'Add question or click cancel to delete checkpoint', [
+        Alert.alert(
+            'Marker Added',
+            'Add question or cancel',
+            [
             {
                 text: `Add Random question`,
                 onPress: () => {
@@ -172,7 +175,14 @@ export default function Routes() {
                 },
                 style: 'cancel',
             },
-        ])
+        ],{
+            cancelable: true,
+            onDismiss: () => {
+                setMarkers(prevMarkers =>
+                    prevMarkers.filter(pMarker => pMarker.id !== newMarker.id)
+                )
+            }
+        })
     };
 
     const handleMarkerOnPress = (marker: MarkerData) => {
