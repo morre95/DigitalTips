@@ -20,6 +20,8 @@ import checkpointsData from "../assets/checkpoints.json";   //TODO: Remove later
 
 import getJson, {SearchResponse, getCheckpoints} from '@/hooks/api/Get'
 
+import CheckPoint from '@/components/CheckPoint'
+
 
 type Region = {
     latitude: number
@@ -168,16 +170,7 @@ export default function Maps() {
                     }}
                 >
                     {checkpoints.map(checkpoint => (
-                        <Marker
-                            key={checkpoint.checkpoint_id}
-                            coordinate={{ latitude: Number(checkpoint.latitude), longitude: Number(checkpoint.longitude)  }}
-                            title={`Checkpoint: ${checkpoint.checkpoint_order}`}
-                            //description={marker.description}
-                            //draggable
-                            //onDragEnd={(event) => handleDragEnd(event, marker.id)}
-                            image={{uri: MarkerImages}}
-                            onPress={() => console.log(`CheckPointOrder: ${checkpoint.checkpoint_order}`, {latitude: Number(checkpoint.latitude), longitude: Number(checkpoint.longitude)})}
-                        />
+                        <CheckPoint key={checkpoint.checkpoint_id} checkpoint={checkpoint} />
                     ))}
                 </MapView>
                 
