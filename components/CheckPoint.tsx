@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React from 'react';
 
 import { Marker } from 'react-native-maps';
-import {MarkerImages} from "@/hooks/images";
+import { MarkerImages } from "@/hooks/images";
 
 interface Checkpoint {
     checkpoint_id:    number;
