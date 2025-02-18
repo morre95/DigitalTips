@@ -170,7 +170,13 @@ export default function Maps() {
                     }}
                 >
                     {checkpoints.map(checkpoint => (
-                        <CheckPoint key={checkpoint.checkpoint_id} checkpoint={checkpoint} />
+                        <CheckPoint
+                            key={checkpoint.checkpoint_id}
+                            checkpoint={checkpoint}
+                            onQuestion={(question: Question) => {
+                                console.log('onQuestion:', question);
+                            }}
+                        />
                     ))}
                 </MapView>
                 
@@ -241,7 +247,7 @@ const styles = StyleSheet.create({
     search: {
         position: 'absolute',
         top: 2,
-        right: 0,
+        left: 0,
         width: 65,
         height: 50,
     },
