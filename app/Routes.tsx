@@ -178,9 +178,7 @@ export default function Routes() {
         ],{
             cancelable: true,
             onDismiss: () => {
-                setMarkers(prevMarkers =>
-                    prevMarkers.filter(pMarker => pMarker.id !== newMarker.id)
-                )
+                console.log('handleMapPress()', 'onDismiss() activated')
             }
         })
     };

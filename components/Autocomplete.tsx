@@ -58,7 +58,7 @@ const Autocomplete: React.FC<IAutocompleteProps> = ({ data, onSelect, onSubmit, 
         const truncatedName = item.name
 
         return (
-            <TouchableOpacity onPress={() => handleSelect(item)}>
+            <TouchableOpacity key={item.routeId} onPress={() => handleSelect(item)}>
 
                 <View style={[styles.item, styles.row]}>
                     <Text style={{maxWidth: '96%'}}>{truncatedName} </Text>
