@@ -3,6 +3,7 @@ import {View, TextInput, FlatList, Text, TouchableOpacity, StyleSheet, } from 'r
 
 import {getSearch, SearchResponse} from '@/hooks/api/Get'
 
+
 import Tooltip, {Position} from "@/components/Tooltip";
 
 import EvilIcons from '@expo/vector-icons/EvilIcons';
@@ -16,7 +17,6 @@ interface IItem {
     count: number;
     description: string;
 }
-
 
 interface IAutocompleteProps {
     data: string[];
@@ -59,7 +59,6 @@ const Autocomplete: React.FC<IAutocompleteProps> = ({ data, onSelect, onSubmit, 
 
         return (
             <TouchableOpacity onPress={() => handleSelect(item)}>
-
                 <View style={[styles.item, styles.row]}>
                     <Text style={{maxWidth: '96%'}}>{truncatedName} </Text>
                     <View style={{flex: 1, alignItems: 'flex-end', marginRight: 3}}>
@@ -70,7 +69,6 @@ const Autocomplete: React.FC<IAutocompleteProps> = ({ data, onSelect, onSubmit, 
                 </View>
                 <Text style={styles.date}>{item.date.toLocaleString()}</Text>
                 <Text style={styles.city}>{item.city}</Text>
-
             </TouchableOpacity>
         )
     }

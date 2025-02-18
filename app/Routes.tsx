@@ -147,7 +147,10 @@ export default function Routes() {
         };
 
         setEditMode(true)
-        Alert.alert('Marker Added', 'Add question or click cancel to delete checkpoint', [
+        Alert.alert(
+            'Marker Added',
+            'Add question or cancel',
+            [
             {
                 text: `Add Random question`,
                 onPress: () => {
@@ -172,7 +175,14 @@ export default function Routes() {
                 },
                 style: 'cancel',
             },
-        ])
+        ],{
+            cancelable: true,
+            onDismiss: () => {
+                setMarkers(prevMarkers =>
+                    prevMarkers.filter(pMarker => pMarker.id !== newMarker.id)
+                )
+            }
+        })
     };
 
     const handleMarkerOnPress = (marker: MarkerData) => {
@@ -237,7 +247,11 @@ export default function Routes() {
                     onPress: () => {deleteMarker()},
                     style: 'destructive'
                 },
-            ]);
+            ],{
+                cancelable: true,
+                onDismiss: () =>
+                    console.log('Add/Edit marker was dismissed by tapping outside of the alert dialog.')
+            });
     }
 
     const handleAddQuestionToMarker = (marker: MarkerData, question: string | undefined, answers: AnswerData[]) => {
@@ -279,7 +293,7 @@ export default function Routes() {
 
     const [showNext, setShowNext] = useState<boolean>(false)
     const handleSaveMarkers = async () => {
-        //if (markers.length !== currentRoutes.length) {
+
         if (currentRoutes.find(route => route.question === undefined)) {
             // TODO: tala om vilken markerOrder som inte har en fråga
             Alert.alert(
@@ -296,16 +310,22 @@ export default function Routes() {
             'Delete checkpoints',
             'Du you really want to delete all checkpoints?',
             [
+                  {
+                      text: 'Cancel',
+                      onPress: () => console.log('Cancel Pressed'),
+                      style: 'cancel',
+                  },
+                  {text: 'Yes', onPress: () => {
+                          //setMarkers([])
+                          setCurrentRoutes([])
+                      }},
+                ],
             {
-                text: 'Cancel',
-                onPress: () => console.log('handleDeleteAllMarkers()', 'Cancel Pressed'),
-                style: 'cancel',
-            },
-            {text: 'Yes', onPress: () => {
-                    //setMarkers([])
-                    setCurrentRoutes([])
-                }},
-        ]);
+            cancelable: true,
+                onDismiss: () =>
+                    console.log('Delete checkpoints alert was dismissed by tapping outside of the alert dialog.'),
+        });
+
 
     }
 
