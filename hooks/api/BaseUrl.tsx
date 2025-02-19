@@ -6,9 +6,4 @@ enum BaseUrl {
     remote = 'https://digitaltips.morencv.se/',
 }
 
-/*enum BaseUrl {
-    local,
-    remote,
-}*/
-
 export default BaseUrl;
