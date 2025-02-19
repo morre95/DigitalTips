@@ -93,6 +93,7 @@ let foregroundSubscription: Location.LocationSubscription | null = null
 const CheckPoint: React.FC<ICheckPoint> = ({checkpoint, onQuestion}) => {
 
     const [location, setLocation] = useState<Coordinate | null>(null);
+    const [currentLocation, setCurrentLocation] = useState<Coordinate | null>(null);
 
     useEffect(() => {
         (async () => {
@@ -130,7 +131,7 @@ const CheckPoint: React.FC<ICheckPoint> = ({checkpoint, onQuestion}) => {
                 accuracy: Location.Accuracy.BestForNavigation,
             },
             location => {
-                setLocation({latitude: location.coords.latitude, longitude: location.coords.longitude})
+                setCurrentLocation({latitude: location.coords.latitude, longitude: location.coords.longitude})
             }
         )
     }
@@ -138,7 +139,7 @@ const CheckPoint: React.FC<ICheckPoint> = ({checkpoint, onQuestion}) => {
     // Stop location tracking in foreground
     const stopForegroundUpdate = () => {
         foregroundSubscription?.remove()
-        setLocation(null)
+        setCurrentLocation(null)
     }
 
     // TBD: för mer om backgound uppdateringar https://chafikgharbi.com/expo-location-tracking/

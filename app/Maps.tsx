@@ -21,6 +21,7 @@ import checkpointsData from "../assets/checkpoints.json";   //TODO: Remove later
 import getJson, {SearchResponse, getCheckpoints} from '@/hooks/api/Get'
 
 import CheckPoint from '@/components/CheckPoint'
+import {RouteData} from "@remix-run/router/utils";
 
 
 type Region = {
@@ -72,6 +73,7 @@ export default function Maps() {
             <ApiTestJwtToken token={JWT_token} />
         ) : null}
     */
+
 
     useEffect(() => {
         (async () => {
@@ -175,6 +177,27 @@ export default function Maps() {
                             checkpoint={checkpoint}
                             onQuestion={(question: Question) => {
                                 console.log('onQuestion:', question);
+                                let i = 0;
+                                // TODO: * i svarstexten ska tas bort vid produktion
+                                const answers = question.answers.map(q => q.isCorrect ? `${++i}*. ${q.text}`: `${++i}. ${q.text}`).join('\n');
+                                Alert.prompt(
+                                    question.text,
+                                    answers,
+                                    [
+                                        { text: "Cancel", style: "destructive", onPress: () => {} },
+                                        {
+                                            text: "Submit",
+                                            onPress: (answer) => {
+                                                if (answer) {
+                                                    const isCorrect = question.answers.find(q => q.text === answer)?.isCorrect;
+                                                    const text = isCorrect ? 'You answered correct' : 'I\'m sorry but you answered incorrectly';
+                                                    Alert.alert(text)
+                                                }
+                                            },
+                                        },
+                                    ],
+                                    "plain-text"
+                                )
                             }}
                         />
                     ))}
