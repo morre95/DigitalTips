@@ -1,6 +1,7 @@
 import { ExpoConfig, ConfigContext } from 'expo/config';
 
-// TODO: fixa så att google api nyckeln laddas in på något vis
+import 'dotenv/config'
+
 export default ({ config }: ConfigContext): ExpoConfig => ({
     ...config,
     slug: 'my-app',
@@ -10,7 +11,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     ios: {
         ...config.ios,
         config: {
-            googleMapsApiKey: 'YOUR_GOOGLE_MAP_API_KEY_HERE',
+            googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY,
         },
     },
 
@@ -18,8 +19,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         ...config.android,
         config: {
             googleMaps: {
-                apiKey: 'YOUR_GOOGLE_MAP_API_KEY_HERE',
+                apiKey: process.env.GOOGLE_MAPS_API_KEY,
             },
         },
+        package: 'myApp.com',
     },
 });

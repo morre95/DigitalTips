@@ -20,7 +20,8 @@
         "backgroundColor": "#ffffff"
       },
       "permissions": [
-        "ACCESS_FINE_LOCATION"
+        "ACCESS_FINE_LOCATION",
+        "INTERNET"
       ]
     },
     "web": {
@@ -44,6 +45,14 @@
     "experiments": {
       "typedRoutes": true
     },
-    "initialRouteName": "Maps"
+    "initialRouteName": "Maps",
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "34073070-02d5-4950-bff9-84eef13c9647"
+      }
+    }
   }
 }
