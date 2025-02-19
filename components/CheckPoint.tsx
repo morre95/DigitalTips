@@ -32,6 +32,7 @@ interface Answer {
 interface ICheckPoint {
     checkpoint: Checkpoint;
     onQuestion: (question: Question) => void;
+    onPress?: (message: string) => void;
 }
 
 // Typdefinition för en koordinat
@@ -90,7 +91,7 @@ const checkProximity = async (targetCoordinate: Coordinate): Promise<boolean> =>
 
 let foregroundSubscription: Location.LocationSubscription | null = null
 
-const CheckPoint: React.FC<ICheckPoint> = ({checkpoint, onQuestion}) => {
+const CheckPoint: React.FC<ICheckPoint> = ({checkpoint, onQuestion, onPress}) => {
 
     const [location, setLocation] = useState<Coordinate | null>(null);
     const [currentLocation, setCurrentLocation] = useState<Coordinate | null>(null);
@@ -100,6 +101,8 @@ const CheckPoint: React.FC<ICheckPoint> = ({checkpoint, onQuestion}) => {
             const result = await checkProximity(location as Coordinate);
             if (result) {
                 onQuestion(checkpoint.question)
+            } else if (onPress) {
+                onPress('Not so close')
             }
         })()
     }, [location]);

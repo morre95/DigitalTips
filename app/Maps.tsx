@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, Alert } from 'react-native';
+import React, {useState, useEffect, useRef, RefObject, ComponentRef} from 'react';
+import {StyleSheet, View, Text, Alert, Button} from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 
 import {SafeAreaView, SafeAreaProvider} from 'react-native-safe-area-context';
@@ -22,6 +22,8 @@ import getJson, {SearchResponse, getCheckpoints} from '@/hooks/api/Get'
 
 import CheckPoint from '@/components/CheckPoint'
 import {RouteData} from "@remix-run/router/utils";
+
+import FlashMessage from '@/components/FlashMessage'
 
 
 type Region = {
@@ -73,6 +75,8 @@ export default function Maps() {
             <ApiTestJwtToken token={JWT_token} />
         ) : null}
     */
+
+    const flashMessageRef = useRef<ComponentRef<typeof FlashMessage>>(null);
 
 
     useEffect(() => {
@@ -199,6 +203,9 @@ export default function Maps() {
                                     "plain-text"
                                 )
                             }}
+                            onPress={(message: string) => {
+                                flashMessageRef.current?.flash(message)
+                            }}
                         />
                     ))}
                 </MapView>
@@ -240,7 +247,13 @@ export default function Maps() {
                         backgroundColor="rgba(52, 52, 52, 0)"
                         onPress={handleLoadPress}/>
                 </View>*/}
-
+                {/*<Button
+                    title={'Klicka på mig'}
+                    onPress={() => {
+                        flashMessageRef.current?.flash('Hej hopp')
+                    }}
+                />*/}
+                <FlashMessage ref={flashMessageRef} />
             </SafeAreaView>
         </SafeAreaProvider>
     );
