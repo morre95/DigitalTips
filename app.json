@@ -20,9 +20,10 @@
         "backgroundColor": "#ffffff"
       },
       "permissions": [
-        "ACCESS_FINE_LOCATION",
-        "INTERNET"
-      ]
+        "INTERNET",
+        "ACCESS_FINE_LOCATION"
+      ],
+      "package": "myApp.com"
     },
     "web": {
       "bundler": "metro",
@@ -53,6 +54,12 @@
       "eas": {
         "projectId": "34073070-02d5-4950-bff9-84eef13c9647"
       }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/34073070-02d5-4950-bff9-84eef13c9647"
     }
   }
 }
