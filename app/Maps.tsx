@@ -144,23 +144,25 @@ export default function Maps() {
         if (isCorrect) {
             setScore(prevScore => prevScore + 1);
             setCurrentCheckpointIndex(prevIndex => prevIndex + 1);
-            const nextCheckpoints = checkpoints.map(checkpoint => {
-                if (checkpoint.checkpoint_id !== id) {
-                    return checkpoint;
-                } else {
-                    return {
-                        ...checkpoint,
-                        isAnswered: true,
-                    };
-                }
-            });
-            setCheckpoints(nextCheckpoints)
-            console.log(nextCheckpoints)
             flashMessageRef.current?.flash("Correct!");
         } else {
             flashMessageRef.current?.flash("Sorry but that is not the right answer...");
         }
         setQuestion(null)
+
+        const nextCheckpoints = checkpoints.map(checkpoint => {
+            if (checkpoint.checkpoint_id === id) {
+                return {
+                    ...checkpoint,
+                    isAnswered: true,
+                };
+            } else {
+                return checkpoint;
+            }
+        });
+        //setCheckpoints([]) // TBD: Ful lösning för att ladda om markers. Finns det något mindre resurskrävande???
+        setCheckpoints(_ => nextCheckpoints)
+        console.log(nextCheckpoints)
     };
 
     return (
@@ -192,12 +194,12 @@ export default function Maps() {
                             key={checkpoint.checkpoint_id}
                             checkpoint={checkpoint}
                             onQuestion={(question: Question, id) => {
-                                console.log('onQuestion:', question);
-                                let i = 0;
-                                // TODO: * i svarstexten ska tas bort vid produktion
-                                const answers = question.answers.map(q => q.isCorrect ? `${++i}*. ${q.text}`: `${++i}. ${q.text}`).join('\n');
-                                console.log('Answers string:', answers);
-                                setQuestion({question: question, checkPointId: checkpoint.checkpoint_id});
+                                console.log('onQuestion:', checkpoint);
+                                if (!checkpoint.isAnswered) {
+                                    setQuestion({question: question, checkPointId: checkpoint.checkpoint_id});
+                                } else {
+                                    console.log('onQuestion:', 'Is already answered');
+                                }
                             }}
                             onPress={(message: string) => {
                                 flashMessageRef.current?.flash(message)

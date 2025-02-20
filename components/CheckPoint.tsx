@@ -74,21 +74,7 @@ const checkProximity = async (targetCoordinate: Coordinate): Promise<boolean> =>
 let foregroundSubscription: Location.LocationSubscription | null = null
 
 const CheckPoint: React.FC<ICheckPoint> = ({checkpoint, onQuestion, currentCheckpoint, onPress}) => {
-
-    const [myLocation, setMyLocation] = useState<Coordinate | null>(null);
     const [currentLocation, setCurrentLocation] = useState<Coordinate | null>(null);
-
-    useEffect(() => {
-        (async () => {
-            const result = await checkProximity(myLocation as Coordinate);
-            if (result) {
-                if (onPress) onPress('You are close enough to get a question')
-                onQuestion(checkpoint.question, checkpoint.checkpoint_id)
-            } else if (onPress) {
-                onPress('Not so close')
-            }
-        })()
-    }, [myLocation]);
 
     useEffect(() => {
         if (currentLocation) {
@@ -157,6 +143,24 @@ const CheckPoint: React.FC<ICheckPoint> = ({checkpoint, onQuestion, currentCheck
 
     // TBD: för mer om backgound uppdateringar https://chafikgharbi.com/expo-location-tracking/
 
+    const handelOnPress = async () => {
+        console.log(`CheckPointOrder: ${checkpoint.checkpoint_order}`, {
+            latitude: Number(checkpoint.latitude),
+            longitude: Number(checkpoint.longitude)
+        })
+
+        const result = await checkProximity({
+            latitude: Number(checkpoint.latitude),
+            longitude: Number(checkpoint.longitude)
+        });
+        if (result) {
+            if (onPress) onPress('You are close enough to get a question')
+            onQuestion(checkpoint.question, checkpoint.checkpoint_id)
+        } else if (onPress) {
+            onPress('Not so close')
+        }
+    }
+
 
     return (
         <Marker
@@ -164,16 +168,7 @@ const CheckPoint: React.FC<ICheckPoint> = ({checkpoint, onQuestion, currentCheck
             coordinate={{ latitude: Number(checkpoint.latitude), longitude: Number(checkpoint.longitude)  }}
             title={`Checkpoint: ${checkpoint.checkpoint_order}`}
             image={{uri: MarkerImages}}
-            onPress={() => {
-                console.log(`CheckPointOrder: ${checkpoint.checkpoint_order}`, {
-                    latitude: Number(checkpoint.latitude),
-                    longitude: Number(checkpoint.longitude)
-                })
-                setMyLocation({
-                    latitude: Number(checkpoint.latitude),
-                    longitude: Number(checkpoint.longitude)
-                })
-            }}
+            onPress={handelOnPress}
         />
     )
 }

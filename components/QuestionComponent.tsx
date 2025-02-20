@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
 import {Question} from '@/interfaces/common';
@@ -38,9 +38,12 @@ const styles = StyleSheet.create({
         padding: 10,
         marginVertical: 5,
         borderRadius: 5,
+        cursor: 'pointer',
     },
     answerText: {
         fontSize: 16,
+        color: '#0000ff',
+
     },
 });
 
