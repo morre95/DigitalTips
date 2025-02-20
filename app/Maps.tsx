@@ -160,7 +160,7 @@ export default function Maps() {
                 return checkpoint;
             }
         });
-        //setCheckpoints([]) // TBD: Ful lösning för att ladda om markers. Finns det något mindre resurskrävande???
+
         setCheckpoints(_ => nextCheckpoints)
         console.log(nextCheckpoints)
     };
