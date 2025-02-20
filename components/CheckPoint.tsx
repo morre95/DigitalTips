@@ -21,6 +21,8 @@ interface Coordinate {
     longitude: number;
 }
 
+const globalThreshold = 20; // Tröskelvärde i meter
+
 // Haversine-formeln för att beräkna avståndet (i meter) mellan två koordinater
 const haversineDistance = (coord1: Coordinate, coord2: Coordinate): number => {
     const toRad = (value: number) => (value * Math.PI) / 180;
@@ -58,13 +60,13 @@ const checkProximity = async (targetCoordinate: Coordinate): Promise<boolean> =>
 
     // Beräkna avståndet mellan användaren och målkoordinaten
     const distance = haversineDistance(userCoordinate, targetCoordinate);
-    const threshold = 100000000; // Tröskelvärde i meter
 
-    if (distance < threshold) {
+
+    if (distance < globalThreshold) {
         console.log('Användaren är nära den angivna koordinaten!');
         return true
     } else {
-        console.log(`Avståndet är ${distance.toFixed(2)} meter, vilket är längre än ${threshold} meter.`);
+        console.log(`Avståndet är ${distance.toFixed(2)} meter, vilket är längre än ${globalThreshold} meter.`);
         return false;
     }
 };
@@ -78,15 +80,14 @@ const CheckPoint: React.FC<ICheckPoint> = ({checkpoint, onQuestion, currentCheck
         if (currentLocation) {
             const targetCoordinate = { latitude: Number(checkpoint.latitude), longitude: Number(checkpoint.longitude) }
             const distance = haversineDistance(currentLocation, targetCoordinate);
-            const threshold = 100000000;
 
-            if (distance < threshold) {
-                console.log(`Avståndet är ${distance.toFixed(2)} meter, vilket är kortare än ${threshold} meter.`);
+            if (distance < globalThreshold) {
+                console.log(`Avståndet är ${distance.toFixed(2)} meter, vilket är kortare än ${globalThreshold} meter.`);
                 onQuestion(checkpoint.question, checkpoint.checkpoint_id)
                 stopForegroundUpdate()
             } else {
                 if (onPress)
-                onPress(`Distance is ${distance.toFixed(2)} meters, that is not within ${threshold} meter.`)
+                onPress(`Distance is ${distance.toFixed(2)} meters, that is not within ${globalThreshold} meter.`)
             }
         }
     }, [currentLocation]);
@@ -107,7 +108,7 @@ const CheckPoint: React.FC<ICheckPoint> = ({checkpoint, onQuestion, currentCheck
             }
             console.log('currentCheckpoint id: ', checkpoint.checkpoint_id, 'Is monitored:', currentCheckpoint)
         })()
-    }, [])
+    }, [currentCheckpoint])
 
     // Start location tracking in foreground
     const startForegroundUpdate = async () => {
