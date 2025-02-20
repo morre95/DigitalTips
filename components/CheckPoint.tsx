@@ -23,7 +23,7 @@ interface Coordinate {
     longitude: number;
 }
 
-const globalThreshold = 9_000_000; // Tröskelvärde i meter
+const globalThreshold = 20 /*9_000_000;*/ // Tröskelvärde i meter
 
 const checkProximity = async (targetCoordinate: Coordinate): Promise<boolean> => {
     // Be om platsbehörighet

@@ -147,13 +147,14 @@ export default function Maps() {
     const handleAnswerSelected = (isCorrect: boolean, id: number) => {
         if (isCorrect) {
             setScore(prevScore => prevScore + 1);
-            setCurrentCheckpointIndex(prevIndex => prevIndex + 1);
+
             flashMessageRef.current?.flash("Correct!");
         } else {
             flashMessageRef.current?.flash("Sorry but that is not the right answer...");
         }
         setQuestion(null)
 
+        setCurrentCheckpointIndex(prevIndex => prevIndex + 1);
         const nextCheckpoints = checkpoints.map(checkpoint => {
             if (checkpoint.checkpoint_id === id) {
                 return {
