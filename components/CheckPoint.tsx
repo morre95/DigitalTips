@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
+import { getDistance } from 'geolib';
+
 import * as Location from 'expo-location';
 
 import { Marker } from 'react-native-maps';
@@ -11,7 +13,7 @@ import {Checkpoint, Question} from "@/interfaces/common";
 interface ICheckPoint {
     checkpoint: Checkpoint;
     onQuestion: (question: Question, id: number) => void;
-    currentCheckpoint: boolean;
+    active: boolean;
     onPress?: (message: string) => void;
 }
 
@@ -21,27 +23,7 @@ interface Coordinate {
     longitude: number;
 }
 
-const globalThreshold = 20; // Tröskelvärde i meter
-
-// Haversine-formeln för att beräkna avståndet (i meter) mellan två koordinater
-const haversineDistance = (coord1: Coordinate, coord2: Coordinate): number => {
-    const toRad = (value: number) => (value * Math.PI) / 180;
-    const R = 6371e3; // Jordens radie i meter
-
-    const φ1 = toRad(coord1.latitude);
-    const φ2 = toRad(coord2.latitude);
-    const Δφ = toRad(coord2.latitude - coord1.latitude);
-    const Δλ = toRad(coord2.longitude - coord1.longitude);
-
-    const a =
-        Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
-        Math.cos(φ1) * Math.cos(φ2) *
-        Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
-
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-    return R * c; // Avståndet i meter
-};
+const globalThreshold = 9_000_000; // Tröskelvärde i meter
 
 const checkProximity = async (targetCoordinate: Coordinate): Promise<boolean> => {
     // Be om platsbehörighet
@@ -59,8 +41,7 @@ const checkProximity = async (targetCoordinate: Coordinate): Promise<boolean> =>
     };
 
     // Beräkna avståndet mellan användaren och målkoordinaten
-    const distance = haversineDistance(userCoordinate, targetCoordinate);
-
+    const distance = getDistance(userCoordinate, targetCoordinate);
 
     if (distance < globalThreshold) {
         console.log('Användaren är nära den angivna koordinaten!');
@@ -73,13 +54,13 @@ const checkProximity = async (targetCoordinate: Coordinate): Promise<boolean> =>
 
 let foregroundSubscription: Location.LocationSubscription | null = null
 
-const CheckPoint: React.FC<ICheckPoint> = ({checkpoint, onQuestion, currentCheckpoint, onPress}) => {
+const CheckPoint: React.FC<ICheckPoint> = ({checkpoint, onQuestion, active, onPress}) => {
     const [currentLocation, setCurrentLocation] = useState<Coordinate | null>(null);
 
     useEffect(() => {
         if (currentLocation) {
             const targetCoordinate = { latitude: Number(checkpoint.latitude), longitude: Number(checkpoint.longitude) }
-            const distance = haversineDistance(currentLocation, targetCoordinate);
+            const distance = getDistance(currentLocation, targetCoordinate);
 
             if (distance < globalThreshold) {
                 console.log(`Avståndet är ${distance.toFixed(2)} meter, vilket är kortare än ${globalThreshold} meter.`);
@@ -102,13 +83,13 @@ const CheckPoint: React.FC<ICheckPoint> = ({checkpoint, onQuestion, currentCheck
                 console.error('Location request not granted');
             }
             //if (foreground.granted) await Location.requestBackgroundPermissionsAsync()
-            if (currentCheckpoint) {
+            if (active) {
                 await startForegroundUpdate()
                 console.log('currentCheckpoint id: ', checkpoint.checkpoint_id, 'startForegroundUpdate()')
             }
-            console.log('currentCheckpoint id: ', checkpoint.checkpoint_id, 'Is monitored:', currentCheckpoint)
+            console.log('currentCheckpoint id: ', checkpoint.checkpoint_id, 'Is monitored:', active)
         })()
-    }, [currentCheckpoint])
+    }, [active])
 
     // Start location tracking in foreground
     const startForegroundUpdate = async () => {

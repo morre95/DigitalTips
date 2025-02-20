@@ -137,7 +137,11 @@ export default function Maps() {
         }
         const markers = await getCheckpoints<Markers>(item.routeId)
 
-        setCheckpoints(markers.checkpoints);
+
+        setCheckpoints(markers.checkpoints.map(checkpoint => {
+            checkpoint.question.answers = [...checkpoint.question.answers].sort(() => Math.random() - 0.5);
+            return checkpoint
+        }));
     }
 
     const handleAnswerSelected = (isCorrect: boolean, id: number) => {
@@ -204,7 +208,7 @@ export default function Maps() {
                             onPress={(message: string) => {
                                 flashMessageRef.current?.flash(message)
                             }}
-                            currentCheckpoint={currentCheckpointIndex === index}
+                            active={currentCheckpointIndex === index}
                         />
                     ))}
                 </MapView>
