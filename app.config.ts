@@ -1,7 +1,7 @@
 
 import { ExpoConfig, ConfigContext } from 'expo/config';
 
-
+// FIXME: denna laddar inte in process.env när man bygger med: "eas build -p android --profile preview"
 export default ({ config }: ConfigContext): ExpoConfig => ({
     ...config,
     slug: 'my-app',

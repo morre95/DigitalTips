@@ -7,31 +7,13 @@ import * as Location from 'expo-location';
 import { Marker } from 'react-native-maps';
 import { MarkerImages } from "@/hooks/images";
 
-interface Checkpoint {
-    checkpoint_id:    number;
-    route_id:         number;
-    latitude:         string;
-    longitude:        string;
-    question_id:      number;
-    checkpoint_order: number;
-    created_at:       Date;
-    updated_at:       Date;
-    question:         Question;
-}
+import {Checkpoint, Question} from "@/interfaces/common";
 
-interface Question {
-    text:    string;
-    answers: Answer[];
-}
-
-interface Answer {
-    text:      string;
-    isCorrect: boolean;
-}
 
 interface ICheckPoint {
     checkpoint: Checkpoint;
-    onQuestion: (question: Question) => void;
+    onQuestion: (question: Question, id: number) => void;
+    currentCheckpoint: boolean;
     onPress?: (message: string) => void;
 }
 
@@ -78,7 +60,7 @@ const checkProximity = async (targetCoordinate: Coordinate): Promise<boolean> =>
 
     // Beräkna avståndet mellan användaren och målkoordinaten
     const distance = haversineDistance(userCoordinate, targetCoordinate);
-    const threshold = 20; // Tröskelvärde i meter
+    const threshold = 100000000; // Tröskelvärde i meter
 
     if (distance < threshold) {
         console.log('Användaren är nära den angivna koordinaten!');
@@ -91,27 +73,55 @@ const checkProximity = async (targetCoordinate: Coordinate): Promise<boolean> =>
 
 let foregroundSubscription: Location.LocationSubscription | null = null
 
-const CheckPoint: React.FC<ICheckPoint> = ({checkpoint, onQuestion, onPress}) => {
+const CheckPoint: React.FC<ICheckPoint> = ({checkpoint, onQuestion, currentCheckpoint, onPress}) => {
 
-    const [location, setLocation] = useState<Coordinate | null>(null);
+    const [myLocation, setMyLocation] = useState<Coordinate | null>(null);
     const [currentLocation, setCurrentLocation] = useState<Coordinate | null>(null);
 
     useEffect(() => {
         (async () => {
-            const result = await checkProximity(location as Coordinate);
+            const result = await checkProximity(myLocation as Coordinate);
             if (result) {
-                onQuestion(checkpoint.question)
+                if (onPress) onPress('You are close enough to get a question')
+                onQuestion(checkpoint.question, checkpoint.checkpoint_id)
             } else if (onPress) {
                 onPress('Not so close')
             }
         })()
-    }, [location]);
+    }, [myLocation]);
+
+    useEffect(() => {
+        if (currentLocation) {
+            const targetCoordinate = { latitude: Number(checkpoint.latitude), longitude: Number(checkpoint.longitude) }
+            const distance = haversineDistance(currentLocation, targetCoordinate);
+            const threshold = 100000000;
+
+            if (distance < threshold) {
+                console.log(`Avståndet är ${distance.toFixed(2)} meter, vilket är kortare än ${threshold} meter.`);
+                onQuestion(checkpoint.question, checkpoint.checkpoint_id)
+                stopForegroundUpdate()
+            } else {
+                if (onPress)
+                onPress(`Distance is ${distance.toFixed(2)} meters, that is not within ${threshold} meter.`)
+            }
+        }
+    }, [currentLocation]);
 
     // Request permissions right after starting the app
     useEffect(() => {
         (async () => {
             const foreground = await Location.requestForegroundPermissionsAsync()
+            if (foreground.granted) {
+                console.log('Location requests is granted');
+            } else {
+                console.error('Location request not granted');
+            }
             //if (foreground.granted) await Location.requestBackgroundPermissionsAsync()
+            if (currentCheckpoint) {
+                await startForegroundUpdate()
+                console.log('currentCheckpoint id: ', checkpoint.checkpoint_id, 'startForegroundUpdate()')
+            }
+            console.log('currentCheckpoint id: ', checkpoint.checkpoint_id, 'Is monitored:', currentCheckpoint)
         })()
     }, [])
 
@@ -159,7 +169,7 @@ const CheckPoint: React.FC<ICheckPoint> = ({checkpoint, onQuestion, onPress}) =>
                     latitude: Number(checkpoint.latitude),
                     longitude: Number(checkpoint.longitude)
                 })
-                setLocation({
+                setMyLocation({
                     latitude: Number(checkpoint.latitude),
                     longitude: Number(checkpoint.longitude)
                 })

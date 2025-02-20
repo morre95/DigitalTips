@@ -25,6 +25,8 @@ import {RouteData} from "@remix-run/router/utils";
 
 import FlashMessage from '@/components/FlashMessage'
 
+import {Checkpoint, Question} from "@/interfaces/common";
+import QuestionComponent from '@/components/QuestionComponent'
 
 type Region = {
     latitude: number
@@ -33,32 +35,19 @@ type Region = {
     longitudeDelta: number
 }
 
-interface Checkpoint {
-    checkpoint_id:    number;
-    route_id:         number;
-    latitude:         string;
-    longitude:        string;
-    question_id:      number;
-    checkpoint_order: number;
-    created_at:       Date;
-    updated_at:       Date;
-    question:         Question;
-}
-
-interface Question {
-    text:    string;
-    answers: Answer[];
-}
-
-interface Answer {
-    text:      string;
-    isCorrect: boolean;
+type QuestionType = {
+    question: Question;
+    checkPointId: number;
 }
 
 // TODO: Ladda in den rutt som blivit sparad på routes sidan
 export default function Maps() {
     const [checkpoints, setCheckpoints] = useState<Checkpoint[]>([]);
     const [showSearchButton, setShowSearchButton] = useState(true);
+
+    const [score, setScore] = useState(0);
+    const [question, setQuestion] = useState<QuestionType | null>(null);
+    const [currentCheckpointIndex, setCurrentCheckpointIndex] = useState<number>(0);
 
     const initialRegion: Region = {
         latitude: 58.317435384,
@@ -151,6 +140,29 @@ export default function Maps() {
         setCheckpoints(markers.checkpoints);
     }
 
+    const handleAnswerSelected = (isCorrect: boolean, id: number) => {
+        if (isCorrect) {
+            setScore(prevScore => prevScore + 1);
+            setCurrentCheckpointIndex(prevIndex => prevIndex + 1);
+            const nextCheckpoints = checkpoints.map(checkpoint => {
+                if (checkpoint.checkpoint_id !== id) {
+                    return checkpoint;
+                } else {
+                    return {
+                        ...checkpoint,
+                        isAnswered: true,
+                    };
+                }
+            });
+            setCheckpoints(nextCheckpoints)
+            console.log(nextCheckpoints)
+            flashMessageRef.current?.flash("Correct!");
+        } else {
+            flashMessageRef.current?.flash("Sorry but that is not the right answer...");
+        }
+        setQuestion(null)
+    };
+
     return (
         <SafeAreaProvider>
             <SafeAreaView style={styles.container}>
@@ -175,37 +187,22 @@ export default function Maps() {
                         ]);
                     }}
                 >
-                    {checkpoints.map(checkpoint => (
+                    {checkpoints.map((checkpoint, index) => (
                         <CheckPoint
                             key={checkpoint.checkpoint_id}
                             checkpoint={checkpoint}
-                            onQuestion={(question: Question) => {
+                            onQuestion={(question: Question, id) => {
                                 console.log('onQuestion:', question);
                                 let i = 0;
                                 // TODO: * i svarstexten ska tas bort vid produktion
                                 const answers = question.answers.map(q => q.isCorrect ? `${++i}*. ${q.text}`: `${++i}. ${q.text}`).join('\n');
-                                Alert.prompt(
-                                    question.text,
-                                    answers,
-                                    [
-                                        { text: "Cancel", style: "destructive", onPress: () => {} },
-                                        {
-                                            text: "Submit",
-                                            onPress: (answer) => {
-                                                if (answer) {
-                                                    const isCorrect = question.answers.find(q => q.text === answer)?.isCorrect;
-                                                    const text = isCorrect ? 'You answered correct' : 'I\'m sorry but you answered incorrectly';
-                                                    Alert.alert(text)
-                                                }
-                                            },
-                                        },
-                                    ],
-                                    "plain-text"
-                                )
+                                console.log('Answers string:', answers);
+                                setQuestion({question: question, checkPointId: checkpoint.checkpoint_id});
                             }}
                             onPress={(message: string) => {
                                 flashMessageRef.current?.flash(message)
                             }}
+                            currentCheckpoint={currentCheckpointIndex === index}
                         />
                     ))}
                 </MapView>
@@ -230,29 +227,8 @@ export default function Maps() {
                     />
                 ) }
 
-                {/*<View style={styles.newMarker}>
-                    <AntDesign.Button
-                        name="plussquareo"
-                        size={35}
-                        color="black"
-                        backgroundColor="rgba(52, 52, 52, 0)"
-                        onPress={handleAddMarkerPress} />
-                </View>
-
-                <View style={styles.loadButton}>
-                    <AntDesign.Button
-                        name="hdd"
-                        size={35}
-                        color="black"
-                        backgroundColor="rgba(52, 52, 52, 0)"
-                        onPress={handleLoadPress}/>
-                </View>*/}
-                {/*<Button
-                    title={'Klicka på mig'}
-                    onPress={() => {
-                        flashMessageRef.current?.flash('Hej hopp')
-                    }}
-                />*/}
+                {question && <QuestionComponent question={question.question} onAnswerSelected={(isCorrect) => handleAnswerSelected(isCorrect, question.checkPointId)} />}
+                {score > 0 ? <Text>Score: {score}</Text> : null}
                 <FlashMessage ref={flashMessageRef} />
             </SafeAreaView>
         </SafeAreaProvider>
