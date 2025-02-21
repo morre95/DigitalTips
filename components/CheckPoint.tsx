@@ -28,33 +28,6 @@ interface Coordinate {
 
 const globalThreshold = 20 /*9_000_000;*/ // Tröskelvärde i meter
 
-const checkProximity = async (targetCoordinate: Coordinate): Promise<boolean> => {
-    // Be om platsbehörighet
-    const { status } = await Location.requestForegroundPermissionsAsync();
-    if (status !== 'granted') {
-        console.error('Platsbehörighet nekad');
-        return false;
-    }
-
-    // Hämta användarens nuvarande position
-    const location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
-    const userCoordinate: Coordinate = {
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
-    };
-
-    // Beräkna avståndet mellan användaren och målkoordinaten
-    const distance = getDistance(userCoordinate, targetCoordinate);
-
-    if (distance < globalThreshold) {
-        console.log('Användaren är nära den angivna koordinaten!');
-        return true
-    } else {
-        console.log(`Avståndet är ${distance.toFixed(2)} meter, vilket är längre än ${globalThreshold} meter.`);
-        return false;
-    }
-};
-
 let foregroundSubscription: Location.LocationSubscription | null = null
 
 const CheckPoint: React.FC<ICheckPoint> = (
@@ -72,9 +45,28 @@ const CheckPoint: React.FC<ICheckPoint> = (
     const [inActiveRegion, setInActiveRegion] = useState<boolean>(false);
 
     useEffect(() => {
-        if (currentPosition) setCurrentCoordinate(currentPosition)
+        if (currentPosition) {
+            setCurrentCoordinate(currentPosition)
+        }
 
-        console.log('currentPosition changed in Checkpoint component', currentPosition)
+        console.log('currentPosition changed for Checkpoint id', checkpoint.checkpoint_id, 'pos:', currentPosition)
+
+        // TBD: ska tas bort när testning är klar och hur game play ska vara är bestämt
+        if (currentPosition && activeCheckpoint) {
+            const distance = getDistance(currentPosition, {
+                latitude: Number(checkpoint.latitude),
+                longitude: Number(checkpoint.longitude)
+            }) - globalThreshold;
+
+            if (distance <= 0) {
+                console.log('handelOnPress()', 'Användaren är', distance, 'meter och är inom checkpointen');
+                if (onPress) {
+                    onPress(`You are ${distance} meters away from target`)
+                }
+            } else {
+                console.log('handelOnPress()', 'Användaren är', distance, 'meter');
+            }
+        }
 
     }, [currentPosition]);
 
@@ -159,16 +151,6 @@ const CheckPoint: React.FC<ICheckPoint> = (
             latitude: Number(checkpoint.latitude),
             longitude: Number(checkpoint.longitude)
         })
-
-        const result = await checkProximity({
-            latitude: Number(checkpoint.latitude),
-            longitude: Number(checkpoint.longitude)
-        });
-        if (result) {
-            if (onPress) onPress('You are close enough to get a question')
-        } else if (onPress) {
-            onPress('Not so close')
-        }
     }
 
 

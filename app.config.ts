@@ -1,11 +1,10 @@
 
 import { ExpoConfig, ConfigContext } from 'expo/config';
 
-// FIXME: denna laddar inte in process.env när man bygger med: "eas build -p android --profile preview"
+// TODO: om nycklarna inte laddas in som dom ska kör "eas update --environment preview" före "eas build -p android --profile preview"
 export default ({ config }: ConfigContext): ExpoConfig => ({
     ...config,
     slug: 'my-app',
-    // TBD: slug och name måste vara med annars får jag felmmedelanden
     name: 'My App',
 
     ios: {
