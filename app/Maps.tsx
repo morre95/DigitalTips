@@ -1,27 +1,22 @@
-import React, {useState, useEffect, useRef, RefObject, ComponentRef} from 'react';
-import {StyleSheet, View, Text, Alert, Button} from 'react-native';
-import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
+import React, {useState, useEffect, useRef, ComponentRef} from 'react';
+import {StyleSheet, View, Text, Alert} from 'react-native';
+import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
 
 import {SafeAreaView, SafeAreaProvider} from 'react-native-safe-area-context';
 
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import AntDesign from '@expo/vector-icons/AntDesign';
 
 import Autocomplete from '@/components/Autocomplete';
 
-import {MarkerImages} from '@/hooks/images'
-
 import registerOrLogin, { globals } from "@/hooks/registerOrLogin";
-import ApiTestJwtToken from "@/components/ApiTestJwtToken";
 
 import {router, useLocalSearchParams} from 'expo-router';
 
 import checkpointsData from "../assets/checkpoints.json";   //TODO: Remove later this json import, since we wont use it in the future
 
-import getJson, {SearchResponse, getCheckpoints} from '@/hooks/api/Get'
+import {SearchResponse, getCheckpoints} from '@/hooks/api/Get'
 
 import CheckPoint from '@/components/CheckPoint'
-import {RouteData} from "@remix-run/router/utils";
 
 import FlashMessage from '@/components/FlashMessage'
 
@@ -89,23 +84,6 @@ export default function Maps() {
         }
     }, [routerData]);
 
-    //TODO: This will removed in the future, but the code in here can be used to load the checkpoints used for 
-    const handleLoadPress = (event: any) => {
-        console.log("loading json file");
-
-        try{
-            const checkpoints: Checkpoint[] = checkpointsData.checkpoints.map((cp: any) => ({
-                ...cp,
-                created_at: new Date(cp.created_at),
-                updated_at: new Date(cp.updated_at),
-            }));
-            setCheckpoints(checkpoints);
-
-        } catch (error) {
-            console.error("An error occurred", error);
-        }
-    }
-
     const [currenPosition, setCurrenPosition] = useState<{latitude: number, longitude: number}>()
     const handleMapPress = (event: any) => {
         if (!showSearchButton) {
@@ -119,15 +97,8 @@ export default function Maps() {
         setCurrenPosition({latitude: coordinate.latitude, longitude: coordinate.longitude})
     };
 
-    const handleSearchPress = (event: any) => {
+    const handleSearchPress = () => {
         setShowSearchButton(!showSearchButton);
-    }
-
-    const handleAddMarkerPress = () => {
-        router.replace({
-            pathname: "./Routes",
-            params: { data : JSON.stringify(currentRegion) }
-        })
     }
 
     const handelAutoOnSelect = async (item: SearchResponse) => {
