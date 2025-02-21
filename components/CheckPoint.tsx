@@ -16,7 +16,8 @@ interface ICheckPoint {
     activeCheckpoint: boolean;
     onEnter?: () => void;
     onLeave?: () => void;
-    onPress?: (message: string) => void;
+    onChange?: (distance: number) => void;
+    // TBD: currentPosition har bara laggts till för att användas i debug syfte
     currentPosition?: Coordinate;
 }
 
@@ -35,7 +36,7 @@ const CheckPoint: React.FC<ICheckPoint> = (
         checkpoint,
         onQuestion,
         activeCheckpoint,
-        onPress,
+        onChange,
         onLeave,
         onEnter,
         currentPosition
@@ -59,12 +60,15 @@ const CheckPoint: React.FC<ICheckPoint> = (
             }) - globalThreshold;
 
             if (distance <= 0) {
-                console.log('handelOnPress()', 'Användaren är', distance, 'meter och är inom checkpointen');
-                if (onPress) {
-                    onPress(`You are ${distance} meters away from target`)
+                console.log('handelOnPress()', 'Användaren är', 0, 'meter och är inom checkpointen');
+                if (onChange) {
+                    onChange(0)
                 }
             } else {
                 console.log('handelOnPress()', 'Användaren är', distance, 'meter');
+                if (onChange) {
+                    onChange(distance)
+                }
             }
         }
 

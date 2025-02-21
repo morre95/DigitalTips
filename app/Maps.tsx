@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useRef, ComponentRef} from 'react';
-import {StyleSheet, View, Text, Alert} from 'react-native';
+import {StyleSheet, View, Text, Alert, Button} from 'react-native';
 import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
 
 import {SafeAreaView, SafeAreaProvider} from 'react-native-safe-area-context';
@@ -128,6 +128,7 @@ export default function Maps() {
         setQuestion(null)
 
         setCurrentCheckpointIndex(prevIndex => prevIndex + 1);
+
         const nextCheckpoints = checkpoints.map(checkpoint => {
             if (checkpoint.checkpoint_id === id) {
                 return {
@@ -138,9 +139,18 @@ export default function Maps() {
                 return checkpoint;
             }
         });
+        const isFinished =
+            nextCheckpoints.filter(checkpoint => checkpoint.isAnswered).length === checkpoints.length;
+
+        // TODO: Gör något med informationen att alla frågor är svarade
+        if (isFinished) {
+            // TBD: score här är inte uppdaterad än. Så denna sträng bör skapas på något annat vis. Tex. i setScore()
+            console.log('Japp nu är det klar och ditt score är', score)
+        } else {
+            console.log('Next finished', nextCheckpoints.filter(checkpoint => checkpoint.isAnswered).length, ', checkpoints', checkpoints.length)
+        }
 
         setCheckpoints(_ => nextCheckpoints)
-        console.log(nextCheckpoints)
     };
 
     return (
@@ -176,15 +186,15 @@ export default function Maps() {
                                 if (!checkpoint.isAnswered) {
                                     setQuestion({question: question, checkPointId: checkpoint.checkpoint_id});
                                 } else {
-                                    console.log('onQuestion:', 'Is already answered');
+                                    console.log('onQuestion:', 'ID:', checkpoint.checkpoint_id, 'is already answered');
                                 }
                             }}
-                            onPress={(message: string) => {
-                                flashMessageRef.current?.flash(message)
+                            onChange={(distance: number) => {
+                                flashMessageRef.current?.flash(`Distance changed, you are ${distance} meters from the checkpoint #${checkpoint.checkpoint_id}`);
                             }}
                             activeCheckpoint={currentCheckpointIndex === index}
                             onLeave={() => {
-                                console.log('onLeave()')
+                                console.log('onLeave()', 'id:', checkpoint.checkpoint_id)
                                 setQuestion(null)
                             }}
                             currentPosition={currenPosition}
@@ -220,6 +230,7 @@ export default function Maps() {
                 {score > 0 ? <Text>Score: {score}</Text> : null}
 
                 <FlashMessage ref={flashMessageRef} />
+                {/*<Button title={'Click me'} onPress={() => {flashMessageRef.current?.flash("En jätte lång mening som");}}/>*/}
             </SafeAreaView>
         </SafeAreaProvider>
     );

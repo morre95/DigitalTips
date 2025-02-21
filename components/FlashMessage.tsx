@@ -56,7 +56,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         marginTop: Platform.OS === 'ios' ? '2%' : '3%',
         zIndex: 1,
-        marginBottom: Platform.OS === 'ios' ? '2%' : '3%',
+        marginBottom: Platform.OS === 'ios' ? '5%' : '6%',
     },
     scrollboxActionContainerInner: {
         backgroundColor: '#fff'
