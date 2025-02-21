@@ -13,8 +13,11 @@ import {Checkpoint, Question} from "@/interfaces/common";
 interface ICheckPoint {
     checkpoint: Checkpoint;
     onQuestion: (question: Question, id: number) => void;
-    active: boolean;
+    activeCheckpoint: boolean;
+    onEnter?: () => void;
+    onLeave?: () => void;
     onPress?: (message: string) => void;
+    currentPosition?: Coordinate;
 }
 
 // Typdefinition för en koordinat
@@ -54,24 +57,52 @@ const checkProximity = async (targetCoordinate: Coordinate): Promise<boolean> =>
 
 let foregroundSubscription: Location.LocationSubscription | null = null
 
-const CheckPoint: React.FC<ICheckPoint> = ({checkpoint, onQuestion, active, onPress}) => {
-    const [currentLocation, setCurrentLocation] = useState<Coordinate | null>(null);
+const CheckPoint: React.FC<ICheckPoint> = (
+    {
+        checkpoint,
+        onQuestion,
+        activeCheckpoint,
+        onPress,
+        onLeave,
+        onEnter,
+        currentPosition
+    }) => {
+
+    const [currentCoordinate, setCurrentCoordinate] = useState<Coordinate | null>(null);
+    const [inActiveRegion, setInActiveRegion] = useState<boolean>(false);
 
     useEffect(() => {
-        if (currentLocation) {
+        if (currentPosition) setCurrentCoordinate(currentPosition)
+
+        console.log('currentPosition changed in Checkpoint component', currentPosition)
+
+    }, [currentPosition]);
+
+    useEffect(() => {
+        if (activeCheckpoint && inActiveRegion) {
+            onQuestion(checkpoint.question, checkpoint.checkpoint_id)
+            if (onEnter) {
+                onEnter()
+            }
+        } else if (onLeave && activeCheckpoint) {
+            onLeave()
+        }
+    }, [inActiveRegion]);
+
+    useEffect(() => {
+        if (currentCoordinate) {
             const targetCoordinate = { latitude: Number(checkpoint.latitude), longitude: Number(checkpoint.longitude) }
-            const distance = getDistance(currentLocation, targetCoordinate);
+            const distance = getDistance(currentCoordinate, targetCoordinate);
 
             if (distance < globalThreshold) {
                 console.log(`Avståndet är ${distance.toFixed(2)} meter, vilket är kortare än ${globalThreshold} meter.`);
-                onQuestion(checkpoint.question, checkpoint.checkpoint_id)
+                setInActiveRegion(true)
                 stopForegroundUpdate()
-            } else {
-                if (onPress)
-                onPress(`Distance is ${distance.toFixed(2)} meters, that is not within ${globalThreshold} meter.`)
+            } else if (activeCheckpoint) {
+                setInActiveRegion(false)
             }
         }
-    }, [currentLocation]);
+    }, [currentCoordinate]);
 
     // Request permissions right after starting the app
     useEffect(() => {
@@ -83,13 +114,13 @@ const CheckPoint: React.FC<ICheckPoint> = ({checkpoint, onQuestion, active, onPr
                 console.error('Location request not granted');
             }
             //if (foreground.granted) await Location.requestBackgroundPermissionsAsync()
-            if (active) {
+            if (activeCheckpoint) {
                 await startForegroundUpdate()
                 console.log('currentCheckpoint id: ', checkpoint.checkpoint_id, 'startForegroundUpdate()')
             }
-            console.log('currentCheckpoint id: ', checkpoint.checkpoint_id, 'Is monitored:', active)
+            console.log('currentCheckpoint id: ', checkpoint.checkpoint_id, 'Is monitored:', activeCheckpoint)
         })()
-    }, [active])
+    }, [activeCheckpoint])
 
     // Start location tracking in foreground
     const startForegroundUpdate = async () => {
@@ -110,7 +141,7 @@ const CheckPoint: React.FC<ICheckPoint> = ({checkpoint, onQuestion, active, onPr
                 accuracy: Location.Accuracy.BestForNavigation,
             },
             location => {
-                setCurrentLocation({latitude: location.coords.latitude, longitude: location.coords.longitude})
+                setCurrentCoordinate({latitude: location.coords.latitude, longitude: location.coords.longitude})
             }
         )
     }
@@ -118,7 +149,7 @@ const CheckPoint: React.FC<ICheckPoint> = ({checkpoint, onQuestion, active, onPr
     // Stop location tracking in foreground
     const stopForegroundUpdate = () => {
         foregroundSubscription?.remove()
-        setCurrentLocation(null)
+        setCurrentCoordinate(null)
     }
 
     // TBD: för mer om backgound uppdateringar https://chafikgharbi.com/expo-location-tracking/
@@ -135,7 +166,6 @@ const CheckPoint: React.FC<ICheckPoint> = ({checkpoint, onQuestion, active, onPr
         });
         if (result) {
             if (onPress) onPress('You are close enough to get a question')
-            onQuestion(checkpoint.question, checkpoint.checkpoint_id)
         } else if (onPress) {
             onPress('Not so close')
         }

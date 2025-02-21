@@ -106,6 +106,7 @@ export default function Maps() {
         }
     }
 
+    const [currenPosition, setCurrenPosition] = useState<{latitude: number, longitude: number}>()
     const handleMapPress = (event: any) => {
         if (!showSearchButton) {
             setShowSearchButton(true)
@@ -115,6 +116,7 @@ export default function Maps() {
         const { coordinate } = event.nativeEvent;
 
         console.log(`Klickat på karten vid lat: ${coordinate.latitude}, lon: ${coordinate.longitude}`);
+        setCurrenPosition({latitude: coordinate.latitude, longitude: coordinate.longitude})
     };
 
     const handleSearchPress = (event: any) => {
@@ -209,7 +211,12 @@ export default function Maps() {
                             onPress={(message: string) => {
                                 flashMessageRef.current?.flash(message)
                             }}
-                            active={currentCheckpointIndex === index}
+                            activeCheckpoint={currentCheckpointIndex === index}
+                            onLeave={() => {
+                                console.log('onLeave()')
+                                setQuestion(null)
+                            }}
+                            currentPosition={currenPosition}
                         />
                     ))}
                 </MapView>
@@ -234,8 +241,13 @@ export default function Maps() {
                     />
                 ) }
 
-                {question && <QuestionComponent question={question.question} onAnswerSelected={(isCorrect) => handleAnswerSelected(isCorrect, question.checkPointId)} />}
+                {question && <QuestionComponent
+                    question={question.question}
+                    onAnswerSelected={(isCorrect) => handleAnswerSelected(isCorrect, question.checkPointId)}
+                />}
+
                 {score > 0 ? <Text>Score: {score}</Text> : null}
+
                 <FlashMessage ref={flashMessageRef} />
             </SafeAreaView>
         </SafeAreaProvider>
