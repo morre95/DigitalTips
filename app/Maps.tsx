@@ -12,8 +12,6 @@ import registerOrLogin, { globals } from "@/hooks/registerOrLogin";
 
 import {router, useLocalSearchParams} from 'expo-router';
 
-import checkpointsData from "../assets/checkpoints.json";   //TODO: Remove later this json import, since we wont use it in the future
-
 import {SearchResponse, getCheckpoints} from '@/hooks/api/Get'
 
 import CheckPoint from '@/components/CheckPoint'
