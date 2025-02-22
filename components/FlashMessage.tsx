@@ -1,98 +1,88 @@
-import React, {ComponentRef, Ref, RefObject, useImperativeHandle, useState} from 'react';
-import { Text, View, TouchableOpacity, Image, StyleSheet, Platform } from 'react-native';
+import React, { Component } from "react";
+import { Animated, StyleSheet, Text, View } from "react-native";
 
-interface IPorps {
-    flash: (message: string, timeout?: number) => void;
+interface AnimatedNotificationState {
+    notification: string;
+    opacity: Animated.Value;
+    offset: Animated.Value;
 }
 
-const FlashMessage = React.forwardRef<IPorps>((props, ref: any) => {
+export default class FlashMessage extends Component<{}, AnimatedNotificationState> {
+    private _notificationRef: React.RefObject<View>;
 
-    const [isVisible, setIsVisible] = useState(false);
-    const [flashMessage, setFlashMessage] = useState('');
-
-    useImperativeHandle(ref, () => ({ flash }))
-
-
-    const flash = (message: string, timeout: number = 2000) => {
-        setIsVisible(true)
-        setFlashMessage(message)
-        setTimeout(closeFlash, timeout)
+    constructor(props: {}) {
+        super(props);;
+        this.state = {
+            notification: "",
+            opacity: new Animated.Value(0),
+            offset: new Animated.Value(0),
+        };
+        this._notificationRef = React.createRef<View>();
     }
 
-    const closeFlash = () => {
-        setIsVisible(false)
-        setFlashMessage('')
-    }
-
-    return (
-        <View>
-            {
-                isVisible ?
-                    <View style={styles.scrollboxActionContainer}>
-                        <View style={styles.scrollboxActionContainerInner} >
-                            <View style={styles.scrollboxHorizontal}>
-                                <View style={styles.flashMessage}>
-                                    <Text style={styles.flashMessageHeading}>
-                                        Alert Notification
-                                    </Text>
-                                    <Text>
-                                        {flashMessage}
-                                    </Text>
-                                </View>
-                            </View>
-                        </View>
-                    </View>
-                    :
-                    null
+    public flash = (message: string, duration: number = 1500) => {
+        this.setState({ notification: message }, () => {
+            const notificationNode = this._notificationRef.current;
+            if (notificationNode) {
+                notificationNode.measure((x, y, width, height, pageX, pageY) => {
+                    this.state.offset.setValue(-height);
+                    Animated.sequence([
+                        Animated.parallel([
+                            Animated.timing(this.state.opacity, {
+                                toValue: 1,
+                                duration: 300,
+                                useNativeDriver: true,
+                            }),
+                            Animated.timing(this.state.offset, {
+                                toValue: 0,
+                                duration: 300,
+                                useNativeDriver: true,
+                            }),
+                        ]),
+                        Animated.delay(duration),
+                        Animated.parallel([
+                            Animated.timing(this.state.opacity, {
+                                toValue: 0,
+                                duration: 300,
+                                useNativeDriver: true,
+                            }),
+                            Animated.timing(this.state.offset, {
+                                toValue: -height,
+                                duration: 300,
+                                useNativeDriver: true,
+                            }),
+                        ]),
+                    ]).start();
+                });
             }
-        </View>
-    )
-})
+        });
+    };
+
+    render() {
+        const notificationStyle = {
+            opacity: this.state.opacity,
+            transform: [{ translateY: this.state.offset }],
+        };
+
+        return (
+            <Animated.View style={[styles.notification, notificationStyle]} ref={this._notificationRef}>
+                <Text style={styles.notificationText}>{this.state.notification}</Text>
+            </Animated.View>
+        );
+    }
+}
 
 const styles = StyleSheet.create({
-    scrollboxActionContainer: {
-        backgroundColor: '#fff',
-        marginHorizontal: 10,
-        justifyContent: 'center',
-        marginTop: Platform.OS === 'ios' ? '2%' : '3%',
-        zIndex: 1,
-        marginBottom: Platform.OS === 'ios' ? '5%' : '6%',
-    },
-    scrollboxActionContainerInner: {
-        backgroundColor: '#fff'
-    },
-    scrollboxHorizontal: {
-        flex: 1,
-        backgroundColor: '#fff',
-        borderRadius: 10,
-        shadowColor: '#000',
-        shadowOffset: { width: 2, height: 2 },
-        shadowOpacity: 0.4,
-        shadowRadius: 2,
-        elevation: 3,
-        paddingTop: '10%',
-    },
-    flashMessage: {
-        flex: 1,
-        position: 'absolute',
-        width: '100%',
-        justifyContent: 'center',
-        alignItems: 'center',
+    notification: {
+        position: "absolute",
+        paddingHorizontal: 7,
+        paddingVertical: 15,
+        left: 0,
         top: 0,
-        zIndex: 1,
-        backgroundColor: '#edca82',
-        borderRadius: 10,
-        shadowColor: '#000',
-        shadowOffset: { width: 2, height: 2 },
-        shadowOpacity: 0.4,
-        shadowRadius: 2,
-        elevation: 3,
-        padding: 5,
+        right: 0,
+        backgroundColor: "tomato",
     },
-    flashMessageHeading: {
-        fontWeight: 'bold',
-        fontSize: 12,
-    }
-})
-
-export default FlashMessage;
+    notificationText: {
+        color: "#FFF",
+    },
+});

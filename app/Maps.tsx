@@ -228,7 +228,8 @@ export default function Maps() {
                 {score > 0 ? <Text>Score: {score}</Text> : null}
 
                 <FlashMessage ref={flashMessageRef} />
-                {/*<Button title={'Click me'} onPress={() => {flashMessageRef.current?.flash("En jätte lång mening som");}}/>*/}
+                <Button title={'Click me'} onPress={() => {flashMessageRef.current?.flash("Ett medelande", );}}/>
+                <Button title={'Click 10 000'} onPress={() => {flashMessageRef.current?.flash("Ett medelande som tar 10 000ms", 10000);}}/>
             </SafeAreaView>
         </SafeAreaProvider>
     );
