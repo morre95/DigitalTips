@@ -228,8 +228,10 @@ export default function Maps() {
                 {score > 0 ? <Text>Score: {score}</Text> : null}
 
                 <FlashMessage ref={flashMessageRef} />
-                <Button title={'Click me'} onPress={() => {flashMessageRef.current?.flash("Ett medelande", );}}/>
-                <Button title={'Click 10 000'} onPress={() => {flashMessageRef.current?.flash("Ett medelande som tar 10 000ms", 10000);}}/>
+                {/*<Button title={'Click me'} onPress={() => {flashMessageRef.current?.flash("Ett medelande", );}}/>
+                <Button title={'Success'} onPress={() => {flashMessageRef.current?.success("Ett medelande", );}} color={'#228b22'}/>
+                <Button title={'Error'} onPress={() => {flashMessageRef.current?.error("Ett error msg som tar 10 000ms", 10000);}} color={'tomato'}/>
+                <Button title={'Warning'} onPress={() => {flashMessageRef.current?.warning("Ett varnings msg som");}} color={'#ffd700'}/>*/}
             </SafeAreaView>
         </SafeAreaProvider>
     );

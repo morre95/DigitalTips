@@ -27,10 +27,31 @@ export default class FlashMessage extends Component<{}, AnimatedNotificationStat
         this._notificationRef = React.createRef<View>();
     }
 
-    public flash = (message: string, duration: number = 1500) => {
-        const notificationType = {...this.state.notificationType, color: '#006eff'}
+    public flash(message: string, duration: number = 1500) {
+        const notificationType = {...this.state.notificationType, backgroundColor: "#6495ed"}
         this.setState({notificationType: notificationType})
-        this.setState({ notification: message }, () => {
+        this.flashBase(message, duration)
+    }
+    public success(message: string, duration: number = 1500) {
+        const notificationType = {...this.state.notificationType, backgroundColor: "#228b22"}
+        this.setState({notificationType: notificationType})
+        this.flashBase(message, duration)
+    }
+
+    public error(message: string, duration: number = 1500) {
+        const notificationType = {...this.state.notificationType, backgroundColor: "tomato"}
+        this.setState({notificationType: notificationType})
+        this.flashBase(message, duration)
+    }
+
+    public warning(message: string, duration: number = 1500) {
+        const notificationType = {...this.state.notificationType, backgroundColor: "#ffd700"}
+        this.setState({notificationType: notificationType})
+        this.flashBase(message, duration)
+    }
+
+    private flashBase(message: string, duration: number) {
+        this.setState({notification: message}, () => {
             const notificationNode = this._notificationRef.current;
             if (notificationNode) {
                 notificationNode.measure((x, y, width, height, pageX, pageY) => {
@@ -65,7 +86,7 @@ export default class FlashMessage extends Component<{}, AnimatedNotificationStat
                 });
             }
         });
-    };
+    }
 
     render() {
         const notificationStyle = {
@@ -73,12 +94,9 @@ export default class FlashMessage extends Component<{}, AnimatedNotificationStat
             transform: [{ translateY: this.state.offset }],
         };
 
-
-
-
         return (
             <Animated.View style={[styles.notification, notificationStyle, this.state.notificationType]} ref={this._notificationRef}>
-                <Text style={styles.notificationText}>{this.state.notification}</Text>
+                <Text style={[styles.notificationText, this.state.notificationType.backgroundColor === "#ffd700" ? {color: '#000'}: {}]}>{this.state.notification}</Text>
             </Animated.View>
         );
     }
@@ -95,6 +113,15 @@ const styles = StyleSheet.create({
         /*backgroundColor: "tomato",*/
     },
     notificationText: {
-        /*color: "#FFF",*/
+        color: "#FFF",
     },
+    success: {
+        backgroundColor: "#7cfc00",
+    },
+    warning: {
+        backgroundColor: "#ffd700",
+    },
+    error: {
+        backgroundColor: "tomato",
+    }
 });
