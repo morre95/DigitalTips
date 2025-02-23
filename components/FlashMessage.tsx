@@ -1,10 +1,16 @@
 import React, { Component } from "react";
 import { Animated, StyleSheet, Text, View } from "react-native";
 
+interface INotificationStyle {
+    backgroundColor?: string;
+    color?: string;
+}
+
 interface AnimatedNotificationState {
     notification: string;
     opacity: Animated.Value;
     offset: Animated.Value;
+    notificationType: INotificationStyle
 }
 
 export default class FlashMessage extends Component<{}, AnimatedNotificationState> {
@@ -16,11 +22,14 @@ export default class FlashMessage extends Component<{}, AnimatedNotificationStat
             notification: "",
             opacity: new Animated.Value(0),
             offset: new Animated.Value(0),
+            notificationType: {backgroundColor: "tomato"}
         };
         this._notificationRef = React.createRef<View>();
     }
 
     public flash = (message: string, duration: number = 1500) => {
+        const notificationType = {...this.state.notificationType, color: '#006eff'}
+        this.setState({notificationType: notificationType})
         this.setState({ notification: message }, () => {
             const notificationNode = this._notificationRef.current;
             if (notificationNode) {
@@ -64,8 +73,11 @@ export default class FlashMessage extends Component<{}, AnimatedNotificationStat
             transform: [{ translateY: this.state.offset }],
         };
 
+
+
+
         return (
-            <Animated.View style={[styles.notification, notificationStyle]} ref={this._notificationRef}>
+            <Animated.View style={[styles.notification, notificationStyle, this.state.notificationType]} ref={this._notificationRef}>
                 <Text style={styles.notificationText}>{this.state.notification}</Text>
             </Animated.View>
         );
@@ -80,9 +92,9 @@ const styles = StyleSheet.create({
         left: 0,
         top: 0,
         right: 0,
-        backgroundColor: "tomato",
+        /*backgroundColor: "tomato",*/
     },
     notificationText: {
-        color: "#FFF",
+        /*color: "#FFF",*/
     },
 });
