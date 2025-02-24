@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useRef, ComponentRef} from 'react';
-import {StyleSheet, View, Text, Alert, Button} from 'react-native';
+import {StyleSheet, View, Text, Alert, Vibration, Button} from 'react-native';
 import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
 
 import {SafeAreaView, SafeAreaProvider} from 'react-native-safe-area-context';
@@ -182,6 +182,7 @@ export default function Maps() {
                             onQuestion={(question: Question, id) => {
                                 console.log('onQuestion:', checkpoint);
                                 if (!checkpoint.isAnswered) {
+                                    Vibration.vibrate([1000, 1000, 1000]) // vibrerar 1 sek tre gånger
                                     setQuestion({question: question, checkPointId: checkpoint.checkpoint_id});
                                 } else {
                                     console.log('onQuestion:', 'ID:', checkpoint.checkpoint_id, 'is already answered');
