@@ -102,7 +102,7 @@ const Autocomplete: React.FC<IAutocompleteProps> = ({ data, onSelect, onSubmit, 
 const styles = StyleSheet.create({
     container: {
         position: 'absolute',
-        top: 2,
+        top: 32,
         left: 0,
         width: '95%',
     },

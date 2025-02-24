@@ -220,6 +220,7 @@ export default function Maps() {
                     />
                 ) }
 
+
                 {question && <QuestionComponent
                     question={question.question}
                     onAnswerSelected={(isCorrect) => handleAnswerSelected(isCorrect, question.checkPointId)}
@@ -260,7 +261,7 @@ const styles = StyleSheet.create({
     },
     search: {
         position: 'absolute',
-        top: 2,
+        top: 32,
         left: 0,
         width: 65,
         height: 50,

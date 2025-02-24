@@ -11,7 +11,7 @@ export default function AppLayout() {
         <Tabs.Screen
             name="Routes"
             options={{
-                title: "Create New",
+                title: "Create New Routes",
                 tabBarIcon: ({ focused }) => (
                     <FontAwesome5 name="route" size={24} color={ focused ? "rgba(0, 0, 0, 1)" : "rgba(0, 0, 0, 0.5)"} />
                 )
@@ -24,7 +24,8 @@ export default function AppLayout() {
 
       <Tabs.Screen 
         name="Maps" 
-        options={{ 
+        options={{
+          headerShown: false,
           title: "Maps",
           tabBarIcon: ({ focused }) => (
             <FontAwesome5 name="map-marked-alt" size={24} color={ focused ? "rgba(0, 0, 0, 1)" : "rgba(0, 0, 0, 0.5)"} />
