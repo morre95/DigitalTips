@@ -119,9 +119,9 @@ export default function Maps() {
         if (isCorrect) {
             setScore(prevScore => prevScore + 1);
 
-            flashMessageRef.current?.flash("Correct!");
+            flashMessageRef.current?.success("Correct!", 5000);
         } else {
-            flashMessageRef.current?.flash("Sorry but that is not the right answer...");
+            flashMessageRef.current?.warning("Sorry but that is not the right answer...", 8000);
         }
         setQuestion(null)
 
@@ -184,12 +184,12 @@ export default function Maps() {
                                 if (!checkpoint.isAnswered) {
                                     Vibration.vibrate([1000, 1000, 1000]) // vibrerar 1 sek tre gånger
                                     setQuestion({question: question, checkPointId: checkpoint.checkpoint_id});
-                                } else {
+                                } /*else {
                                     console.log('onQuestion:', 'ID:', checkpoint.checkpoint_id, 'is already answered');
-                                }
+                                }*/
                             }}
                             onChange={(distance: number) => {
-                                flashMessageRef.current?.flash(`Distance changed, you are ${distance} meters from the checkpoint #${checkpoint.checkpoint_id}`);
+                                flashMessageRef.current?.flash(`Distance changed, you are ${distance} meters from the checkpoint #${checkpoint.checkpoint_id}`, 10000);
                             }}
                             activeCheckpoint={currentCheckpointIndex === index}
                             onLeave={() => {
@@ -262,10 +262,11 @@ const styles = StyleSheet.create({
     },
     search: {
         position: 'absolute',
-        top: 32,
+        top: 2,
         left: 0,
         width: 65,
         height: 50,
+        zIndex: 1
     },
 
     newMarker: {
