@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, useState } from "react";
 import { Animated, StyleSheet, Text, View } from "react-native";
 
 interface INotificationStyle {
@@ -6,23 +6,23 @@ interface INotificationStyle {
     color?: string;
 }
 
-interface AnimatedNotificationState {
+interface IFlashMessageState {
     notification: string;
     opacity: Animated.Value;
     offset: Animated.Value;
-    notificationType: INotificationStyle
+    notificationType: INotificationStyle;
 }
 
-export default class FlashMessage extends Component<{}, AnimatedNotificationState> {
+export default class FlashMessage extends Component<{}, IFlashMessageState> {
     private _notificationRef: React.RefObject<View>;
 
     constructor(props: {}) {
-        super(props);;
+        super(props);
         this.state = {
             notification: "",
             opacity: new Animated.Value(0),
             offset: new Animated.Value(0),
-            notificationType: {backgroundColor: "tomato"}
+            notificationType: {backgroundColor: "tomato"},
         };
         this._notificationRef = React.createRef<View>();
     }
