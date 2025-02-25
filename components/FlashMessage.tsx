@@ -6,14 +6,14 @@ interface INotificationStyle {
     color?: string;
 }
 
-interface IFlashMessageState {
+interface IFlashMessageProp {
     notification: string;
     opacity: Animated.Value;
     offset: Animated.Value;
     notificationType: INotificationStyle;
 }
 
-export default class FlashMessage extends Component<{}, IFlashMessageState> {
+export default class FlashMessage extends Component<{}, IFlashMessageProp> {
     private _notificationRef: React.RefObject<View>;
 
     constructor(props: {}) {
