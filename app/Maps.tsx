@@ -21,6 +21,9 @@ import FlashMessage from '@/components/FlashMessage'
 import {Checkpoint, Question} from "@/interfaces/common";
 import QuestionComponent from '@/components/QuestionComponent'
 
+
+const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
+
 type Region = {
     latitude: number
     latitudeDelta: number
@@ -33,6 +36,13 @@ type QuestionType = {
     checkPointId: number;
 }
 
+interface IMessage {
+    message: string;
+    duration?: number;
+    type?: string;
+}
+
+let notificationCount = 0;
 // TODO: Ladda in den rutt som blivit sparad på routes sidan
 export default function Maps() {
     const [checkpoints, setCheckpoints] = useState<Checkpoint[]>([]);
@@ -59,6 +69,47 @@ export default function Maps() {
     */
 
     const flashMessageRef = useRef<ComponentRef<typeof FlashMessage>>(null);
+
+
+    const [messageQueue, setMessageQueue] = useState<IMessage[]>([]);
+    const [isAnimating, setIsAnimating] = useState<boolean>(false);
+
+    useEffect(() => {
+        (async () => {
+            if (messageQueue.length > 0 && !isAnimating) {
+                setIsAnimating(true)
+                while (messageQueue.length > 0) {
+                    const message = messageQueue.shift();
+                    if (message) {
+                        const duration = (message.duration ?? 1500);
+
+                        console.log('Start', message)
+                        switch (message.type?.toLowerCase()) {
+                            case 'success':
+                                flashMessageRef.current?.success(message.message, duration)
+                                break
+                            case 'warning':
+                                flashMessageRef.current?.warning(message.message, duration)
+                                break
+                            case 'error':
+                                flashMessageRef.current?.error(message.message, duration)
+                                break
+                            default:
+                                flashMessageRef.current?.flash(message.message, duration)
+
+                        }
+                        await delay(duration  + 1200)
+                        console.log('Slut', message)
+                    }
+                }
+                setIsAnimating(false)
+            }
+        })();
+    }, [messageQueue]);
+
+    const setMsgQueue = (message: string, duration?: number, type?: string) => {
+        setMessageQueue([...messageQueue, {message, duration, type}]);
+    }
 
 
     useEffect(() => {
@@ -234,6 +285,11 @@ export default function Maps() {
                 <Button title={'Success'} onPress={() => {flashMessageRef.current?.success("Ett medelande", );}} color={'#228b22'}/>
                 <Button title={'Error'} onPress={() => {flashMessageRef.current?.error("Ett error msg som tar 10 000ms", 10000);}} color={'tomato'}/>
                 <Button title={'Warning'} onPress={() => {flashMessageRef.current?.warning("Ett varnings msg som");}} color={'#ffd700'}/>*/}
+
+                <Button title={'Click me'} onPress={() => {setMsgQueue(++notificationCount + ". " + "Första meddelandet");}}/>
+                <Button title={'Success'} onPress={() => {setMsgQueue(++notificationCount + ". " + "Ett medelande", undefined, 'SucCess');}} color={'#228b22'}/>
+                <Button title={'Error'} onPress={() => {setMsgQueue(++notificationCount + ". " + "Ett error msg som tar 10 000ms", 10000, 'Error');}} color={'tomato'}/>
+                <Button title={'Warning'} onPress={() => {setMsgQueue(++notificationCount + ". " + "Ett varnings msg som", 500, 'warning');}} color={'#ffd700'}/>
             </SafeAreaView>
         </SafeAreaProvider>
     );
