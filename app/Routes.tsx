@@ -23,6 +23,7 @@ import AddQuestionFromDb from '@/components/AddQuestionFromDb'
 import CircleMarker from "@/components/CircleMarker";
 
 import {Picker} from '@react-native-picker/picker';
+import RandomCheckPoints from "@/components/RandomCheckpoints";
 
 const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
@@ -111,6 +112,8 @@ export default function Routes() {
 
     const [showDbQuestionSelect, setShowDbQuestionSelect] = useState<boolean>(false)
     const [returnRandomQuestion, setReturnRandomQuestion] = useState<boolean>(false);
+
+    const [generateRandomCheckpointsVisible, setGenerateRandomCheckpointsVisible] = useState<boolean>(false)
 
     useEffect(() => {
         (async () => {
@@ -462,7 +465,7 @@ export default function Routes() {
                             onPress={() => {
                                 // TODO: Detta bör ta reda på mitten av bilden eller fråga efter en stad och sedan använda dessa koordinater och skapa lite random koordinater utifrån det
                                 // TODO: använd getDistance() från geolib för att kolla så två koordinater inte är för nära varandra
-                                console.log('random checkpoints is not implemented', 'Use random coordinates functions in coordinates.txs')
+                                setGenerateRandomCheckpointsVisible(true);
                             }}
                         />
                     </View>
@@ -644,6 +647,12 @@ export default function Routes() {
                         }}
                     />
                 }
+
+                <RandomCheckPoints
+                    isVisible={generateRandomCheckpointsVisible}
+                    onFinnish={(num, isRandom) => {
+                        setGenerateRandomCheckpointsVisible(false)
+                    }} />
             </SafeAreaView>
         </SafeAreaProvider>
     );

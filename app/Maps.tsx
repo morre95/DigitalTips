@@ -21,7 +21,6 @@ import FlashMessage from '@/components/FlashMessage'
 import {Checkpoint, Question} from "@/interfaces/common";
 import QuestionComponent from '@/components/QuestionComponent'
 
-
 const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
 type Region = {
@@ -202,12 +201,14 @@ export default function Maps() {
         setCheckpoints(_ => nextCheckpoints)
     };
 
+
     return (
         <SafeAreaProvider>
             <SafeAreaView style={styles.container}>
                 <MapView
                     provider={PROVIDER_GOOGLE}
                     style={styles.map}
+                    showsCompass={true}
                     initialRegion={currentRegion}
                     onPress={handleMapPress}
                     onRegionChange={setCurrentRegion}
@@ -286,10 +287,12 @@ export default function Maps() {
                 <Button title={'Error'} onPress={() => {flashMessageRef.current?.error("Ett error msg som tar 10 000ms", 10000);}} color={'tomato'}/>
                 <Button title={'Warning'} onPress={() => {flashMessageRef.current?.warning("Ett varnings msg som");}} color={'#ffd700'}/>*/}
 
-                <Button title={'Click me'} onPress={() => {setMsgQueue(++notificationCount + ". " + "Första meddelandet");}}/>
+                {/*<Button title={'Click me'} onPress={() => {setMsgQueue(++notificationCount + ". " + "Första meddelandet");}}/>
                 <Button title={'Success'} onPress={() => {setMsgQueue(++notificationCount + ". " + "Ett medelande", undefined, 'SucCess');}} color={'#228b22'}/>
                 <Button title={'Error'} onPress={() => {setMsgQueue(++notificationCount + ". " + "Ett error msg som tar 10 000ms", 10000, 'Error');}} color={'tomato'}/>
-                <Button title={'Warning'} onPress={() => {setMsgQueue(++notificationCount + ". " + "Ett varnings msg som", 500, 'warning');}} color={'#ffd700'}/>
+                <Button title={'Warning'} onPress={() => {setMsgQueue(++notificationCount + ". " + "Ett varnings msg som", 500, 'warning');}} color={'#ffd700'}/>*/}
+
+
             </SafeAreaView>
         </SafeAreaProvider>
     );
@@ -322,7 +325,7 @@ const styles = StyleSheet.create({
         left: 0,
         width: 65,
         height: 50,
-        zIndex: 1
+        zIndex: 1100
     },
 
     newMarker: {

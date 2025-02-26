@@ -105,7 +105,7 @@ const styles = StyleSheet.create({
         top: 2,
         left: 0,
         width: '95%',
-        zIndex: 1
+        zIndex: 1100
     },
     input: {
         height: 40,
