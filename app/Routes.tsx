@@ -454,6 +454,17 @@ export default function Routes() {
                             backgroundColor="rgba(52, 52, 52, 0)"
                             onPress={handleDeleteAllMarkers}
                         />
+                        <FontAwesome.Button
+                            name="random"
+                            size={24}
+                            color="black"
+                            backgroundColor="rgba(52, 52, 52, 0)"
+                            onPress={() => {
+                                // TODO: Detta bör ta reda på mitten av bilden eller fråga efter en stad och sedan använda dessa koordinater och skapa lite random koordinater utifrån det
+                                // TODO: använd getDistance() från geolib för att kolla så två koordinater inte är för nära varandra
+                                console.log('random checkpoints is not implemented', 'Use random coordinates functions in coordinates.txs')
+                            }}
+                        />
                     </View>
                 </View>
 
