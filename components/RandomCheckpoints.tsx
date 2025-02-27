@@ -21,7 +21,8 @@ const range = (start: number, end: number): number[] => {
 
 const RandomCheckPoints: React.FC<iProps> = ({ isVisible, onFinnish }) => {
     const [numberOfCheckpoints, setNumberOfCheckpoints] = useState(3);
-    const [isChecked, setChecked] = useState(true);
+    const [isRandomQuestionChecked, setIsRandomQuestionChecked] = useState(true);
+    const [kmRadius, setkmRadius] = useState<number>(0);
 
     useEffect(() => {
 
@@ -41,9 +42,9 @@ const RandomCheckPoints: React.FC<iProps> = ({ isVisible, onFinnish }) => {
                     <View style={styles.section}>
                         <Checkbox
                             style={styles.checkbox}
-                            value={isChecked}
-                            onValueChange={setChecked}
-                            color={isChecked ? '#0000ff' : undefined}
+                            value={isRandomQuestionChecked}
+                            onValueChange={setIsRandomQuestionChecked}
+                            color={isRandomQuestionChecked ? '#0000ff' : undefined}
                         />
                         <Text style={styles.paragraph}>Generate random questions</Text>
                     </View>
@@ -67,9 +68,17 @@ const RandomCheckPoints: React.FC<iProps> = ({ isVisible, onFinnish }) => {
                         </Picker>
                         <Text style={styles.paragraph}>Number of checkpoints</Text>
                     </View>
+                    <View style={styles.section}>
+                        <TextInput
+                            onChangeText={text => setkmRadius(Number(text))}
+                            placeholder={'km radius'}
+                            keyboardType={'numeric'}
+                        />
+                        <Text style={styles.paragraph}>The radius in km</Text>
+                    </View>
                     <Button
                         title={'Generate'}
-                        onPress={() => onFinnish(numberOfCheckpoints, isChecked)}
+                        onPress={() => onFinnish(numberOfCheckpoints, isRandomQuestionChecked)}
                     />
                 </View>
             </View>
