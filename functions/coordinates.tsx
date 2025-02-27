@@ -21,7 +21,7 @@ export function  getKMperDegree() {
 export function randomCoordinate(coordinate : Coordinate, maxRandomRangeKM : number) : Coordinate {
     const latitude = addKMToLatitude(coordinate.latitude, getRandomValueInRange(maxRandomRangeKM * -1, maxRandomRangeKM));
     const longitude = addKMToLongitude(coordinate.latitude, coordinate.longitude, getRandomValueInRange(maxRandomRangeKM * -1, maxRandomRangeKM));
-    return {latitude, longitude};
+    return { latitude: latitude, longitude: longitude };
 }
 
 function getRandomValueInRange(min: number, max: number) : number {

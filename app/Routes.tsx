@@ -25,28 +25,11 @@ import CircleMarker from "@/components/CircleMarker";
 import {Picker} from '@react-native-picker/picker';
 import RandomCheckPoints from "@/components/RandomCheckpoints";
 
+import {MarkerData, AnswerData, RouteData} from '@/interfaces/common'
+
 const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
-interface MarkerData {
-    id: number;
-    latitude: number;
-    longitude: number;
-    title: string;
-    description: string;
-    markerOrder: number;
-}
 
-interface AnswerData {
-    id: number;
-    text: string;
-    isRight: boolean;
-}
-
-type RouteData = {
-    marker: MarkerData;
-    question?: string;
-    answers?: AnswerData[];
-}
 
 type Region = {
     latitude: number
@@ -650,9 +633,18 @@ export default function Routes() {
 
                 <RandomCheckPoints
                     isVisible={generateRandomCheckpointsVisible}
-                    onFinnish={(num, isRandom) => {
+                    onFinnish={(checkpoints) => {
                         setGenerateRandomCheckpointsVisible(false)
-                    }} />
+
+                        if (!checkpoints) {
+                            return
+                        }
+
+                        setCurrentRoutes(checkpoints as RouteData[])
+                        activateNextButton()
+                    }}
+                    currentCoordinate={{latitude: currentRegion.latitude, longitude: currentRegion.longitude}}
+                />
             </SafeAreaView>
         </SafeAreaProvider>
     );

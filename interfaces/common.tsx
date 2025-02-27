@@ -20,3 +20,24 @@ export interface Answer {
     text:      string;
     isCorrect: boolean;
 }
+
+export interface MarkerData {
+    id: number;
+    latitude: number;
+    longitude: number;
+    title: string;
+    description: string;
+    markerOrder: number;
+}
+
+export interface AnswerData {
+    id: number;
+    text: string;
+    isRight: boolean;
+}
+
+export type RouteData = {
+    marker: MarkerData;
+    question?: string;
+    answers?: AnswerData[];
+}

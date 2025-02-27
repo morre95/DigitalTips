@@ -1,14 +1,30 @@
 import React, { useState, useEffect } from 'react';
 
-import {View, Modal, Text, TextInput, StyleSheet, Button} from 'react-native'
+import {View, Modal, Text, TextInput, StyleSheet, Button, Alert, TouchableHighlight} from 'react-native'
 import {Picker} from '@react-native-picker/picker';
 import Checkbox from 'expo-checkbox';
 
 import { getDistance } from 'geolib';
 
+import {randomCoordinate, Coordinate} from '@/functions/coordinates'
+
+import {MarkerData, AnswerData, RouteData} from '@/interfaces/common'
+//import questionsRaw from "@/assets/triviaDB/questions.json";
+
+type Questions = Question[]
+interface Question {
+    type: string
+    difficulty: string
+    category: string
+    question: string
+    correct_answer: string
+    incorrect_answers: string[]
+}
+
 interface iProps {
     isVisible: boolean;
-    onFinnish: (numberOfCheckpoints: number, isRandomQuestions: boolean) => void;
+    onFinnish: (route: RouteData[] | boolean) => void;
+    currentCoordinate: Coordinate;
 }
 
 const range = (start: number, end: number): number[] => {
@@ -17,36 +33,132 @@ const range = (start: number, end: number): number[] => {
         result.push(i);
     }
     return result;
+}
+
+const getKmRange = (input: string): number => {
+    const floatRegex = /[-+]?[0-9]*\.?[0-9]+/g;
+    const matches = input.match(floatRegex);
+    if (matches) {
+        return Number(matches[0])
+    } else {
+        console.log("Inga float tal hittades.");
+        return -1
+    }
+}
+
+const isFloat = (value: string): boolean => {
+    return /^[-+]?(?:\d+(\.\d+)?|\.\d+|\d+\.?|\.)$/.test(value);
 };
 
-const RandomCheckPoints: React.FC<iProps> = ({ isVisible, onFinnish }) => {
-    const [numberOfCheckpoints, setNumberOfCheckpoints] = useState(3);
-    const [isRandomQuestionChecked, setIsRandomQuestionChecked] = useState(true);
-    const [kmRadius, setkmRadius] = useState<number>(0);
+const getRandomQuestion = (arr: Question[]) => arr[Math.floor(Math.random() * arr.length)]
 
-    useEffect(() => {
+const RandomCheckPoints: React.FC<iProps> = ({ isVisible, onFinnish, currentCoordinate }) => {
+    const [numberOfCheckpoints, setNumberOfCheckpoints] = useState<number>(3);
+    const [isRandomQuestionChecked, setIsRandomQuestionChecked] = useState<boolean>(true);
+    const [rangeKm, setRangeKm] = useState<string>('2');
 
-    }, [isVisible]);
+    const handleOnTextChange = (text: string) => {
+        if (text.length > 0 && !isFloat(text)) {
+            setRangeKm(text.slice(0,-1))
+            //setRangeKm(getKmRange(text).toString())
+        } else {
+            setRangeKm(text)
+        }
+    }
+
+    const handleOnFinnish = () => {
+        const questionsRaw = require('@/assets/triviaDB/questions.json');
+        const questions: Question[] = questionsRaw as Questions;
+        const checkpoints: RouteData[] = []
+
+        const minDistance = 100;
+        const maxRangeKM = getKmRange(rangeKm);
+        // TBD: skriptet bör inte kunna ta sig hit, man kan vara bra för hängslen och livrem
+        if (maxRangeKM < 0) {
+            Alert.alert('You need to give me a number')
+            return
+        }
+
+        if ((maxRangeKM * 1000) - 20 <= minDistance) {
+            Alert.alert(`You have set the radius bigger then ${minDistance + 20} meter`)
+            return
+        }
+
+        while (checkpoints.length < numberOfCheckpoints) {
+            const coordinate = randomCoordinate(currentCoordinate, maxRangeKM);
+
+            let tooClose = false;
+            for (const checkpoint of checkpoints) {
+                const distance = getDistance(coordinate, checkpoint.marker);
+                if (distance < minDistance) {
+                    tooClose = true;
+                    break;
+                }
+            }
+
+            if (!tooClose) {
+                const question = getRandomQuestion(questions);
+
+                const answers: AnswerData[] = []
+                let newAnswers: AnswerData = {
+                    id: answers.length + 1,
+                    text: question.correct_answer,
+                    isRight: true,
+                }
+                answers.push(newAnswers)
+                for (let incorrect of question.incorrect_answers) {
+                    newAnswers = {
+                        id: answers.length + 1,
+                        text: incorrect,
+                        isRight: false,
+                    }
+                    answers.push(newAnswers)
+                }
+
+                const len = checkpoints.length
+                const marker: MarkerData = {
+                    id: len + 1, //++markersCount,
+                    latitude: coordinate.latitude,
+                    longitude: coordinate.longitude,
+                    title: `Marker ${len + 1}`,
+                    //title: `Marker ${markersCount}`,
+                    description: `lat: ${coordinate.latitude}, lon: ${coordinate.longitude}`,
+                    markerOrder: len + 1
+                }
+
+                const checkpoint: RouteData = {
+                    marker: marker,
+                    question: question.question,
+                    answers: answers,
+                }
+
+                checkpoints.push(checkpoint)
+            }
+        }
+
+        onFinnish(checkpoints)
+    }
 
     return (
         <Modal
             visible={isVisible}
             animationType={"slide"}
             transparent={true}
+            onRequestClose={() => {
+                Alert.alert('Modal has been closed.');
+            }}
         >
             <View style={styles.container}>
                 <View style={styles.innerContainer}>
-                    <View style={styles.section}>
-                        <Text style={[styles.paragraph, {color: 'red'}]}>Not implemented yet!!!</Text>
-                    </View>
                     <View style={styles.section}>
                         <Checkbox
                             style={styles.checkbox}
                             value={isRandomQuestionChecked}
                             onValueChange={setIsRandomQuestionChecked}
                             color={isRandomQuestionChecked ? '#0000ff' : undefined}
+                            disabled={true} // TBD: bör tas bort när denna implementeras
                         />
-                        <Text style={styles.paragraph}>Generate random questions</Text>
+                        <Text style={styles.paragraph}> Generate random questions</Text>
                     </View>
                     <View style={styles.section}>
                         <Picker
@@ -66,20 +178,29 @@ const RandomCheckPoints: React.FC<iProps> = ({ isVisible, onFinnish }) => {
                                 ))
                             }
                         </Picker>
-                        <Text style={styles.paragraph}>Number of checkpoints</Text>
+                        <Text style={styles.paragraph}> Number of checkpoints</Text>
                     </View>
                     <View style={styles.section}>
                         <TextInput
-                            onChangeText={text => setkmRadius(Number(text))}
-                            placeholder={'km radius'}
-                            keyboardType={'numeric'}
+                            style={styles.input}
+                            onChangeText={handleOnTextChange}
+                            value={rangeKm}
+                            keyboardType={"numeric"}
                         />
-                        <Text style={styles.paragraph}>The radius in km</Text>
+                        <Text style={styles.paragraph}> The radius in km</Text>
                     </View>
-                    <Button
-                        title={'Generate'}
-                        onPress={() => onFinnish(numberOfCheckpoints, isRandomQuestionChecked)}
-                    />
+                    <View style={[styles.section, { justifyContent: 'flex-end', marginTop: 10, marginBottom: 5 }]}>
+                        <Button
+                            title={'Generate'}
+                            onPress={handleOnFinnish}
+
+                        />
+                        <View style={{marginRight: 20}}></View>
+                        <Button
+                            title={'Cancel'}
+                            onPress={() => {onFinnish(false)}}
+                        />
+                    </View>
                 </View>
             </View>
         </Modal>
@@ -98,7 +219,14 @@ const styles = StyleSheet.create({
         borderRadius: 5,
     },
     input: {
-        width: '100%',
+        width: 40,
+        height: 40,
+        borderRadius: 5,
+        borderStyle: 'solid',
+        borderWidth: 1,
+    },
+    picker: {
+
     },
     section: {
         flexDirection: 'row',
