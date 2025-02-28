@@ -47,7 +47,6 @@
     "experiments": {
       "typedRoutes": true
     },
-    "initialRouteName": "Maps",
     "extra": {
       "router": {
         "origin": false

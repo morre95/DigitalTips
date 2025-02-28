@@ -21,7 +21,6 @@ import FlashMessage from '@/components/FlashMessage'
 import {Checkpoint, Question} from "@/interfaces/common";
 import QuestionComponent from '@/components/QuestionComponent'
 
-const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
 type Region = {
     latitude: number
@@ -166,7 +165,6 @@ export default function Maps() {
                 <MapView
                     provider={PROVIDER_GOOGLE}
                     style={styles.map}
-                    showsCompass={true}
                     initialRegion={currentRegion}
                     onPress={handleMapPress}
                     onRegionChange={setCurrentRegion}
