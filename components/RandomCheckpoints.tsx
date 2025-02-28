@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useCallback} from 'react';
 
-import {View, Modal, Text, TextInput, StyleSheet, Button, Alert, TouchableHighlight} from 'react-native'
+import {View, Modal, Text, TextInput, StyleSheet, Button, Alert} from 'react-native'
 import {Picker} from '@react-native-picker/picker';
 import Checkbox from 'expo-checkbox';
 
@@ -9,7 +9,6 @@ import { getDistance } from 'geolib';
 import {randomCoordinate, Coordinate} from '@/functions/coordinates'
 
 import {MarkerData, AnswerData, RouteData} from '@/interfaces/common'
-//import questionsRaw from "@/assets/triviaDB/questions.json";
 
 type Questions = Question[]
 interface Question {
@@ -60,13 +59,12 @@ const RandomCheckPoints: React.FC<iProps> = ({ isVisible, onFinnish, currentCoor
     const handleOnTextChange = (text: string) => {
         if (text.length > 0 && !isFloat(text)) {
             setRangeKm(text.slice(0,-1))
-            //setRangeKm(getKmRange(text).toString())
         } else {
             setRangeKm(text)
         }
     }
 
-    const handleOnFinnish = () => {
+    const handleOnFinnish = useCallback( () => {
         const questionsRaw = require('@/assets/triviaDB/questions.json');
         const questions: Question[] = questionsRaw as Questions;
         const checkpoints: RouteData[] = []
@@ -137,7 +135,7 @@ const RandomCheckPoints: React.FC<iProps> = ({ isVisible, onFinnish, currentCoor
         }
 
         onFinnish(checkpoints)
-    }
+    }, [rangeKm, numberOfCheckpoints])
 
     return (
         <Modal
