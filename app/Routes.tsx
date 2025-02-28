@@ -23,29 +23,13 @@ import AddQuestionFromDb from '@/components/AddQuestionFromDb'
 import CircleMarker from "@/components/CircleMarker";
 
 import {Picker} from '@react-native-picker/picker';
+import RandomCheckPoints from "@/components/RandomCheckpoints";
+
+import {MarkerData, AnswerData, RouteData} from '@/interfaces/common'
 
 const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
-interface MarkerData {
-    id: number;
-    latitude: number;
-    longitude: number;
-    title: string;
-    description: string;
-    markerOrder: number;
-}
 
-interface AnswerData {
-    id: number;
-    text: string;
-    isRight: boolean;
-}
-
-type RouteData = {
-    marker: MarkerData;
-    question?: string;
-    answers?: AnswerData[];
-}
 
 type Region = {
     latitude: number
@@ -111,6 +95,8 @@ export default function Routes() {
 
     const [showDbQuestionSelect, setShowDbQuestionSelect] = useState<boolean>(false)
     const [returnRandomQuestion, setReturnRandomQuestion] = useState<boolean>(false);
+
+    const [generateRandomCheckpointsVisible, setGenerateRandomCheckpointsVisible] = useState<boolean>(false)
 
     useEffect(() => {
         (async () => {
@@ -454,6 +440,17 @@ export default function Routes() {
                             backgroundColor="rgba(52, 52, 52, 0)"
                             onPress={handleDeleteAllMarkers}
                         />
+                        <FontAwesome.Button
+                            name="random"
+                            size={24}
+                            color="black"
+                            backgroundColor="rgba(52, 52, 52, 0)"
+                            onPress={() => {
+                                // TODO: Detta bör ta reda på mitten av bilden eller fråga efter en stad och sedan använda dessa koordinater och skapa lite random koordinater utifrån det
+                                // TODO: använd getDistance() från geolib för att kolla så två koordinater inte är för nära varandra
+                                setGenerateRandomCheckpointsVisible(true);
+                            }}
+                        />
                     </View>
                 </View>
 
@@ -633,6 +630,21 @@ export default function Routes() {
                         }}
                     />
                 }
+
+                <RandomCheckPoints
+                    isVisible={generateRandomCheckpointsVisible}
+                    onFinnish={(checkpoints) => {
+                        setGenerateRandomCheckpointsVisible(false)
+
+                        if (!checkpoints) {
+                            return
+                        }
+
+                        setCurrentRoutes(checkpoints as RouteData[])
+                        activateNextButton()
+                    }}
+                    currentCoordinate={{latitude: currentRegion.latitude, longitude: currentRegion.longitude}}
+                />
             </SafeAreaView>
         </SafeAreaProvider>
     );
