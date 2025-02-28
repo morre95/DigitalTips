@@ -165,7 +165,6 @@ export default function Maps() {
                 <MapView
                     provider={PROVIDER_GOOGLE}
                     style={styles.map}
-                    showsCompass={true}
                     initialRegion={currentRegion}
                     onPress={handleMapPress}
                     onRegionChange={setCurrentRegion}
