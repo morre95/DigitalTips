@@ -1,15 +1,15 @@
-import React from 'react';
-import { Tabs, Redirect } from 'expo-router';
-import { Image, StyleSheet } from 'react-native';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { Tabs } from 'expo-router';
+import React from 'react';
+import { StyleSheet } from 'react-native';
 
 export default function AppLayout() {
   return (
     <Tabs>
 
         <Tabs.Screen
-            name="Routes"
+            name="CreateRoutes"
             options={{
                 title: "Create New Routes",
                 tabBarIcon: ({ focused }) => (
@@ -17,10 +17,6 @@ export default function AppLayout() {
                 )
             }}
         />
-        {/*<Tabs.Screen
-            name="Routes"
-            options={{ href: null }}
-        />*/}
 
       <Tabs.Screen 
         name="Maps" 

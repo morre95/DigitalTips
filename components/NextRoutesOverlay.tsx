@@ -1,12 +1,11 @@
-import React, {FC, useState} from 'react';
-import {View, Text, TextInput, StyleSheet, Button, Alert } from 'react-native';
-import * as Clipboard from 'expo-clipboard';
 import postJson from "@/hooks/api/Post";
-
-import {QR_codeIcon} from '@/hooks/images'
-import QRCode from 'react-native-qrcode-svg';
-
+import { QR_codeIcon } from '@/hooks/images';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
+import * as Clipboard from 'expo-clipboard';
+import React, { FC, useState } from 'react';
+import { Alert, Button, StyleSheet, Text, TextInput, View } from 'react-native';
+import QRCode from 'react-native-qrcode-svg';
+import { ButtonsComponent } from './create_route/ButtonsComponent';
 
 interface MarkerData {
     id: number;
@@ -48,7 +47,7 @@ interface Props {
 }
 
 
-const NextRoutesOverlay: FC<Props> = ({currentRoutes, onFinish, onClose}) => {
+const NextRoutesOverlay: FC<Props> = ({ currentRoutes, onFinish, onClose }) => {
     const [routeName, setRouteName] = useState<string>('')
     const [routeCity, setRouteCity] = useState<string>('')
     const [routeDescription, setRouteDescription] = useState<string>('')
@@ -57,7 +56,7 @@ const NextRoutesOverlay: FC<Props> = ({currentRoutes, onFinish, onClose}) => {
     const [showNext, setShowNext] = useState<boolean>(false);
 
     //TBD: Det finns inga checkar på om stad, namn och beskrivning är ifyllda
-    const handleFinnishPress = async () => {
+    const handleFinishPress = async () => {
         const result: SendData = {
             data: currentRoutes,
             name: routeName,
@@ -96,29 +95,29 @@ const NextRoutesOverlay: FC<Props> = ({currentRoutes, onFinish, onClose}) => {
                 onChangeText={text => setRouteName(text)}
             />
             <TextInput
+                placeholder={'City'}
+                style={styles.input}
+                value={routeCity}
+                onChangeText={city => setRouteCity(city)}
+            />
+            <TextInput
                 placeholder={'Description'}
                 multiline={true}
                 style={styles.textaria}
                 value={routeDescription}
                 onChangeText={desc => setRouteDescription(desc)}
             />
-            <TextInput
-                placeholder={'City'}
-                style={styles.input}
-                value={routeCity}
-                onChangeText={city => setRouteCity(city)}
-            />
-            <Button
-                title={'Finnish >>>'}
-                onPress={handleFinnishPress}
+            <ButtonsComponent.CancelAndFinishButtons
+                onFinish={handleFinishPress}
+                onCancel={onClose}
             />
         </View>
-    ): (
+    ) : (
         <View style={styles.container}>
             <Text>Your route is published!!!</Text>
             <Text>{"\n"}</Text>
             <View style={styles.row}>
-                <Text style={{marginTop: 15}}>{qrCodeName} </Text>
+                <Text style={{ marginTop: 15 }}>{qrCodeName} </Text>
                 <FontAwesome6.Button
                     name="copy"
                     backgroundColor={"transparent"}
@@ -131,7 +130,7 @@ const NextRoutesOverlay: FC<Props> = ({currentRoutes, onFinish, onClose}) => {
             <QRCode
                 value={qrCodeName}
                 size={150}
-                logo={{uri: QR_codeIcon}}
+                logo={{ uri: QR_codeIcon }}
                 logoSize={40}
                 logoBackgroundColor='transparent'
                 logoBorderRadius={5}
@@ -151,22 +150,24 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         width: '100%',
         height: '100%',
+        padding: 10,
     },
     row: {
         flexDirection: 'row',
     },
     textaria: {
         height: 150,
-        width: '95%',
+        width: '100%',
         borderWidth: 1,
         padding: 10,
-        margin: 10
+        marginBottom: 10
     },
     input: {
         height: 40,
-        width: '95%',
+        width: '100%',
         borderWidth: 1,
         padding: 10,
+        marginBottom: 10
     },
 
 });

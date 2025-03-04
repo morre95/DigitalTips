@@ -42,3 +42,4 @@ rest_api/update.php
 /rest_api/config/.env
 /.idea/
 /.env
+.vs/*

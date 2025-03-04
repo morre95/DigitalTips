@@ -1,31 +1,22 @@
-import React, {useState, useEffect, useRef } from 'react';
-import {StyleSheet, View, Text, Alert, Button, TextInput, ActivityIndicator } from 'react-native';
-import MapView, {Marker, PROVIDER_GOOGLE} from 'react-native-maps';
-
-import Checkbox from 'expo-checkbox';
-
-import {SafeAreaView, SafeAreaProvider} from 'react-native-safe-area-context';
-
+import AddQuestionFromDb from '@/components/AddQuestionFromDb';
+import CircleMarker from "@/components/CircleMarker";
+import { ButtonsComponent } from '@/components/create_route/ButtonsComponent';
+import NextRoutesOverlay from '@/components/NextRoutesOverlay';
+import RandomCheckPoints from "@/components/RandomCheckpoints";
+import registerOrLogin, { globals } from "@/hooks/registerOrLogin";
+import { AnswerData, MarkerData, RouteData } from '@/interfaces/common';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import Feather from '@expo/vector-icons/Feather';
-import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-
-import registerOrLogin, { globals } from "@/hooks/registerOrLogin";
-
+import { Picker } from '@react-native-picker/picker';
+import Checkbox from 'expo-checkbox';
 import { router, useLocalSearchParams } from 'expo-router';
-
-import NextRoutesOverlay from '@/components/NextRoutesOverlay'
-
-import AddQuestionFromDb from '@/components/AddQuestionFromDb'
-
-import CircleMarker from "@/components/CircleMarker";
-
-import {Picker} from '@react-native-picker/picker';
-import RandomCheckPoints from "@/components/RandomCheckpoints";
-
-import {MarkerData, AnswerData, RouteData} from '@/interfaces/common'
+import React, { useEffect, useRef, useState } from 'react';
+import { ActivityIndicator, Alert, Button, StyleSheet, Text, TextInput, View } from 'react-native';
+import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
 const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
@@ -71,8 +62,8 @@ function updateMarkerOrderForRoutes(
 
 
 
-export default function Routes() {
-    const [markerToSave , setMarkerToSave] = useState<MarkerData>();
+export default function CreateRoutes() {
+    const [markerToSave, setMarkerToSave] = useState<MarkerData>();
     const [questionText, setQuestionText] = useState('');
     const [currentAnswers, setCurrentAnswers] = useState<AnswerData[]>([]);
     const [showAddQuestions, setShowAddQuestions] = useState(false);
@@ -137,34 +128,34 @@ export default function Routes() {
             'Marker Added',
             'Add question or cancel',
             [
-            {
-                text: `Add Random question`,
-                onPress: () => {
-                    setShowAddQuestions(true)
-                    setReturnRandomQuestion(true)
-                    setShowDbQuestionSelect(true)
-                    setMarkerToSave(newMarker);
+                {
+                    text: `Add Random question`,
+                    onPress: () => {
+                        setShowAddQuestions(true)
+                        setReturnRandomQuestion(true)
+                        setShowDbQuestionSelect(true)
+                        setMarkerToSave(newMarker);
+                    },
+                    style: 'default'
                 },
-                style: 'default'
-            },
-            {
-                text: `Add question`,
-                onPress: () => {handleAddQuestionToMarker(newMarker, undefined, [])},
-                style: 'default'
-            },
-            {
-                text: 'Cancel',
-                onPress: () => {
-                    console.log('handleMapPress()', 'Cancel Pressed')
-                    setMarkerToSave(undefined)
-                    setEditMode(false)
-                    if (currentRoutes.length <= 0) {
-                        deactivateNextButton()
-                    }
+                {
+                    text: `Add question`,
+                    onPress: () => { handleAddQuestionToMarker(newMarker, undefined, []) },
+                    style: 'default'
                 },
-                style: 'cancel',
-            },
-        ],{
+                {
+                    text: 'Cancel',
+                    onPress: () => {
+                        console.log('handleMapPress()', 'Cancel Pressed')
+                        setMarkerToSave(undefined)
+                        setEditMode(false)
+                        if (currentRoutes.length <= 0) {
+                            deactivateNextButton()
+                        }
+                    },
+                    style: 'cancel',
+                },
+            ], {
             cancelable: true,
             onDismiss: () => {
                 console.log('handleMapPress()', 'onDismiss() activated')
@@ -180,9 +171,9 @@ export default function Routes() {
 
         setEditMode(true)
 
-        let savedMarker : MarkerData | null = null;
-        let question : string | undefined;
-        let answers : AnswerData[] | undefined;
+        let savedMarker: MarkerData | null = null;
+        let question: string | undefined;
+        let answers: AnswerData[] | undefined;
 
         for (let [_, routerData] of Object.entries(currentRoutes)) {
             if (routerData.marker.id === marker.id) {
@@ -195,12 +186,12 @@ export default function Routes() {
 
         const deleteMarker = () => {
             setCurrentRoutes(prevRoutes => {
-                    const newRoutes = prevRoutes.filter(route => route.marker.id !== marker.id)
-                    if (newRoutes.length <= 0) {
-                        deactivateNextButton()
-                    }
-                    return newRoutes
+                const newRoutes = prevRoutes.filter(route => route.marker.id !== marker.id)
+                if (newRoutes.length <= 0) {
+                    deactivateNextButton()
                 }
+                return newRoutes
+            }
             )
 
             /*setCurrentRoutes(prevRoutes =>
@@ -224,7 +215,7 @@ export default function Routes() {
             [
                 {
                     text: `${addOrDelete} question`,
-                    onPress: () => {handleAddQuestionToMarker(marker, question, answers || [])},
+                    onPress: () => { handleAddQuestionToMarker(marker, question, answers || []) },
                 },
                 {
                     text: 'Cancel',
@@ -300,16 +291,18 @@ export default function Routes() {
             'Delete checkpoints',
             'Du you really want to delete all checkpoints?',
             [
-            {
-                text: 'Cancel',
-                onPress: () => console.log('handleDeleteAllMarkers()', 'Cancel Pressed'),
-                style: 'cancel',
-            },
-            {text: 'Yes', onPress: () => {
-                    setCurrentRoutes([])
-                    deactivateNextButton()
-                }},
-        ]);
+                {
+                    text: 'Cancel',
+                    onPress: () => console.log('handleDeleteAllMarkers()', 'Cancel Pressed'),
+                    style: 'cancel',
+                },
+                {
+                    text: 'Yes', onPress: () => {
+                        setCurrentRoutes([])
+                        deactivateNextButton()
+                    }
+                },
+            ]);
 
     }
 
@@ -317,7 +310,7 @@ export default function Routes() {
         setCurrentAnswers([...currentAnswers, { id: Date.now(), text: '', isRight: false }]);
     };
 
-    const removeAnswerField = (index : number) => {
+    const removeAnswerField = (index: number) => {
         const updatedAnswers = [...currentAnswers];
         updatedAnswers.splice(index, 1);
         setCurrentAnswers(updatedAnswers);
@@ -329,7 +322,7 @@ export default function Routes() {
         setCurrentAnswers(updatedAnswers);
     };
 
-    const handleCheckBoxChange = (value: boolean, index : number) => {
+    const handleCheckBoxChange = (value: boolean, index: number) => {
         const updatedAnswers = [...currentAnswers];
         updatedAnswers[index].isRight = value;
         setCurrentAnswers(updatedAnswers);
@@ -384,46 +377,49 @@ export default function Routes() {
 
     }
 
-
     return (
         <SafeAreaProvider>
             <SafeAreaView style={styles.container}>
-                {loadMaps ? <MapView
-                    ref={mapRef}
-                    provider={PROVIDER_GOOGLE}
-                    style={styles.map}
-                    initialRegion={currentRegion}
-                    onPress={handleMapPress}
-                    onMapReady={() => {console.log('Map ready')}}
-                    onRegionChange={setCurrentRegion}
-                >
-                    {
-                        currentRoutes.map((route, index) => (
-                            <Marker
-                                key={index}
-                                coordinate={{ latitude: route.marker.latitude, longitude: route.marker.longitude }}
-                                draggable
-                                onDragEnd={(event) => handleDragEnd(event, route.marker.id)}
-                                onPress={() => handleMarkerOnPress(route.marker)}
-                            >
-                                <CircleMarker number={route.marker.markerOrder} />
-                            </Marker>
-                        ))
-                    }
-                </MapView> :(
-
+                {loadMaps ? <>
+                    <ButtonsComponent.CancelAndContinueButtons
+                        onContinue={handleNextPress}
+                        onCancel={handleDeleteAllMarkers}
+                    />
+                    <MapView
+                        ref={mapRef}
+                        provider={PROVIDER_GOOGLE}
+                        style={styles.map}
+                        initialRegion={currentRegion}
+                        onPress={handleMapPress}
+                        onMapReady={() => { console.log('Map ready') }}
+                        onRegionChange={setCurrentRegion}
+                    >
+                        {
+                            currentRoutes.map((route, index) => (
+                                <Marker
+                                    key={index}
+                                    coordinate={{ latitude: route.marker.latitude, longitude: route.marker.longitude }}
+                                    draggable
+                                    onDragEnd={(event) => handleDragEnd(event, route.marker.id)}
+                                    onPress={() => handleMarkerOnPress(route.marker)}
+                                >
+                                    <CircleMarker number={route.marker.markerOrder} />
+                                </Marker>
+                            ))
+                        }
+                    </MapView>
+                </> : (
                     <View style={styles.loading}>
                         <ActivityIndicator size='large' />
                     </View>
                 )}
 
-
-                <View style={styles.topContainer}>
+                {/*<View style={styles.topContainer}>
                     <Button
                         title={nextButtonText}
                         onPress={handleNextPress}
                     />
-                </View>
+                </View>          */}
 
                 <View style={styles.newMarker}>
                     <AntDesign.Button
@@ -433,13 +429,13 @@ export default function Routes() {
                         backgroundColor="rgba(52, 52, 52, 0)"
                         onPress={handleGoToMapsPress} />
                     <View style={styles.markerMenu}>
-                        <AntDesign.Button
+                        {/*<AntDesign.Button
                             name="delete"
                             size={24}
                             color="black"
                             backgroundColor="rgba(52, 52, 52, 0)"
                             onPress={handleDeleteAllMarkers}
-                        />
+                        />*/}
                         <FontAwesome.Button
                             name="random"
                             size={24}
@@ -531,12 +527,12 @@ export default function Routes() {
                                     //setMarkers(updateMarkerOrder(markers, markerToSave.id, itemValue))
                                     setCurrentRoutes(updateMarkerOrderForRoutes(currentRoutes, markerToSave.id, itemValue))
                                 }
-                                style={{width: 100, height: 50, marginTop: -18}}
+                                style={{ width: 100, height: 50, marginTop: -18 }}
                                 mode={'dropdown'}
                             >
                                 {
                                     currentRoutes.map((route, index) => (
-                                        <Picker.Item key={index} label={route.marker.markerOrder.toString()} value={route.marker.markerOrder}/>
+                                        <Picker.Item key={index} label={route.marker.markerOrder.toString()} value={route.marker.markerOrder} />
                                     ))
                                 }
 
@@ -585,7 +581,7 @@ export default function Routes() {
 
                     </View>
                 ) : null}
-                
+
                 {showNext && <NextRoutesOverlay
                     currentRoutes={currentRoutes}
                     onFinish={() => {
@@ -641,7 +637,7 @@ export default function Routes() {
                         setCurrentRoutes(checkpoints as RouteData[])
                         activateNextButton()
                     }}
-                    currentCoordinate={{latitude: currentRegion.latitude, longitude: currentRegion.longitude}}
+                    currentCoordinate={{ latitude: currentRegion.latitude, longitude: currentRegion.longitude }}
                 />
             </SafeAreaView>
         </SafeAreaProvider>
@@ -692,7 +688,7 @@ const styles = StyleSheet.create({
         width: 55,
         height: 50,
     },
-    addAnswer:{
+    addAnswer: {
         /*position: 'absolute',
         top: 5,
         right: 0,
