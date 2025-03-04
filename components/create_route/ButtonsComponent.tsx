@@ -7,7 +7,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         width: '100%',
         alignSelf: 'center',
-     //   marginTop: 10,
+        backgroundColor: 'white',
     },
     finishButton: {
         backgroundColor: 'green',
@@ -51,11 +51,11 @@ interface ContinueProps {
 const CancelAndFinishButtons: FC<FinishProps> = ({ onFinish, onCancel }) => {
     return (
         <View style={styles.buttonContainer}>
-            <Pressable style={styles.finishButton} onPress={onFinish}>
-                <Text style={styles.text}>{'Finish'}</Text>
-            </Pressable>
             <Pressable style={styles.cancelButton} onPress={onCancel}>
                 <Text style={styles.text}>{'Cancel'}</Text>
+            </Pressable>
+            <Pressable style={styles.finishButton} onPress={onFinish}>
+                <Text style={styles.text}>{'Finish'}</Text>
             </Pressable>
         </View>
     );
@@ -63,14 +63,14 @@ const CancelAndFinishButtons: FC<FinishProps> = ({ onFinish, onCancel }) => {
 const CancelAndContinueButtons: FC<ContinueProps> = ({ onContinue, onCancel }) => {
     return (
         <View style={styles.buttonContainer}>
-            <Pressable style={styles.continueButton} onPress={onContinue}>
-                <Text style={styles.text}>{'Continue'}</Text>
-            </Pressable>
             <Pressable style={styles.cancelButton} onPress={onCancel}>
                 <Text style={styles.text}>{'Cancel'}</Text>
+            </Pressable>
+            <Pressable style={styles.continueButton} onPress={onContinue}>
+                <Text style={styles.text}>{'Continue'}</Text>
             </Pressable>
         </View>
     );
 };
 
-export const FooterButtonsComponent = { CancelAndFinishButtons, CancelAndContinueButtons };
+export const ButtonsComponent = { CancelAndFinishButtons, CancelAndContinueButtons };

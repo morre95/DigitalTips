@@ -5,7 +5,7 @@ import * as Clipboard from 'expo-clipboard';
 import React, { FC, useState } from 'react';
 import { Alert, Button, StyleSheet, Text, TextInput, View } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
-import { FooterButtonsComponent } from './create_route/FooterButtonsComponent';
+import { ButtonsComponent } from './create_route/ButtonsComponent';
 
 interface MarkerData {
     id: number;
@@ -107,7 +107,7 @@ const NextRoutesOverlay: FC<Props> = ({ currentRoutes, onFinish, onClose }) => {
                 value={routeDescription}
                 onChangeText={desc => setRouteDescription(desc)}
             />
-            <FooterButtonsComponent.CancelAndFinishButtons
+            <ButtonsComponent.CancelAndFinishButtons
                 onFinish={handleFinishPress}
                 onCancel={onClose}
             />

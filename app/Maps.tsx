@@ -177,7 +177,7 @@ export default function Maps() {
                                 style: 'cancel',
                             },
                             {text: 'OK', onPress: () => router.navigate({
-                                    pathname: "./Routes",
+                                    pathname: "./CreateRoutes",
                                     params: { data : JSON.stringify(currentRegion) }
                                 })},
                         ]);
