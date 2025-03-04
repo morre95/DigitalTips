@@ -26,6 +26,7 @@ import {Picker} from '@react-native-picker/picker';
 import RandomCheckPoints from "@/components/RandomCheckpoints";
 
 import {MarkerData, AnswerData, RouteData} from '@/interfaces/common'
+import { FooterButtonsComponent } from '@/components/create_route/FooterButtonsComponent';
 
 const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
@@ -417,13 +418,16 @@ export default function Routes() {
                     </View>
                 )}
 
-
-                <View style={styles.topContainer}>
+                {/*<View style={styles.topContainer}>
                     <Button
                         title={nextButtonText}
                         onPress={handleNextPress}
                     />
-                </View>
+                </View>          */}
+                <FooterButtonsComponent.CancelAndContinueButtons
+                    onContinue={handleNextPress}
+                    onCancel={handleDeleteAllMarkers}
+                />
 
                 <View style={styles.newMarker}>
                     <AntDesign.Button
@@ -433,13 +437,13 @@ export default function Routes() {
                         backgroundColor="rgba(52, 52, 52, 0)"
                         onPress={handleGoToMapsPress} />
                     <View style={styles.markerMenu}>
-                        <AntDesign.Button
+                        {/*<AntDesign.Button
                             name="delete"
                             size={24}
                             color="black"
                             backgroundColor="rgba(52, 52, 52, 0)"
                             onPress={handleDeleteAllMarkers}
-                        />
+                        />*/}
                         <FontAwesome.Button
                             name="random"
                             size={24}
