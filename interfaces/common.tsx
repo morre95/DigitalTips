@@ -28,6 +28,7 @@ export interface MarkerData {
     title: string;
     description: string;
     markerOrder: number;
+    city: string;
 }
 
 export interface AnswerData {
