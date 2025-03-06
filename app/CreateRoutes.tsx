@@ -17,6 +17,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Alert, Button, StyleSheet, Text, TextInput, View } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import { getCity } from '@/functions/request'
 
 const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
@@ -102,7 +103,7 @@ export default function CreateRoutes() {
         })();
     }, [])
 
-    const handleMapPress = (event: any) => {
+    const handleMapPress = async (event: any) => {
         if (editMode) {
             cancelAddQuestions()
             return
@@ -112,15 +113,17 @@ export default function CreateRoutes() {
 
         const { coordinate } = event.nativeEvent;
 
+        const city = await getCity({latitude: coordinate.latitude, longitude: coordinate.longitude})
+
         const len = currentRoutes.length
         const newMarker: MarkerData = {
-            id: len + 1, //++markersCount,
+            id: len + 1,
             latitude: coordinate.latitude,
             longitude: coordinate.longitude,
             title: `Marker ${len + 1}`,
-            //title: `Marker ${markersCount}`,
-            description: `Raderar markör ${len + 1}, lat: ${coordinate.latitude}, lon: ${coordinate.longitude}`,
-            markerOrder: len + 1
+            description: `Markör ${len + 1}, lat: ${coordinate.latitude}, lon: ${coordinate.longitude}`,
+            markerOrder: len + 1,
+            city: city ?? ''
         };
 
         setEditMode(true)
@@ -194,16 +197,6 @@ export default function CreateRoutes() {
             }
             )
 
-            /*setCurrentRoutes(prevRoutes =>
-                prevRoutes.map((route, index) => {
-                    if (typeof currentRoutes[index + 1].marker !== "undefined" && currentRoutes[index].marker.markerOrder + 1 < currentRoutes[index + 1].marker.markerOrder) {
-                        currentRoutes[index + 1].marker.markerOrder = currentRoutes[index + 1].marker.markerOrder - 1;
-                        return currentRoutes[index + 1];
-                    }
-                    return route
-                })
-            )*/
-
             setEditMode(false)
         }
 
@@ -237,6 +230,7 @@ export default function CreateRoutes() {
 
     const handleAddQuestionToMarker = (marker: MarkerData, question: string | undefined, answers: AnswerData[]) => {
         setMarkerToSave(marker);
+        console.log(marker)
         setShowAddQuestions(true);
         if (question && answers.length > 0) {
             setQuestionText(question)

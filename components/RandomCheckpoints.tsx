@@ -9,6 +9,7 @@ import { getDistance } from 'geolib';
 import {randomCoordinate, Coordinate} from '@/functions/coordinates'
 
 import {MarkerData, AnswerData, RouteData} from '@/interfaces/common'
+import { getCity } from "@/functions/request";
 
 type Questions = Question[]
 interface Question {
@@ -64,7 +65,7 @@ const RandomCheckPoints: React.FC<iProps> = ({ isVisible, onFinnish, currentCoor
         }
     }
 
-    const handleOnFinnish = useCallback( () => {
+    const handleOnFinnish = useCallback( async () => {
         const questionsRaw = require('@/assets/triviaDB/questions.json');
         const questions: Question[] = questionsRaw as Questions;
         const checkpoints: RouteData[] = []
@@ -81,6 +82,8 @@ const RandomCheckPoints: React.FC<iProps> = ({ isVisible, onFinnish, currentCoor
             Alert.alert(`You have set the radius bigger then ${minDistance + 20} meter`)
             return
         }
+
+        let city: string = ''
 
         while (checkpoints.length < numberOfCheckpoints) {
             const coordinate = randomCoordinate(currentCoordinate, maxRangeKM);
@@ -114,14 +117,22 @@ const RandomCheckPoints: React.FC<iProps> = ({ isVisible, onFinnish, currentCoor
                 }
 
                 const len = checkpoints.length
+
+                if (city === '') {
+                    const result = await getCity({latitude: coordinate.latitude, longitude: coordinate.longitude})
+                    if (result) {
+                        city = result
+                    }
+                }
+
                 const marker: MarkerData = {
                     id: len + 1, //++markersCount,
                     latitude: coordinate.latitude,
                     longitude: coordinate.longitude,
                     title: `Marker ${len + 1}`,
-                    //title: `Marker ${markersCount}`,
                     description: `lat: ${coordinate.latitude}, lon: ${coordinate.longitude}`,
-                    markerOrder: len + 1
+                    markerOrder: len + 1,
+                    city: city
                 }
 
                 const checkpoint: RouteData = {
