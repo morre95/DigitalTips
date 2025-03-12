@@ -26,7 +26,6 @@ export interface MarkerData {
     latitude: number;
     longitude: number;
     title: string;
-    description: string;
     markerOrder: number;
     city: string;
 }

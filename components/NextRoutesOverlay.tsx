@@ -6,27 +6,8 @@ import React, { FC, useState } from 'react';
 import { Alert, Button, StyleSheet, Text, TextInput, View } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import { ButtonsComponent } from './create_route/ButtonsComponent';
+import { RouteData } from '@/interfaces/common';
 
-interface MarkerData {
-    id: number;
-    latitude: number;
-    longitude: number;
-    title: string;
-    description: string;
-    markerOrder: number;
-}
-
-interface AnswerData {
-    id: number;
-    text: string;
-    isRight: boolean;
-}
-
-type RouteData = {
-    marker: MarkerData;
-    question?: string;
-    answers?: AnswerData[];
-}
 
 type ResponseData = {
     error: boolean | string;
