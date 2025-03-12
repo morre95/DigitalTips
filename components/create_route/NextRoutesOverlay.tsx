@@ -5,28 +5,11 @@ import * as Clipboard from 'expo-clipboard';
 import React, { FC, useState } from 'react';
 import { Alert, Button, StyleSheet, Text, TextInput, View } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
-import { ButtonsComponent } from './create_route/ButtonsComponent';
+import { ButtonsComponent } from './ButtonsComponent';
+import { RouteData } from '@/interfaces/common';
 
-interface MarkerData {
-    id: number;
-    latitude: number;
-    longitude: number;
-    title: string;
-    description: string;
-    markerOrder: number;
-}
+import CityComponent from './CityComponent';
 
-interface AnswerData {
-    id: number;
-    text: string;
-    isRight: boolean;
-}
-
-type RouteData = {
-    marker: MarkerData;
-    question?: string;
-    answers?: AnswerData[];
-}
 
 type ResponseData = {
     error: boolean | string;
@@ -54,6 +37,7 @@ const NextRoutesOverlay: FC<Props> = ({ currentRoutes, onFinish, onClose }) => {
 
     const [qrCodeName, setQrCodeName] = useState<string>('')
     const [showNext, setShowNext] = useState<boolean>(false);
+
 
     //TBD: Det finns inga checkar på om stad, namn och beskrivning är ifyllda
     const handleFinishPress = async () => {
@@ -86,6 +70,17 @@ const NextRoutesOverlay: FC<Props> = ({ currentRoutes, onFinish, onClose }) => {
         await Clipboard.setStringAsync(qrCodeName);
     }
 
+    const getCitys= () => {
+        const result = currentRoutes.map(route => route.marker.city)
+        type uniqueArr = Set<string>;
+        const uniqueSet: uniqueArr = new Set(result);
+        return [...uniqueSet]
+    }
+
+    const handeOnChangeCity = (citys: string[]) => {
+        setRouteCity(citys.join(', '))
+    }
+
     return !showNext ? (
         <View style={styles.container}>
             <TextInput
@@ -94,11 +89,9 @@ const NextRoutesOverlay: FC<Props> = ({ currentRoutes, onFinish, onClose }) => {
                 value={routeName}
                 onChangeText={text => setRouteName(text)}
             />
-            <TextInput
-                placeholder={'City'}
-                style={styles.input}
-                value={routeCity}
-                onChangeText={city => setRouteCity(city)}
+            <CityComponent
+                citys={getCitys()}
+                onChange={handeOnChangeCity}
             />
             <TextInput
                 placeholder={'Description'}
