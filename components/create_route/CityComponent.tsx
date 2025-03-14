@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import {StyleSheet, Text, View, Modal, Button, Pressable} from 'react-native';
-import Checkbox from 'expo-checkbox';
+import {StyleSheet, Text, View, Pressable} from 'react-native';
 
-interface City {
-    city: string;
-    selected: boolean;
-}
+import SelectCityPopup from "./SelectCityPopup";
+
+import {City} from '@/interfaces/City'
 
 interface Props {
     citys: string[]
@@ -14,16 +12,14 @@ interface Props {
 
 export default function CityComponent({ citys, onChange }: Props) {
     const [cityState, setCityState] = useState<City[]>([]);
-    const [editCityState, setEditCityState] = useState<City[]>([]);
     const [modalVisible, setModalVisible] = useState(false);
 
-    const handleSave = () => {
-        setCityState(editCityState)
+    const handleSave = (citys: City[]) => {
+        setCityState(citys)
         setModalVisible(false)
     }
 
     const handelCancel = () => {
-        setEditCityState(cityState)
         setModalVisible(false)
     }
 
@@ -31,14 +27,6 @@ export default function CityComponent({ citys, onChange }: Props) {
         setModalVisible(true)
     }
 
-    const handleValueChange = (index: number) => {
-        setEditCityState(prevCitys => prevCitys.map((city, i) => {
-            if (i === index) {
-                return {...city, selected: !prevCitys[i].selected}
-            }
-            return city;
-        }))
-    }
 
     useEffect(() => {
         const mappedCities = citys.filter(city => city.length > 0).map(city => ({
@@ -46,7 +34,6 @@ export default function CityComponent({ citys, onChange }: Props) {
             selected: true,
         }));
         setCityState(mappedCities)
-        setEditCityState(mappedCities)
     }, [])
 
     useEffect(() => {
@@ -65,33 +52,12 @@ export default function CityComponent({ citys, onChange }: Props) {
                     </Text>
                 ))}
             </Pressable>
-            <Modal
-                animationType="slide"
-                transparent={true}
-                visible={modalVisible}
-                onRequestClose={() => setModalVisible(false)}
-            >
-                <View style={styles.modalView}>
-                    <View style={styles.modalWrapper}>
-                        <Text>Selected Citys:</Text>
-                        {editCityState.map((item: City, index: number) => (
-                            <View key={index} style={styles.modalEdit}>
-                                <Checkbox
-                                    value={item.selected}
-                                    onValueChange={() => handleValueChange(index)}
-                                />
-                                <Text key={index} style={styles.item}>
-                                    {item.city}
-                                </Text>
-                            </View>
-                        ))}
-                        <View style={styles.modalButtons}>
-                            <Button title="Save" onPress={handleSave} />
-                            <Button title="Cancel" onPress={handelCancel} />
-                        </View>
-                    </View>
-                </View>
-            </Modal>
+            <SelectCityPopup
+                isVisible={modalVisible}
+                citys={cityState}
+                onOk={handleSave}
+                onCancel={handelCancel}
+            />
         </View>
     );
 }
@@ -115,25 +81,5 @@ const styles = StyleSheet.create({
     },
     item: {
         margin: 5,
-    },
-    modalView: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    },
-    modalWrapper: {
-        padding: 12,
-        width: '100%',
-        backgroundColor: '#fff',
-    },
-    modalEdit: {
-        flexDirection: 'row',
-        marginVertical: 5,
-    },
-    modalButtons: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        width: '100%',
     },
 });
