@@ -1,8 +1,8 @@
-import AddQuestionFromDb from '@/components/AddQuestionFromDb';
+import AddQuestionFromDb from '@/components/create_route/AddQuestionFromDb';
 import CircleMarker from "@/components/create_route/CircleMarker";
 import { ButtonsComponent } from '@/components/create_route/ButtonsComponent';
-import NextRoutesOverlay from '@/components/NextRoutesOverlay';
-import RandomCheckPoints from "@/components/RandomCheckpoints";
+import NextRoutesOverlay from '@/components/create_route/NextRoutesOverlay';
+import RandomCheckPoints from "@/components/create_route/RandomCheckpoints";
 import registerOrLogin, { globals } from "@/hooks/registerOrLogin";
 import { AnswerData, MarkerData, RouteData } from '@/interfaces/common';
 import AntDesign from '@expo/vector-icons/AntDesign';
@@ -121,6 +121,7 @@ export default function CreateRoutes() {
             latitude: coordinate.latitude,
             longitude: coordinate.longitude,
             title: `Marker ${len + 1}`,
+            description: `Markör ${len + 1}, lat: ${coordinate.latitude}, lon: ${coordinate.longitude}`,
             markerOrder: len + 1,
             city: city ?? ''
         };

@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
 import {Question} from '@/interfaces/common';
 
+
 interface Props {
     question: Question;
     onAnswerSelected: (isCorrect: boolean) => void;
