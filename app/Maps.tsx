@@ -19,7 +19,7 @@ import CheckPoint from '@/components/CheckPoint'
 import FlashMessage from '@/components/FlashMessage'
 
 import {Checkpoint, Question} from "@/interfaces/common";
-import QuestionComponent from '@/components/QuestionComponent'
+import QuestionComponent from '@/components/create_route/QuestionComponent'
 
 
 type Region = {
