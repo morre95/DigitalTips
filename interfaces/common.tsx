@@ -41,3 +41,8 @@ export type RouteData = {
     question?: string;
     answers?: AnswerData[];
 }
+
+export type Coordinate = {
+    latitude: number
+    longitude: number
+}

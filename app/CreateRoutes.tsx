@@ -121,7 +121,6 @@ export default function CreateRoutes() {
             latitude: coordinate.latitude,
             longitude: coordinate.longitude,
             title: `Marker ${len + 1}`,
-            description: `Markör ${len + 1}, lat: ${coordinate.latitude}, lon: ${coordinate.longitude}`,
             markerOrder: len + 1,
             city: city ?? ''
         };

@@ -48,6 +48,11 @@ interface ContinueProps {
     onCancel: () => void;
 }
 
+interface SaveProps {
+    onSave: () => void;
+    onCancel: () => void;
+}
+
 const CancelAndFinishButtons: FC<FinishProps> = ({ onFinish, onCancel }) => {
     return (
         <View style={styles.buttonContainer}>
@@ -73,4 +78,17 @@ const CancelAndContinueButtons: FC<ContinueProps> = ({ onContinue, onCancel }) =
     );
 };
 
-export const ButtonsComponent = { CancelAndFinishButtons, CancelAndContinueButtons };
+const CancelAndSaveButtons = ({ onSave, onCancel }:SaveProps) => {
+    return (
+        <View style={styles.buttonContainer}>
+            <Pressable style={styles.cancelButton} onPress={onCancel}>
+                <Text style={styles.text}>{'Cancel'}</Text>
+            </Pressable>
+            <Pressable style={styles.continueButton} onPress={onSave}>
+                <Text style={styles.text}>{'Save'}</Text>
+            </Pressable>
+        </View>
+    );
+}
+
+export const ButtonsComponent = { CancelAndFinishButtons, CancelAndContinueButtons, CancelAndSaveButtons };

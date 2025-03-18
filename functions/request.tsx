@@ -1,4 +1,4 @@
-
+import {Coordinate} from '@/interfaces/common'
 interface Geocode {
     place_id: number
     licence: string
@@ -31,12 +31,9 @@ async function fetchJson(url: string): Promise<Geocode> {
     return await response.json();
 }
 
-type cords = {
-    latitude: number
-    longitude: number
-}
 
-export async function getCity(coordinate: cords): Promise<string | null> {
+
+export async function getCity(coordinate: Coordinate): Promise<string | null> {
     const key = process.env["EXPO_PUBLIC_GEOCODE_API_KAY"];
     const url = `https://geocode.maps.co/reverse?lat=${coordinate.latitude}&lon=${coordinate.longitude}&api_key=${key}`
 

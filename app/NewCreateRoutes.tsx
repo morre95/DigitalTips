@@ -1,19 +1,16 @@
 import React from 'react';
-import { StyleSheet } from 'react-native';
-import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import { StyleSheet, View } from 'react-native';
 import { MapProvider } from "@/components/create_route/CreateContext";
 import { MapComponent } from "@/components/create_route/MapComponent";
 
 export default function CreateRoutes() {
 
     return (
-        <SafeAreaProvider>
-            <SafeAreaView style={styles.container}>
-                <MapProvider>
-                    <MapComponent />
-                </MapProvider>
-            </SafeAreaView>
-        </SafeAreaProvider>
+        <View style={styles.container}>
+            <MapProvider>
+                <MapComponent />
+            </MapProvider>
+        </View>
     )
 }
 

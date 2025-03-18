@@ -1,10 +1,11 @@
 import React, {createContext, useContext, Dispatch, useReducer} from 'react';
 
-import { RouteData } from '@/interfaces/common';
+import { RouteData, Coordinate } from '@/interfaces/common';
 
 enum ActionType {
     ADD = 'add',
-    CHANGE = 'change',
+    ADD_Question = 'addQuestion',
+    MOVE_CHECKPOINT = 'move_checkpoint',
     DELETE = 'delete',
 }
 
@@ -53,13 +54,24 @@ function createReducer(state: CreateState, action: CreateAction) {
         case ActionType.ADD: {
             return { checkpoints: [...state.checkpoints, checkpoint] };
         }
-        case ActionType.CHANGE: {
+        case ActionType.ADD_Question: {
             return {
                 checkpoints: state.checkpoints.map(r =>
                     r.marker.id === checkpoint.marker.id ? {
                         ...r,
                         question: checkpoint.question,
                         answers: checkpoint.answers
+                    } : r
+                )
+            };
+        }
+        case ActionType.MOVE_CHECKPOINT: {
+            return {
+                checkpoints: state.checkpoints.map(r =>
+                    r.marker.id === checkpoint.marker.id ? {
+                        ...r,
+                        latitude: checkpoint.marker.latitude,
+                        longitude: checkpoint.marker.longitude,
                     } : r
                 )
             };
