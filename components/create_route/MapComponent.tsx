@@ -1,8 +1,8 @@
 
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
-import React, {useState} from "react";
+import React, {useRef, useState} from "react";
 import {StyleSheet, Text, View} from "react-native";
-import {MarkerData, RouteData, Question} from "@/interfaces/common";
+import {MarkerData, RouteData, Question, AnswerData} from "@/interfaces/common";
 import { getCity } from "@/functions/request";
 import { useCreateDispatch } from "@/components/create_route/CreateContext";
 import CircleMarker from "@/components/create_route/CircleMarker";
@@ -25,6 +25,7 @@ const initialRegion: Region = {
 export function MapComponent() {
     const {state, dispatch} = useCreateDispatch();
     const [showAddQuestion, setShowAddQuestion] = useState<boolean>(false);
+    const markerRef = useRef<RouteData | null>(null);
 
     const handleMapPress = async (event: any) => {
         const { coordinate } = event.nativeEvent
@@ -42,11 +43,12 @@ export function MapComponent() {
         }
 
         dispatch({type: 'add', checkpoint: { marker: newMarker }})
-        addQuestion(newMarker)
+        addQuestion({ marker: newMarker })
     }
 
-    const addQuestion = (marker: MarkerData) => {
+    const addQuestion = (marker: RouteData) => {
         setShowAddQuestion(true)
+        markerRef.current = marker
     }
 
     const handelDrag = async (event: any, route: RouteData) => {
@@ -57,12 +59,43 @@ export function MapComponent() {
         const city = await getCity({latitude: coordinate.latitude, longitude: coordinate.longitude})
         route.marker.city = city ?? ''
 
-        dispatch({type: 'move_checkpoint', checkpoint: route});
+        dispatch({type: 'moveCheckpoint', checkpoint: route});
     }
 
-    const handleSaveQuestion = (question: Question) => {
+    const handleSaveQuestion = (question: string, answers: AnswerData[], order: number) => {
         setShowAddQuestion(false)
+        const marker = markerRef.current
+        if (marker) {
+            dispatch({type: 'addQuestion', checkpoint: {
+                marker: marker.marker,
+                question: question,
+                answers: answers
+            }});
 
+            marker.marker.markerOrder = order
+            dispatch({type: 'changeOrder', checkpoint: {
+                    marker: marker.marker
+            }})
+        }
+        markerRef.current = null
+    }
+
+    const handelCancelAddQuestion = () => {
+        setShowAddQuestion(false)
+        const marker = markerRef.current
+        if (marker && !marker.question) {
+            dispatch({type: 'delete', checkpoint: marker})
+        }
+        markerRef.current = null
+    }
+
+    const handeDeleteCheckpoint = () => {
+        setShowAddQuestion(false)
+        const marker = markerRef.current
+        if (marker) {
+            dispatch({type: 'delete', checkpoint: marker})
+        }
+        markerRef.current = null
     }
 
     return (
@@ -81,18 +114,23 @@ export function MapComponent() {
                             draggable
                             onDragEnd={(event) => handelDrag(event, route)}
                             onPress={() => {
-                                addQuestion(route.marker)
+                                addQuestion(route)
                             }}
                         >
-                            <CircleMarker number={route.marker.markerOrder}/>
+                            <CircleMarker
+                                order={route.marker.markerOrder}
+                            />
                         </Marker>
                     )
                 )}
             </MapView>
             <AddQuestion
                 visible={showAddQuestion}
-                onCancel={() => setShowAddQuestion(false)}
+                onCancel={handelCancelAddQuestion}
                 onSave={handleSaveQuestion}
+                currentCheckpoint={markerRef.current}
+                numberOfCheckpoints={state.checkpoints.length}
+                onDelete={handeDeleteCheckpoint}
             />
         </View>
     )

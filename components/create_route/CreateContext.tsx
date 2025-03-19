@@ -1,11 +1,13 @@
 import React, {createContext, useContext, Dispatch, useReducer} from 'react';
 
-import { RouteData, Coordinate } from '@/interfaces/common';
+import { RouteData } from '@/interfaces/common';
+import {updateMarkerOrderForRoutes} from "@/functions/UpdateMarkerOrderForRoutes";
 
 enum ActionType {
     ADD = 'add',
     ADD_Question = 'addQuestion',
-    MOVE_CHECKPOINT = 'move_checkpoint',
+    MOVE_CHECKPOINT = 'moveCheckpoint',
+    CHANGE_ORDER = 'changeOrder',
     DELETE = 'delete',
 }
 
@@ -60,7 +62,7 @@ function createReducer(state: CreateState, action: CreateAction) {
                     r.marker.id === checkpoint.marker.id ? {
                         ...r,
                         question: checkpoint.question,
-                        answers: checkpoint.answers
+                        answers: checkpoint.answers,
                     } : r
                 )
             };
@@ -75,6 +77,11 @@ function createReducer(state: CreateState, action: CreateAction) {
                     } : r
                 )
             };
+        }
+        case ActionType.CHANGE_ORDER: {
+            return {
+                checkpoints: updateMarkerOrderForRoutes(state.checkpoints, checkpoint.marker.id, checkpoint.marker.markerOrder)
+            }
         }
         case ActionType.DELETE: {
             return { checkpoints: state.checkpoints.filter(r => r.marker.id !== checkpoint.marker.id) };

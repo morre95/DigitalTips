@@ -1,23 +1,24 @@
 import AddQuestionFromDb from '@/components/create_route/AddQuestionFromDb';
 import CircleMarker from "@/components/create_route/CircleMarker";
-import { ButtonsComponent } from '@/components/create_route/ButtonsComponent';
+import {ButtonsComponent} from '@/components/create_route/ButtonsComponent';
 import NextRoutesOverlay from '@/components/create_route/NextRoutesOverlay';
 import RandomCheckPoints from "@/components/create_route/RandomCheckpoints";
-import registerOrLogin, { globals } from "@/hooks/registerOrLogin";
-import { AnswerData, MarkerData, RouteData } from '@/interfaces/common';
+import registerOrLogin, {globals} from "@/hooks/registerOrLogin";
+import {AnswerData, MarkerData, RouteData} from '@/interfaces/common';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import Feather from '@expo/vector-icons/Feather';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import { Picker } from '@react-native-picker/picker';
+import {Picker} from '@react-native-picker/picker';
 import Checkbox from 'expo-checkbox';
-import { router, useLocalSearchParams } from 'expo-router';
-import React, { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Alert, Button, StyleSheet, Text, TextInput, View } from 'react-native';
-import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
-import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
-import { getCity } from '@/functions/request'
+import {router, useLocalSearchParams} from 'expo-router';
+import React, {useEffect, useRef, useState} from 'react';
+import {ActivityIndicator, Alert, Button, StyleSheet, Text, TextInput, View} from 'react-native';
+import MapView, {Marker, PROVIDER_GOOGLE} from 'react-native-maps';
+import {SafeAreaProvider, SafeAreaView} from 'react-native-safe-area-context';
+import {getCity} from '@/functions/request'
+import {updateMarkerOrderForRoutes} from "@/functions/UpdateMarkerOrderForRoutes";
 
 const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
@@ -28,37 +29,6 @@ type Region = {
     latitudeDelta: number
     longitude: number
     longitudeDelta: number
-}
-
-function updateMarkerOrderForRoutes(
-    routes: RouteData[],
-    targetId: number,
-    newOrder: number
-): RouteData[] {
-    // Skapa en kopia av arrayen och sortera utifrån marker.markerOrder
-    const sortedRoutes = [...routes].sort((a, b) => a.marker.markerOrder - b.marker.markerOrder);
-
-    // Hitta index för den RouteData som innehåller marker med targetId
-    const currentIndex = sortedRoutes.findIndex(route => route.marker.id === targetId);
-    if (currentIndex === -1) {
-        throw new Error(`Marker med id ${targetId} hittades inte.`);
-    }
-
-    // Ta bort objektet som ska flyttas
-    const [targetRoute] = sortedRoutes.splice(currentIndex, 1);
-
-    // Beräkna nytt index utifrån newOrder (notera att newOrder börjar på 1)
-    const newIndex = Math.max(0, Math.min(newOrder - 1, sortedRoutes.length));
-
-    // Infoga targetRoute på den nya positionen
-    sortedRoutes.splice(newIndex, 0, targetRoute);
-
-    // Uppdatera markerOrder för varje RouteData så att de blir sekventiella
-    sortedRoutes.forEach((route, index) => {
-        route.marker.markerOrder = index + 1;
-    });
-
-    return sortedRoutes;
 }
 
 
@@ -396,7 +366,7 @@ export default function CreateRoutes() {
                                     onDragEnd={(event) => handleDragEnd(event, route.marker.id)}
                                     onPress={() => handleMarkerOnPress(route.marker)}
                                 >
-                                    <CircleMarker number={route.marker.markerOrder} />
+                                    <CircleMarker order={route.marker.markerOrder} />
                                 </Marker>
                             ))
                         }
