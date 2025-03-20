@@ -11,6 +11,7 @@ export default function AppLayout() {
         <Tabs.Screen
             name="CreateRoutes"
             options={{
+                headerShown: false,
                 title: "Create New Routes",
                 tabBarIcon: ({ focused }) => (
                     <FontAwesome5 name="route" size={24} color={ focused ? "rgba(0, 0, 0, 1)" : "rgba(0, 0, 0, 0.5)"} />
@@ -44,10 +45,3 @@ export default function AppLayout() {
   );
 }
 
-const styles = StyleSheet.create({
-  icon: {
-    width: 24,
-    height: 24,
-    resizeMode: 'contain',
-  },
-});

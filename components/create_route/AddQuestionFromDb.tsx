@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {View, FlatList, Text, TouchableOpacity, StyleSheet, Button, ScrollView} from 'react-native';
+import {View, FlatList, Text, TouchableOpacity, StyleSheet, Button} from 'react-native';
 
 import {Picker} from '@react-native-picker/picker';
 
@@ -20,7 +20,7 @@ interface Question {
 
 interface AddQuestionProps {
     onSelectedQuestion: (question: Question) => void;
-    returnRandomQuestion: boolean;
+    returnRandomQuestion?: boolean;
 }
 
 const decodeHtmlEntity = function(str: string) {
@@ -75,7 +75,7 @@ const AddQuestionFromDb: React.FC<AddQuestionProps> = ({onSelectedQuestion, retu
 
             <Picker
                 selectedValue={selectedType}
-                onValueChange={(itemValue, itemIndex) =>
+                onValueChange={(itemValue) =>
                     setSelectedType(itemValue)
                 }
                 mode={'dropdown'}
@@ -86,7 +86,7 @@ const AddQuestionFromDb: React.FC<AddQuestionProps> = ({onSelectedQuestion, retu
 
             <Picker
                 selectedValue={selectedDifficulty}
-                onValueChange={(itemValue, itemIndex) =>
+                onValueChange={(itemValue) =>
                     setSelectedDifficulty(itemValue)
                 }
                 mode={'dropdown'}
@@ -98,7 +98,7 @@ const AddQuestionFromDb: React.FC<AddQuestionProps> = ({onSelectedQuestion, retu
 
             <Picker
                 selectedValue={selectedDifficulty}
-                onValueChange={(itemValue, itemIndex) =>
+                onValueChange={(itemValue) =>
                     setSelectedCategory(itemValue)
                 }>
                 {

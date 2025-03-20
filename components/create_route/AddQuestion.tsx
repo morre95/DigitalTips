@@ -10,6 +10,7 @@ import FontAwesome from "@expo/vector-icons/FontAwesome";
 import AntDesign from '@expo/vector-icons/AntDesign';
 import {Picker} from "@react-native-picker/picker";
 
+
 interface IQuestionProps {
     visible: boolean;
     onSave: (question: string, answers: AnswerData[], order: number) => void;
@@ -17,9 +18,10 @@ interface IQuestionProps {
     currentCheckpoint: RouteData | null;
     numberOfCheckpoints: number;
     onDelete: () => void;
+    onAddQuestionFromDb: () => void
 }
 
-export default function AddQuestion({visible, onSave, onCancel, currentCheckpoint, numberOfCheckpoints, onDelete}: IQuestionProps) {
+export default function AddQuestion({visible, onSave, onCancel, currentCheckpoint, numberOfCheckpoints, onDelete, onAddQuestionFromDb}: IQuestionProps) {
     const [questionText, setQuestionText] = useState('');
     const [currentAnswers, setCurrentAnswers] = useState<AnswerData[]>([]);
     const [order, setOrder] = useState<number>(0);
@@ -101,7 +103,7 @@ export default function AddQuestion({visible, onSave, onCancel, currentCheckpoin
                             color="black"
                             backgroundColor="rgba(52, 52, 52, 0)"
                             onPress={() => {
-                                console.log('Get question from DB not implemented')
+                                onAddQuestionFromDb()
                             }}
                         />
                         <FontAwesome.Button

@@ -9,6 +9,7 @@ import CircleMarker from "@/components/create_route/CircleMarker";
 import AddQuestion from "@/components/create_route/AddQuestion";
 import {ButtonsComponent} from "@/components/create_route/ButtonsComponent";
 import NextRoutesOverlay from "@/components/create_route/NextRoutesOverlay";
+import AddQuestionFromDb from "@/components/create_route/AddQuestionFromDb";
 
 type Region = {
     latitude: number
@@ -29,6 +30,7 @@ export function MapComponent() {
     const [showAddQuestion, setShowAddQuestion] = useState<boolean>(false);
     const markerRef = useRef<RouteData | null>(null);
     const [showNext, setShowNext] = useState<boolean>(false)
+    const [showDbQuestionSelect, setShowDbQuestionSelect] = useState<boolean>(false)
 
     const handleMapPress = async (event: any) => {
         const { coordinate } = event.nativeEvent
@@ -60,7 +62,7 @@ export function MapComponent() {
         route.marker.longitude = coordinate.longitude;
 
         const city = await getCity({latitude: coordinate.latitude, longitude: coordinate.longitude})
-        route.marker.city = city ?? ''
+        route.marker.city = city ?? 'Unknown'
 
         dispatch({type: 'moveCheckpoint', checkpoint: route});
     }
@@ -109,12 +111,38 @@ export function MapComponent() {
         dispatch({type: 'deleteAll'})
     }
 
+    const handelAddQuestionFromDB = (question: any) => {
+        setShowDbQuestionSelect(false)
+        setShowAddQuestion(true)
+
+        let answers: AnswerData[] = []
+        let newAnswers: AnswerData = {
+            id: answers.length + 1,
+            text: question.correct_answer,
+            isRight: true,
+        }
+        answers.push(newAnswers)
+        for (let incorrect of question.incorrect_answers) {
+            newAnswers = {
+                id: answers.length + 1,
+                text: incorrect,
+                isRight: false,
+            }
+            answers.push(newAnswers)
+        }
+
+        const order = markerRef?.current?.marker.markerOrder || 0
+
+        handleSaveQuestion(question.question, answers, order)
+    }
+
+
     return (
         <View style={styles.map}>
-            <ButtonsComponent.CancelAndContinueButtons
+            {state.checkpoints.length > 0 ? <ButtonsComponent.CancelAndContinueButtons
                 onContinue={handleContinue}
                 onCancel={handleDeleteAll}
-            />
+            />: null}
             <MapView
                 provider={PROVIDER_GOOGLE}
                 region={initialRegion}
@@ -146,15 +174,27 @@ export function MapComponent() {
                 currentCheckpoint={markerRef.current}
                 numberOfCheckpoints={state.checkpoints.length}
                 onDelete={handeDeleteCheckpoint}
+                onAddQuestionFromDb={() => {
+                    setShowDbQuestionSelect(true)
+                    setShowAddQuestion(false)
+                }}
             />
 
-            {showNext && <NextRoutesOverlay
-                currentRoutes={state.checkpoints}
-                onFinish={handleDeleteAll}
-                onClose={() => {
-                    setShowNext(false)
-                }}
-            />}
+            {showNext &&
+                <NextRoutesOverlay
+                    currentRoutes={state.checkpoints}
+                    onFinish={handleDeleteAll}
+                    onClose={() => {
+                        setShowNext(false)
+                    }}
+                />
+            }
+
+            {showDbQuestionSelect &&
+                <AddQuestionFromDb
+                    onSelectedQuestion={handelAddQuestionFromDB}
+                />
+            }
         </View>
     )
 }
