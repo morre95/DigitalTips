@@ -9,6 +9,7 @@ enum ActionType {
     MOVE_CHECKPOINT = 'moveCheckpoint',
     CHANGE_ORDER = 'changeOrder',
     DELETE = 'delete',
+    DELETE_ALL = 'deleteAll',
 }
 
 interface CreateAction {
@@ -82,6 +83,9 @@ function createReducer(state: CreateState, action: CreateAction) {
             return {
                 checkpoints: updateMarkerOrderForRoutes(state.checkpoints, checkpoint.marker.id, checkpoint.marker.markerOrder)
             }
+        }
+        case ActionType.DELETE_ALL: {
+            return { checkpoints: [] };
         }
         case ActionType.DELETE: {
             return { checkpoints: state.checkpoints.filter(r => r.marker.id !== checkpoint.marker.id) };

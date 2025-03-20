@@ -7,6 +7,8 @@ import { getCity } from "@/functions/request";
 import { useCreateDispatch } from "@/components/create_route/CreateContext";
 import CircleMarker from "@/components/create_route/CircleMarker";
 import AddQuestion from "@/components/create_route/AddQuestion";
+import {ButtonsComponent} from "@/components/create_route/ButtonsComponent";
+import NextRoutesOverlay from "@/components/create_route/NextRoutesOverlay";
 
 type Region = {
     latitude: number
@@ -26,6 +28,7 @@ export function MapComponent() {
     const {state, dispatch} = useCreateDispatch();
     const [showAddQuestion, setShowAddQuestion] = useState<boolean>(false);
     const markerRef = useRef<RouteData | null>(null);
+    const [showNext, setShowNext] = useState<boolean>(false)
 
     const handleMapPress = async (event: any) => {
         const { coordinate } = event.nativeEvent
@@ -98,8 +101,20 @@ export function MapComponent() {
         markerRef.current = null
     }
 
+    const handleContinue = () => {
+        setShowNext(true)
+    }
+
+    const handleDeleteAll = () => {
+        dispatch({type: 'deleteAll'})
+    }
+
     return (
         <View style={styles.map}>
+            <ButtonsComponent.CancelAndContinueButtons
+                onContinue={handleContinue}
+                onCancel={handleDeleteAll}
+            />
             <MapView
                 provider={PROVIDER_GOOGLE}
                 region={initialRegion}
@@ -132,6 +147,14 @@ export function MapComponent() {
                 numberOfCheckpoints={state.checkpoints.length}
                 onDelete={handeDeleteCheckpoint}
             />
+
+            {showNext && <NextRoutesOverlay
+                currentRoutes={state.checkpoints}
+                onFinish={handleDeleteAll}
+                onClose={() => {
+                    setShowNext(false)
+                }}
+            />}
         </View>
     )
 }
