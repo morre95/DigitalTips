@@ -1,8 +1,8 @@
 
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import React, {useRef, useState} from "react";
-import {StyleSheet, Text, View} from "react-native";
-import {MarkerData, RouteData, Question, AnswerData} from "@/interfaces/common";
+import {StyleSheet, View} from "react-native";
+import {MarkerData, RouteData, AnswerData} from "@/interfaces/common";
 import { getCity } from "@/functions/request";
 import { useCreateDispatch } from "@/components/create_route/CreateContext";
 import CircleMarker from "@/components/create_route/CircleMarker";
