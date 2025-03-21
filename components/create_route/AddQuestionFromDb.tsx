@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import {View, FlatList, Text, TouchableOpacity, StyleSheet, Button, Alert} from 'react-native';
-
 import {Picker} from '@react-native-picker/picker';
-
 import questionsRaw from '@/assets/triviaDB/questions.json';
-
+import Spacer from "@/components/Spacer";
+import {sleep} from '@/functions/common'
 
 type Questions = Question[]
 
@@ -30,19 +29,29 @@ const decodeHtmlEntity = function(str: string) {
 
 const AddQuestionFromDb: React.FC<AddQuestionProps> = ({onSelectedQuestion}) => {
     const [questions, setQuestions] = useState<Questions>([] as Question[]);
+    const [categories, setCategories] = useState<string[]>([]);
     const [filteredQuestions, setFilteredQuestions] = useState<Questions>();
 
     const [selectedType, setSelectedType] = useState<string>('multiple');
     const [selectedDifficulty, setSelectedDifficulty] = useState<string>('easy');
     const [selectedCategory, setSelectedCategory] = useState<string>('History');
 
-    const [categories, setCategories] = useState<string[]>([]);
 
     useEffect(() => {
         const newQuestions: Question[] = questionsRaw as Questions;
         setQuestions(newQuestions)
-        setCategories(Array.from(new Set(newQuestions.map(q => q.category))));
+        setCategories(
+            Array.from(
+                new Set(
+                    newQuestions.map(q => q.category)
+                )
+            )
+        );
     }, []);
+
+    useEffect(() => {
+        filterQuestions();
+    }, [questions, categories]);
 
     const filterAndSortQuestions = (type: string, difficulty: string, category: string) => {
         return questions
@@ -54,10 +63,14 @@ const AddQuestionFromDb: React.FC<AddQuestionProps> = ({onSelectedQuestion}) => 
             .sort((a, b) => a.question.localeCompare(b.question)); // Sortera alfabetiskt efter fråga
     };
 
-    const handleFilter = () => {
+    const filterQuestions = () => {
         const result = filterAndSortQuestions(selectedType, selectedDifficulty, selectedCategory);
         setFilteredQuestions(result);
     };
+
+    useEffect(() => {
+        filterQuestions();
+    }, [selectedType, selectedDifficulty, selectedCategory]);
 
     const handleRandom = () => {
         const result = filterAndSortQuestions(selectedType, selectedDifficulty, selectedCategory);
@@ -72,7 +85,7 @@ const AddQuestionFromDb: React.FC<AddQuestionProps> = ({onSelectedQuestion}) => 
     return (
         <View style={styles.container}>
             <Button title="Generate a random question" onPress={handleRandom} />
-            <Button title="Filter Questions" onPress={handleFilter} />
+            <Spacer size={20} />
             <Text>Type:</Text>
             <Picker
                 selectedValue={selectedType}
@@ -98,7 +111,7 @@ const AddQuestionFromDb: React.FC<AddQuestionProps> = ({onSelectedQuestion}) => 
             </Picker>
             <Text>Category:</Text>
             <Picker
-                selectedValue={selectedDifficulty}
+                selectedValue={selectedCategory}
                 onValueChange={(itemValue) =>
                     setSelectedCategory(itemValue)
                 }>
