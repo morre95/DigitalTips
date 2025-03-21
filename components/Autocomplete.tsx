@@ -19,13 +19,12 @@ interface IItem {
 
 
 interface IAutocompleteProps {
-    data: string[];
     onSelect: (item: SearchResponse) => void;
     onSubmit: (item: string) => void;
     placeholder?: string;
 }
 
-const Autocomplete: React.FC<IAutocompleteProps> = ({ data, onSelect, onSubmit, placeholder = ''  }) => {
+const Autocomplete: React.FC<IAutocompleteProps> = ({ onSelect, onSubmit, placeholder = ''  }) => {
     const [query, setQuery] = useState('');
     const [filteredData, setFilteredData] = useState<SearchResponse[]>([]);
     const [isFocused, setIsFocused] = useState(false);
@@ -53,15 +52,11 @@ const Autocomplete: React.FC<IAutocompleteProps> = ({ data, onSelect, onSubmit, 
     };
 
     const Item = (item: IItem) => {
-        //const maxLength = 25;
-        //const truncatedName = item.name.length > maxLength ? item.name.slice(0, maxLength) + '...' : item.name;
-        const truncatedName = item.name
-
         return (
             <TouchableOpacity key={item.routeId} onPress={() => handleSelect(item)}>
 
                 <View style={[styles.item, styles.row]}>
-                    <Text style={{maxWidth: '96%'}}>{truncatedName} </Text>
+                    <Text style={{maxWidth: '96%'}}>{item.name} </Text>
                     <View style={{flex: 1, alignItems: 'flex-end', marginRight: 3}}>
                         <Tooltip content={`${item.description}\n(With ${item.count} checkpoints)`} position={Position.Left}>
                             <EvilIcons name="question" size={24} color="black" />
@@ -134,7 +129,6 @@ const styles = StyleSheet.create({
         borderBottomWidth: 1,
         borderBottomColor: '#ccc',
         borderRadius: 8,
-        /*textAlign: 'center'*/
         width: '100%',
         marginLeft: 20,
     },
@@ -142,9 +136,6 @@ const styles = StyleSheet.create({
         position: 'absolute',
         top: 0,
         left: 25,
-        /*bottom: 0,
-        right: 5,*/
-
         fontSize: 10,
     },
     city: {
