@@ -72,7 +72,7 @@ const AddQuestionFromDb: React.FC<AddQuestionProps> = ({onSelectedQuestion, retu
     return (
         <View style={styles.container}>
             <Button title="Filtrera Frågor" onPress={handleFilter} />
-
+            <Text>Type:</Text>
             <Picker
                 selectedValue={selectedType}
                 onValueChange={(itemValue) =>
@@ -83,7 +83,7 @@ const AddQuestionFromDb: React.FC<AddQuestionProps> = ({onSelectedQuestion, retu
                 <Picker.Item label="Multiple Choice" value="multiple" />
                 <Picker.Item label="True / False" value="boolean" />
             </Picker>
-
+            <Text>Difficulty:</Text>
             <Picker
                 selectedValue={selectedDifficulty}
                 onValueChange={(itemValue) =>
@@ -95,7 +95,7 @@ const AddQuestionFromDb: React.FC<AddQuestionProps> = ({onSelectedQuestion, retu
                 <Picker.Item label="Medium" value="medium" />
                 <Picker.Item label="Hard" value="hard" />
             </Picker>
-
+            <Text>Category:</Text>
             <Picker
                 selectedValue={selectedDifficulty}
                 onValueChange={(itemValue) =>

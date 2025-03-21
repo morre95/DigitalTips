@@ -98,6 +98,7 @@ const NextRoutesOverlay: FC<Props> = ({ currentRoutes, onFinish, onClose }) => {
                 multiline={true}
                 style={styles.textaria}
                 value={routeDescription}
+                textAlignVertical={'top'}
                 onChangeText={desc => setRouteDescription(desc)}
             />
             <ButtonsComponent.CancelAndFinishButtons

@@ -5,7 +5,7 @@ import {updateMarkerOrderForRoutes} from "@/functions/UpdateMarkerOrderForRoutes
 
 enum ActionType {
     ADD = 'add',
-    ADD_Question = 'addQuestion',
+    ADD_QUESTION = 'addQuestion',
     MOVE_CHECKPOINT = 'moveCheckpoint',
     CHANGE_ORDER = 'changeOrder',
     DELETE = 'delete',
@@ -57,7 +57,7 @@ function createReducer(state: CreateState, action: CreateAction) {
         case ActionType.ADD: {
             return { checkpoints: [...state.checkpoints, checkpoint] };
         }
-        case ActionType.ADD_Question: {
+        case ActionType.ADD_QUESTION: {
             return {
                 checkpoints: state.checkpoints.map(r =>
                     r.marker.id === checkpoint.marker.id ? {

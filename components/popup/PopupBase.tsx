@@ -50,7 +50,13 @@ const PopupOkCancelButtons = ({onOk, onCancel, okText, cancelText}: OkCancelButt
             <Text style={styles.buttonText}>{cancelText ? cancelText : 'Cancel'}</Text>
         </TouchableOpacity>
     </View>
-)
+);
+
+const PopupOkButton = ({onOk, okText}: {onOk: () => void, okText?: string}) => (
+    <TouchableOpacity style={styles.button} onPress={onOk}>
+        <Text style={styles.buttonText}>{okText ? okText : 'OK'}</Text>
+    </TouchableOpacity>
+);
 
 const styles = StyleSheet.create({
     container: {
@@ -99,3 +105,4 @@ PopupBase.Container = PopupContainer;
 PopupBase.Body = PopupBody;
 PopupBase.Footer = PopupFooter;
 PopupBase.OkCancelButtons = PopupOkCancelButtons;
+PopupBase.OkButton = PopupOkButton;

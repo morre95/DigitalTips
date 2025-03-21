@@ -23,7 +23,7 @@ interface Question {
 
 interface iProps {
     isVisible: boolean;
-    onFinnish: (route: RouteData[] | boolean) => void;
+    onFinish: (route: RouteData[]) => void;
     currentCoordinate: Coordinate;
 }
 
@@ -52,7 +52,7 @@ const isFloat = (value: string): boolean => {
 
 const getRandomQuestion = (arr: Question[]) => arr[Math.floor(Math.random() * arr.length)]
 
-const RandomCheckPoints: React.FC<iProps> = ({ isVisible, onFinnish, currentCoordinate }) => {
+const RandomCheckPoints: React.FC<iProps> = ({ isVisible, onFinish, currentCoordinate }) => {
     const [numberOfCheckpoints, setNumberOfCheckpoints] = useState<number>(3);
     const [isRandomQuestionChecked, setIsRandomQuestionChecked] = useState<boolean>(true);
     const [rangeKm, setRangeKm] = useState<string>('2');
@@ -130,7 +130,6 @@ const RandomCheckPoints: React.FC<iProps> = ({ isVisible, onFinnish, currentCoor
                     latitude: coordinate.latitude,
                     longitude: coordinate.longitude,
                     title: `Marker ${len + 1}`,
-                    description: `lat: ${coordinate.latitude}, lon: ${coordinate.longitude}`,
                     markerOrder: len + 1,
                     city: city
                 }
@@ -145,7 +144,7 @@ const RandomCheckPoints: React.FC<iProps> = ({ isVisible, onFinnish, currentCoor
             }
         }
 
-        onFinnish(checkpoints)
+        onFinish(checkpoints)
     }, [rangeKm, numberOfCheckpoints])
 
     return (
@@ -207,7 +206,7 @@ const RandomCheckPoints: React.FC<iProps> = ({ isVisible, onFinnish, currentCoor
                         <View style={{marginRight: 20}}></View>
                         <Button
                             title={'Cancel'}
-                            onPress={() => {onFinnish(false)}}
+                            onPress={() => {onFinish([])}}
                         />
                     </View>
                 </View>
