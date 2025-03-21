@@ -52,7 +52,7 @@ export default function Maps() {
 
     const [currentRegion, setCurrentRegion] = useState<Region>(initialRegion);
 
-    const [JWT_token, setJWT_token] = useState<string>();
+        const [JWT_token, setJWT_token] = useState<string>();
     /*
         {JWT_token ? (
             <ApiTestJwtToken token={JWT_token} />
