@@ -3,7 +3,6 @@ import {View, FlatList, Text, TouchableOpacity, StyleSheet, Button, Alert} from 
 import {Picker} from '@react-native-picker/picker';
 import questionsRaw from '@/assets/triviaDB/questions.json';
 import Spacer from "@/components/Spacer";
-import {sleep} from '@/functions/common'
 
 type Questions = Question[]
 
