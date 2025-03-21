@@ -6,7 +6,6 @@ import Checkbox from "expo-checkbox";
 
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import FontAwesome from "@expo/vector-icons/FontAwesome";
 import AntDesign from '@expo/vector-icons/AntDesign';
 import {Picker} from "@react-native-picker/picker";
 
@@ -104,15 +103,6 @@ export default function AddQuestion({visible, onSave, onCancel, currentCheckpoin
                             backgroundColor="rgba(52, 52, 52, 0)"
                             onPress={() => {
                                 onAddQuestionFromDb()
-                            }}
-                        />
-                        <FontAwesome.Button
-                            name="random"
-                            size={24}
-                            color="black"
-                            backgroundColor="rgba(52, 52, 52, 0)"
-                            onPress={() => {
-                                console.log('Get random question from DB not implemented')
                             }}
                         />
                         <AntDesign.Button

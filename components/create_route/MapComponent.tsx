@@ -175,8 +175,14 @@ export function MapComponent() {
             return
         }
 
+        const startOrder = state.checkpoints.length
+
         for (let i = 0; i < checkpoints.length; i++) {
             let checkpoint = checkpoints[i];
+            if (startOrder > 0) {
+                checkpoint.marker.id += startOrder
+                checkpoint.marker.markerOrder += startOrder
+            }
             dispatch({type: 'add', checkpoint: checkpoint })
         }
     }

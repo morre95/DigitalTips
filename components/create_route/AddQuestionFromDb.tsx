@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {View, FlatList, Text, TouchableOpacity, StyleSheet, Button} from 'react-native';
+import {View, FlatList, Text, TouchableOpacity, StyleSheet, Button, Alert} from 'react-native';
 
 import {Picker} from '@react-native-picker/picker';
 
@@ -20,7 +20,6 @@ interface Question {
 
 interface AddQuestionProps {
     onSelectedQuestion: (question: Question) => void;
-    returnRandomQuestion?: boolean;
 }
 
 const decodeHtmlEntity = function(str: string) {
@@ -29,16 +28,7 @@ const decodeHtmlEntity = function(str: string) {
     });
 };
 
-const AddQuestionFromDb: React.FC<AddQuestionProps> = ({onSelectedQuestion, returnRandomQuestion}) => {
-    const getRandomElement = (arr: Question[]) => arr[Math.floor(Math.random() * arr.length)]
-
-    if (returnRandomQuestion) {
-        onSelectedQuestion(getRandomElement(questionsRaw as Questions))
-        return (
-            <Text>Random</Text>
-        )
-    }
-
+const AddQuestionFromDb: React.FC<AddQuestionProps> = ({onSelectedQuestion}) => {
     const [questions, setQuestions] = useState<Questions>([] as Question[]);
     const [filteredQuestions, setFilteredQuestions] = useState<Questions>();
 
@@ -69,9 +59,20 @@ const AddQuestionFromDb: React.FC<AddQuestionProps> = ({onSelectedQuestion, retu
         setFilteredQuestions(result);
     };
 
+    const handleRandom = () => {
+        const result = filterAndSortQuestions(selectedType, selectedDifficulty, selectedCategory);
+        if (result.length > 0) {
+            const random = Math.floor(Math.random() * result.length);
+            onSelectedQuestion(result[random])
+        } else {
+            Alert.alert('No results', 'The filter parameters give no results, change them and try again.')
+        }
+    }
+
     return (
         <View style={styles.container}>
-            <Button title="Filtrera Frågor" onPress={handleFilter} />
+            <Button title="Generate a random question" onPress={handleRandom} />
+            <Button title="Filter Questions" onPress={handleFilter} />
             <Text>Type:</Text>
             <Picker
                 selectedValue={selectedType}

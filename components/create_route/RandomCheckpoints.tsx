@@ -1,4 +1,4 @@
-import React, {useState, useCallback} from 'react';
+import React, {useState} from 'react';
 
 import {View, Modal, Text, TextInput, StyleSheet, Button, Alert} from 'react-native'
 import {Picker} from '@react-native-picker/picker';
@@ -65,7 +65,7 @@ const RandomCheckPoints: React.FC<iProps> = ({ isVisible, onFinish, currentCoord
         }
     }
 
-    const handleOnFinnish = useCallback( async () => {
+    const handleOnFinnish = async () => {
         const questionsRaw = require('@/assets/triviaDB/questions.json');
         const questions: Question[] = questionsRaw as Questions;
         const checkpoints: RouteData[] = []
@@ -145,7 +145,7 @@ const RandomCheckPoints: React.FC<iProps> = ({ isVisible, onFinish, currentCoord
         }
 
         onFinish(checkpoints)
-    }, [rangeKm, numberOfCheckpoints])
+    }
 
     return (
         <Modal
