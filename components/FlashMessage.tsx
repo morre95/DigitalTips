@@ -1,4 +1,4 @@
-import React, { Component, useState } from "react";
+import React, { Component } from "react";
 import { Animated, StyleSheet, Text, View } from "react-native";
 
 interface INotificationStyle {
@@ -11,6 +11,7 @@ interface IFlashMessageProp {
     opacity: Animated.Value;
     offset: Animated.Value;
     notificationType: INotificationStyle;
+    position: number
 }
 
 export default class FlashMessage extends Component<{}, IFlashMessageProp> {
@@ -23,6 +24,7 @@ export default class FlashMessage extends Component<{}, IFlashMessageProp> {
             opacity: new Animated.Value(0),
             offset: new Animated.Value(0),
             notificationType: {backgroundColor: "tomato"},
+            position: -200,
         };
         this._notificationRef = React.createRef<View>();
     }
@@ -56,6 +58,8 @@ export default class FlashMessage extends Component<{}, IFlashMessageProp> {
             if (notificationNode) {
                 notificationNode.measure((x, y, width, height, pageX, pageY) => {
                     this.state.offset.setValue(-height);
+                    this.setState({position: 0})
+                    console.log('Före animationen')
                     Animated.sequence([
                         Animated.parallel([
                             Animated.timing(this.state.opacity, {
@@ -82,7 +86,7 @@ export default class FlashMessage extends Component<{}, IFlashMessageProp> {
                                 useNativeDriver: true,
                             }),
                         ]),
-                    ]).start();
+                    ]).start(() => this.setState({position: -200}));
                 });
             }
         });
@@ -92,6 +96,9 @@ export default class FlashMessage extends Component<{}, IFlashMessageProp> {
         const notificationStyle = {
             opacity: this.state.opacity,
             transform: [{ translateY: this.state.offset }],
+            left: this.state.position,
+            top: this.state.position,
+            right: this.state.position,
         };
 
         return (
@@ -107,10 +114,10 @@ const styles = StyleSheet.create({
         position: "absolute",
         paddingHorizontal: 7,
         paddingVertical: 15,
-        left: 0,
-        top: 0,
-        right: 0,
-        zIndex: 999
+        left: -200,
+        top: -200,
+        right: -200,
+        zIndex: 1290,
     },
     notificationText: {
         color: "#FFF",

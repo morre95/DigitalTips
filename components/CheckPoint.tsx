@@ -50,8 +50,6 @@ const CheckPoint: React.FC<ICheckPoint> = (
             setCurrentCoordinate(currentPosition)
         }
 
-        console.log('currentPosition changed for Checkpoint id', checkpoint.checkpoint_id, 'pos:', currentPosition)
-
         // TBD: ska tas bort när testning är klar och hur game play ska vara är bestämt
         if (currentPosition && activeCheckpoint) {
             const distance = getDistance(currentPosition, {
@@ -104,9 +102,7 @@ const CheckPoint: React.FC<ICheckPoint> = (
     useEffect(() => {
         (async () => {
             const foreground = await Location.requestForegroundPermissionsAsync()
-            if (foreground.granted) {
-                console.log('Location requests is granted');
-            } else {
+            if (!foreground.granted) {
                 console.error('Location request not granted');
             }
             //if (foreground.granted) await Location.requestBackgroundPermissionsAsync()
@@ -114,7 +110,6 @@ const CheckPoint: React.FC<ICheckPoint> = (
                 await startForegroundUpdate()
                 console.log('currentCheckpoint id: ', checkpoint.checkpoint_id, 'startForegroundUpdate()')
             }
-            console.log('currentCheckpoint id: ', checkpoint.checkpoint_id, 'Is monitored:', activeCheckpoint)
         })()
     }, [activeCheckpoint])
 

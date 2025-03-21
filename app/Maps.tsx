@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useRef, ComponentRef} from 'react';
-import {StyleSheet, View, Text, Alert, Vibration, Button} from 'react-native';
+import {StyleSheet, View, Text, Alert, Vibration} from 'react-native';
 import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
 
 import {SafeAreaView, SafeAreaProvider} from 'react-native-safe-area-context';
@@ -32,12 +32,6 @@ type Region = {
 type QuestionType = {
     question: Question;
     checkPointId: number;
-}
-
-interface IMessage {
-    message: string;
-    duration?: number;
-    type?: string;
 }
 
 // TODO: Ladda in den rutt som blivit sparad på routes sidan
@@ -169,6 +163,8 @@ export default function Maps() {
                     onPress={handleMapPress}
                     onRegionChange={setCurrentRegion}
                     showsUserLocation={true}
+                    showsMyLocationButton={false}
+                    toolbarEnabled={false}
                     onLongPress={() => {
                         Alert.alert('Create new routes', 'Du you want to create new route?', [
                             {
@@ -188,7 +184,7 @@ export default function Maps() {
                             key={checkpoint.checkpoint_id}
                             checkpoint={checkpoint}
                             onQuestion={(question: Question, id) => {
-                                console.log('onQuestion:', checkpoint);
+                                console.log('onQuestion:', checkpoint, 'id', id);
                                 if (!checkpoint.isAnswered) {
                                     Vibration.vibrate([1000, 1000, 1000]) // vibrerar 1 sek tre gånger
                                     setQuestion({question: question, checkPointId: checkpoint.checkpoint_id});
@@ -197,7 +193,7 @@ export default function Maps() {
                                 }*/
                             }}
                             onChange={(distance: number) => {
-                                flashMessageRef.current?.flash(`Distance changed, you are ${distance} meters from the checkpoint #${checkpoint.checkpoint_id}`, 10000);
+                                flashMessageRef.current?.flash(`Distance changed, you are ${distance} meters from the checkpoint #${checkpoint.checkpoint_order}`, 10000);
                             }}
                             activeCheckpoint={currentCheckpointIndex === index}
                             onLeave={() => {
@@ -238,10 +234,6 @@ export default function Maps() {
                 {score > 0 ? <Text>Score: {score}</Text> : null}
 
                 <FlashMessage ref={flashMessageRef} />
-                {/*<Button title={'Click me'} onPress={() => {flashMessageRef.current?.flash("Ett medelande", );}}/>
-                <Button title={'Success'} onPress={() => {flashMessageRef.current?.success("Ett medelande", );}} color={'#228b22'}/>
-                <Button title={'Error'} onPress={() => {flashMessageRef.current?.error("Ett error msg som tar 10 000ms", 10000);}} color={'tomato'}/>
-                <Button title={'Warning'} onPress={() => {flashMessageRef.current?.warning("Ett varnings msg som");}} color={'#ffd700'}/>*/}
 
             </SafeAreaView>
         </SafeAreaProvider>
