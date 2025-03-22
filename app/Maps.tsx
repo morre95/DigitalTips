@@ -8,7 +8,7 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 
 import Autocomplete from '@/components/Autocomplete';
 
-import registerOrLogin, { globals } from "@/hooks/registerOrLogin";
+import registerOrLogin from "@/hooks/registerOrLogin";
 
 import {router, useLocalSearchParams} from 'expo-router';
 
@@ -22,6 +22,7 @@ import {Checkpoint, Question} from "@/interfaces/common";
 import QuestionComponent from '@/components/create_route/QuestionComponent'
 import PlayerNameSelect from '@/components/PlayerNameSelect'
 import updatePlayerName from "@/functions/updatePlayerName";
+import {getPlayerName} from "@/functions/common";
 
 
 type Region = {
@@ -83,13 +84,9 @@ export default function Maps() {
         (async () => {
             await registerOrLogin();
 
-            if (globals.JWT_token) {
-                console.log('User id:', globals.userId, ', player:', globals.playerName);
-                if (!globals.playerName) {
-                    setShowSelectPlayerName(true);
-                }
-            } else {
-                console.log('inte inloggad');
+            const playerName = await getPlayerName();
+            if (!playerName) {
+                setShowSelectPlayerName(true);
             }
         })();
     };
@@ -173,25 +170,15 @@ export default function Maps() {
     };
 
     const handlePlayerNameSelect = async (playerName: string) => {
-        if (globals.userId) {
-            const error = await updatePlayerName(globals.userId, playerName)
-            if (error) {
-                console.error('player name was not changed')
-            }
-            setShowSelectPlayerName(false);
+        const error = await updatePlayerName(playerName)
+        if (!error) {
+            console.error('player name was not changed')
         }
+        setShowSelectPlayerName(false);
     }
 
     const handlePlayerNameCancel = async () => {
-        setShowSelectPlayerName(false)
-        if (!globals.playerName && globals.userId) {
-            console.log('Inget namn var valt så', 'Player 1', 'blir det då')
-            const error = await updatePlayerName(globals.userId, 'Player 1')
-            if (error) {
-                console.error('player name was not changed')
-            }
-        }
-        setShowSelectPlayerName(false);
+        await handlePlayerNameSelect('Player 1')
     }
 
     return (

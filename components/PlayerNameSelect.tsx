@@ -1,18 +1,25 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { StyleSheet, Text, TextInput, View } from 'react-native'
 import { PopupBase } from "@/components/popup/PopupBase";
 import Spacer from "@/components/Spacer";
+import {getPlayerName} from "@/functions/common";
 
 
 interface IProps {
     visible: boolean;
     onSelect: (playerName: string) => void;
     onCancel: () => void;
-    playerName?: string;
 }
 
-export default function PlayerNameSelect({visible, onSelect, onCancel, playerName}: IProps) {
-    const [selectedPlayerName, setSelectedPlayerName] = useState(playerName || "");
+export default function PlayerNameSelect({visible, onSelect, onCancel}: IProps) {
+    const [selectedPlayerName, setSelectedPlayerName] = useState("");
+
+    useEffect(() => {
+        (async () => {
+            const playerName = await getPlayerName()
+            if (playerName) setSelectedPlayerName(playerName)
+        })()
+    }, []);
 
     const handleOk = () => {
         onSelect(selectedPlayerName);

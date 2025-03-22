@@ -2,6 +2,7 @@ import postJson from './api/Post'
 import register from './register'
 import globals from './globals'
 import * as SecureStore from 'expo-secure-store';
+import {setPlayerId, setPlayerName} from "@/functions/common";
 
 type BodyProp = {
     username: string,
@@ -52,8 +53,8 @@ const registerOrLogin = async () => {
 
         if (!response.error && response.token && response.user) {
             globals.JWT_token = response.token
-            globals.userId = response.user
-            globals.playerName = response.playerName
+            await setPlayerId(response.user)
+            await setPlayerName(response.playerName || null)
         } else if (retryCount <= 5) {
             retryCount++
             await SecureStore.deleteItemAsync('username');
