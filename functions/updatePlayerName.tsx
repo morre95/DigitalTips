@@ -1,4 +1,4 @@
-import BaseUrl from "@/hooks/api/BaseUrl";
+
 import postJson from "@/hooks/api/Post";
 
 interface IResult {
