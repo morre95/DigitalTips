@@ -1,6 +1,4 @@
 import postJson from './api/Post'
-import * as Crypto from 'expo-crypto';
-import BaseUrl from "@/hooks/api/BaseUrl";
 
 import register from './register'
 
