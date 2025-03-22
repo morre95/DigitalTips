@@ -41,7 +41,6 @@ const getKmRange = (input: string): number => {
     if (matches) {
         return Number(matches[0])
     } else {
-        console.log("Inga float tal hittades.");
         return -1
     }
 }

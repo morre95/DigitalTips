@@ -60,7 +60,6 @@ const NextRoutesOverlay: FC<Props> = ({ currentRoutes, onFinish, onClose }) => {
 
         const url = '/add/routes'
         const response = await postJson<SendData, ResponseData>(url, result)
-        console.log(response);
 
         if (response.error) {
             Alert.alert('Something went wrong', response.error as string)

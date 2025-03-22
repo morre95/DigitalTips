@@ -58,12 +58,10 @@ const CheckPoint: React.FC<ICheckPoint> = (
             }) - globalThreshold;
 
             if (distance <= 0) {
-                console.log('handelOnPress()', 'Användaren är', 0, 'meter och är inom checkpointen');
                 if (onChange) {
                     onChange(0)
                 }
             } else {
-                console.log('handelOnPress()', 'Användaren är', distance, 'meter');
                 if (onChange) {
                     onChange(distance)
                 }
@@ -89,7 +87,7 @@ const CheckPoint: React.FC<ICheckPoint> = (
             const distance = getDistance(currentCoordinate, targetCoordinate);
 
             if (distance < globalThreshold) {
-                console.log(`Avståndet är ${distance.toFixed(2)} meter, vilket är kortare än ${globalThreshold} meter.`);
+                //console.log(`Avståndet är ${distance.toFixed(2)} meter, vilket är kortare än ${globalThreshold} meter.`);
                 setInActiveRegion(true)
                 stopForegroundUpdate()
             } else if (activeCheckpoint) {
@@ -108,7 +106,7 @@ const CheckPoint: React.FC<ICheckPoint> = (
             //if (foreground.granted) await Location.requestBackgroundPermissionsAsync()
             if (activeCheckpoint) {
                 await startForegroundUpdate()
-                console.log('currentCheckpoint id: ', checkpoint.checkpoint_id, 'startForegroundUpdate()')
+                //console.log('currentCheckpoint id: ', checkpoint.checkpoint_id, 'startForegroundUpdate()')
             }
         })()
     }, [activeCheckpoint])
@@ -118,7 +116,7 @@ const CheckPoint: React.FC<ICheckPoint> = (
         // Check if foreground permission is granted
         const { granted } = await Location.getForegroundPermissionsAsync()
         if (!granted) {
-            console.log("location tracking denied")
+            //console.log("location tracking denied")
             return
         }
 
@@ -149,7 +147,7 @@ const CheckPoint: React.FC<ICheckPoint> = (
         console.log(`CheckPointOrder: ${checkpoint.checkpoint_order}`, {
             latitude: Number(checkpoint.latitude),
             longitude: Number(checkpoint.longitude)
-        })
+        }, 'nothing implemented here yet')
     }
 
 

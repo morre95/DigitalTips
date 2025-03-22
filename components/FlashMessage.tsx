@@ -59,7 +59,6 @@ export default class FlashMessage extends Component<{}, IFlashMessageProp> {
                 notificationNode.measure((x, y, width, height, pageX, pageY) => {
                     this.state.offset.setValue(-height);
                     this.setState({position: 0})
-                    console.log('Före animationen')
                     Animated.sequence([
                         Animated.parallel([
                             Animated.timing(this.state.opacity, {

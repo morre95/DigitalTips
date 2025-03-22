@@ -1,9 +1,6 @@
 import postJson from './api/Post'
-
 import register from './register'
-
 import globals from './globals'
-
 import * as SecureStore from 'expo-secure-store';
 
 type BodyProp = {
@@ -28,11 +25,9 @@ const registerOrLogin = async () => {
     const username = await SecureStore.getItemAsync('username');
     const password = await SecureStore.getItemAsync('password');
     if (!username || !password) {
-        let result : boolean = await register()
-        console.log('register', result)
+        await register()
         if (retryCount <= 5) {
             retryCount++
-            console.log(`${retryCount} register trys`)
             await registerOrLogin();
         }
     } else {
@@ -59,7 +54,6 @@ const registerOrLogin = async () => {
             globals.userId = response.user
         } else if (retryCount <= 5) {
             retryCount++
-            console.log(`${retryCount} try count. Remove login data and try again`)
             await SecureStore.deleteItemAsync('username');
             await SecureStore.deleteItemAsync('password');
             await registerOrLogin();

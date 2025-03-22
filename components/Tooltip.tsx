@@ -1,10 +1,5 @@
-import React, { useState, useLayoutEffect, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, Modal, StyleSheet } from 'react-native';
-
-
-type PositionProps = {
-    type: 'top' | 'bottom' | 'left' | 'right';
-}
 
 enum Position {
     Top = 'top',
@@ -20,19 +15,11 @@ type AbsolutePosition = {
     height: number;
 }
 
-interface IPayload {
-    type: Position
-    width: number;
-    height: number;
-}
-
 interface Props {
     children: React.ReactNode;
     content: string
     position?: Position;
 }
-
-const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
 
 const Tooltip: React.FC<Props> = ({ children, content, position = Position.Top }) => {
@@ -41,31 +28,17 @@ const Tooltip: React.FC<Props> = ({ children, content, position = Position.Top }
     const [tooltipPosition, setTooltipPosition] = useState<AbsolutePosition>({ left: 170, top: 0, width: 0, height: 0 });
     const [dimension, setDimension] = useState({ width: 0, height: 0 });
 
-
     const toggleTooltip = () => setTooltipVisible(!tooltipVisible);
 
     const handlePress = async (event: any) => {
         const { pageX, pageY } = event.nativeEvent;
-        console.log('handlePress ->', {pageX, pageY});
-        //await delay(500)
         setTooltipPosition({...tooltipPosition, left: pageX, top: pageY});
-        //toggleTooltip()
         setTooltipVisible(true);
     }
-
-    useLayoutEffect(() => {
-    /*useEffect(() => {*/
-        targetRef.current?.measure((x, y, width, height, pageX, pageY) => {
-            //setTooltipPosition({...tooltipPosition, width: width, height: height, left: pageX, top: pageY});
-            //setTooltipPosition({...tooltipPosition, left: pageX, top: pageY});
-            console.log('useLayoutEffect', {x, y, width, height, pageX, pageY});
-        })
-    }, [tooltipVisible])
 
     useEffect(() => {
         if (targetRef.current) {
             setTooltipPosition(prevState => prevState)
-            console.log('useEffect -> setTooltipPosition')
         }
     }, [tooltipVisible])
 
@@ -74,17 +47,7 @@ const Tooltip: React.FC<Props> = ({ children, content, position = Position.Top }
 
     const handleLayout = (event: any) => {
         const { width, height } = event.nativeEvent.layout;
-        console.log('handleLayout', {width, height}, tooltipPosition);
         setDimension({width: width, height: height})
-        //setTooltipPosition({...tooltipPosition, width: width, height: height});
-        //setTooltipPosition({width: width, height: height, top: tooltipPosition.top, left: tooltipPosition.left});
-        /*setTooltipPosition(prevState =>
-            ({
-                ...prevState,
-                width: width, height: height
-            })
-        )*/
-        //setTooltipPosition({...tooltipPosition, left: tooltipPosition.left - width}); detta ger en oändlig loop
     }
 
 
