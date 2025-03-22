@@ -22,6 +22,7 @@ CREATE TABLE IF NOT EXISTS `rate_limit` (
 CREATE TABLE `users` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `username` VARCHAR(50) NOT NULL UNIQUE,
+  `player_name` VARCHAR(50),
   `password` VARCHAR(255) NOT NULL
 );
 
@@ -36,6 +37,7 @@ INSERT INTO `users` (`username`, `password`) VALUES
 
 CREATE TABLE routes (
     route_id INT AUTO_INCREMENT PRIMARY KEY,
+    owner INT NOT NULL,
     name VARCHAR(100) NOT NULL,
     city TEXT,
     description TEXT,

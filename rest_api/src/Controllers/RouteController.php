@@ -14,23 +14,22 @@ class RouteController
     }
 
     public function add_new(ServerRequestInterface $request, ResponseInterface $response, $args) {
-        //$this->logger->info("It is possible to add routs");
         $json = $request->getParsedBody();
-        //$data = json_decode($json);
 
-        $this->logger->info("Add routes: " . var_export($json,true) /*$json[0]['marker']['question']*/);
+        $this->logger->info("Add routes: " . var_export($json,true));
 
-        $sql_routes = "INSERT INTO routes (name, city, description)
-                VALUES (:name, :city, :description)";
+        $sql_routes = "INSERT INTO routes (owner, name, city, description)
+                VALUES (:owner, :name, :city, :description)";
         try {
             $db = new Db();
             $pdo = $db->connect();
             $statement = $pdo->prepare($sql_routes);
             // TODO: bör updaters så det kommer från appen
             $statement->execute([
+                ':owner' => $json["owner"],
                 ':name' => $json["name"],
                 ':city' => $json["city"],
-                ':description' => $json["description"]
+                ':description' => $json["description"],
             ]);
             $route_id = $pdo->lastInsertId();
 
@@ -149,50 +148,6 @@ class RouteController
 
     }
 
-    public function get_all(ServerRequestInterface $request, ResponseInterface $response, $args) {
-        $sql = "SELECT
-    r.route_id,
-    r.name AS route_name,
-    c.checkpoint_id,
-    c.latitude,
-    c.longitude,
-    c.checkpoint_order,
-    q.question_id,
-    q.question_text,
-    a.answer_id,
-    a.answer_text,
-    a.is_correct
-FROM routes r
-    JOIN checkpoints c ON r.route_id = c.route_id
-    JOIN questions q ON c.question_id = q.question_id
-    JOIN answers a ON q.question_id = a.question_id
-ORDER BY r.route_id, c.checkpoint_order, a.answer_id";
-
-        try {
-            $db = new Db();
-            $conn = $db->connect();
-            $stmt = $conn->query($sql);
-            $routes = $stmt->fetchAll(PDO::FETCH_OBJ);
-            $db = null;
-
-            $response->getBody()->write(json_encode($routes));
-            return $response
-                ->withHeader('content-type', 'application/json')
-                ->withStatus(200);
-        } catch (PDOException $e) {
-            $error = array(
-                "message" => $e->getMessage()
-            );
-
-            $this->logger->error($error["message"]);
-
-            $response->getBody()->write(json_encode($error));
-            return $response
-                ->withHeader('content-type', 'application/json')
-                ->withStatus(500);
-        }
-    }
-
     public function get_checkpoints(ServerRequestInterface $request, ResponseInterface $response, $args) {
 
         try {
@@ -228,8 +183,7 @@ ORDER BY r.route_id, c.checkpoint_order, a.answer_id";
                 if (count($questions) > 0) {
                     $answers = [];
                     foreach ($questions as $question) {
-                        //$question_result["answers"][] = (object) ["answer" => $question->answer_text, "isCorrect" => $question->is_correct === 1];
-                        $answers[] = (object) ["text" => $question->answer_text, "isCorrect" => $question->is_correct === 1];
+                        $answers[] = (object) ["text" => $question->answer_text, "isCorrect" => $question->is_correct === '1'];
                         $this->logger->info("question: " . var_export($question,true));
                     }
                     $checkpoint->question = new stdClass();
@@ -245,41 +199,6 @@ ORDER BY r.route_id, c.checkpoint_order, a.answer_id";
                     break;
                 }
             }
-
-            /*foreach ($checkpoints as $checkpoint) {
-                $sql = "SELECT
-                    q.question_text,
-                    a.answer_text,
-                    a.is_correct
-                    FROM questions q
-                    JOIN answers a ON q.question_id = a.question_id
-                WHERE q.question_id = :question_id
-                ORDER BY q.question_id";
-                $stmt = $conn->prepare($sql);
-
-                $question_id = $checkpoint->question_id;
-                $stmt->bindValue(":question_id", $question_id);
-                $stmt->execute();
-
-                $questions = $stmt->fetchAll(PDO::FETCH_OBJ);
-
-                if (count($questions) > 0) {
-                    $answers = [];
-                    foreach ($questions as $question) {
-                        //$question_result["answers"][] = (object) ["answer" => $question->answer_text, "isCorrect" => $question->is_correct === 1];
-                        $answers[] = (object) ["text" => $question->answer_text, "isCorrect" => $question->is_correct === 1];
-                        $this->logger->info("question: " . var_export($question,true));
-                    }
-                    $result[] = (object) ["checkpoint" => $checkpoint, "question" => $questions[0]->question_text, "answers" => $answers];
-                } else {
-                    // TBD: Hit ska inte skritet komma eftersom alla checkpoints ska ha frågor. Men om det är något fel i appen så finns det ett meddelande i alla fall
-                    $result = (object) array(
-                        "error" => true,
-                        "message" => 'No question found'
-                    );
-                    break;
-                }
-            }*/
 
             $response->getBody()->write(json_encode($result));
             return $response
@@ -298,9 +217,5 @@ ORDER BY r.route_id, c.checkpoint_order, a.answer_id";
                 ->withHeader('content-type', 'application/json')
                 ->withStatus(500);
         }
-
-
-
-
     }
 }

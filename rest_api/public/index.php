@@ -1,6 +1,5 @@
 <?php
 session_status();
-use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
 use Psr\Container\ContainerInterface;
@@ -16,7 +15,6 @@ use Modules\DB;
 
 
 require __DIR__ . '/../vendor/autoload.php';
-require __DIR__ . '/../src/Controllers/TestController.php';
 require __DIR__ . '/../src/Controllers/UserController.php';
 require __DIR__ . '/../src/Controllers/RouteController.php';
 require __DIR__ . '/../src/Middlewares/RateLimitMiddleware.php';
@@ -87,6 +85,7 @@ $app->post('/login', function (Request $request, Response $response) use ($secre
         $responseData = [
             'error' => false,
             'token' => $jwt,
+            'user' => $user['id'],
             'message' => 'Login succeeded'
         ];
 
@@ -98,6 +97,7 @@ $app->post('/login', function (Request $request, Response $response) use ($secre
         $responseData = [
             'error' => true,
             'token' => null,
+            'user' => null,
             'message' => 'Login failed'
         ];
 
@@ -229,8 +229,8 @@ $beforeMiddleware = function (Request $request, RequestHandler $handler) use ($a
     // Example: Check for a specific header before proceeding
     $auth = $request->getHeaderLine('Authorization');
 
-    $logger = get_logger($app->getContainer());
     if (!$auth) {
+        $logger = get_logger($app->getContainer());
 
         $headers = $request->getHeaders();
         $testResult = "";
@@ -251,27 +251,11 @@ $beforeMiddleware = function (Request $request, RequestHandler $handler) use ($a
     return $handler->handle($request);
 };
 
-// TBD: Denna bör kollas om den behövs
-$afterMiddleware = function (Request $request, RequestHandler $handler) {
-    // Proceed with the next middleware
-    $response = $handler->handle($request);
-
-    if (!isset($_SESSION['USER_AUTHORIZATION'])) {
-        $_SESSION['USER_AUTHORIZATION'] = "auth_ShouldBeAnEmptyString";
-    }
-
-    // Modify the response after the application has processed the request
-    return $response->withHeader('X-New-User-Auth', $_SESSION['USER_AUTHORIZATION']);
-};
-
 $db = new Db();
 $rateLimitMiddleware = new RateLimitMiddleware($db->connect(), 100, 60, get_logger($app->getContainer()));
 $app->add($rateLimitMiddleware);
 
-//$app->add($afterMiddleware);
-
 $app->add($beforeMiddleware);
-
 
 
 $path = dirname(__FILE__);
@@ -303,25 +287,6 @@ $app->get('/', function (Request $request, Response $response, $args) {
     return $response;
 });
 
-/* Test script */
-$app->get('/json/test', \TestController::class . ':test');
-$app->get('/routes/all', \RouteController::class . ':get_all');
-
-$app->post('/post/test', function (Request $request, Response $response) {
-    $params = $request->getParsedBody();
-    $foo = $params['foo'] ?? '';
-    $bar = $params['bar'] ?? '';
-
-    $responseData = [
-        'error' => false,
-        'message' => "Who would have thought that $foo is in love with $bar"
-    ];
-    $response->getBody()->write(json_encode($responseData));
-
-    return $response->withHeader('Content-Type', 'application/json')
-        ->withStatus(200);
-});
-/* Slut på test script */
 
 $app->post('/add/routes', \RouteController::class . ':add_new');
 

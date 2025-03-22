@@ -52,7 +52,7 @@ export default function Maps() {
 
     const [currentRegion, setCurrentRegion] = useState<Region>(initialRegion);
 
-        const [JWT_token, setJWT_token] = useState<string>();
+    //const [JWT_token, setJWT_token] = useState<string>();
     /*
         {JWT_token ? (
             <ApiTestJwtToken token={JWT_token} />
@@ -67,8 +67,8 @@ export default function Maps() {
             await registerOrLogin();
 
             if (globals.JWT_token) {
-                console.log('JWT token:', globals.JWT_token);
-                setJWT_token(globals.JWT_token)
+                console.log('User id:', globals.userId);
+                //setJWT_token(globals.JWT_token)
             } else {
                 console.log('inte inloggad');
             }

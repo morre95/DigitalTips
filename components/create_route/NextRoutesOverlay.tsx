@@ -7,8 +7,9 @@ import { Alert, Button, StyleSheet, Text, TextInput, View } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import { ButtonsComponent } from './ButtonsComponent';
 import { RouteData } from '@/interfaces/common';
-
+import globals from '@/hooks/globals';
 import CityComponent from './CityComponent';
+import Spacer from '../Spacer'
 
 
 type ResponseData = {
@@ -17,6 +18,7 @@ type ResponseData = {
 }
 
 interface SendData {
+    owner: number;
     data: RouteData[];
     name: string;
     city: string;
@@ -41,7 +43,15 @@ const NextRoutesOverlay: FC<Props> = ({ currentRoutes, onFinish, onClose }) => {
 
     //TBD: Det finns inga checkar på om stad, namn och beskrivning är ifyllda
     const handleFinishPress = async () => {
+        let userId = -1
+        if (globals.userId) userId = globals.userId
+        else {
+            Alert.alert('Your app has not identify it self')
+            return
+        }
+
         const result: SendData = {
+            owner: userId,
             data: currentRoutes,
             name: routeName,
             city: routeCity,
@@ -129,6 +139,7 @@ const NextRoutesOverlay: FC<Props> = ({ currentRoutes, onFinish, onClose }) => {
                 logoBackgroundColor='transparent'
                 logoBorderRadius={5}
             />
+            <Spacer size={20} />
             <Button title={'Close'} onPress={() => onClose()} />
         </View>
     );

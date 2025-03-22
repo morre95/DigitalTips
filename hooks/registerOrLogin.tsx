@@ -16,16 +16,13 @@ type BodyProp = {
 type ResponseProp = {
     error: boolean,
     message: string,
-    token: string
+    token?: string,
+    user?: number,
 }
 
 let retryCount = 0;
 
 const registerOrLogin = async () => {
-   /* await SecureStore.deleteItemAsync('username');
-    await SecureStore.deleteItemAsync('password');
-    return;*/
-
     if (globals.JWT_token) {
         return;
     }
@@ -34,7 +31,7 @@ const registerOrLogin = async () => {
     const password = await SecureStore.getItemAsync('password');
     if (!username || !password) {
         let result : boolean = await register()
-
+        console.log('register', result)
         if (retryCount <= 5) {
             retryCount++
             console.log(`${retryCount} register trys`)
@@ -59,9 +56,9 @@ const registerOrLogin = async () => {
             return;
         }
 
-        if (!response.error) {
+        if (!response.error && response.token && response.user) {
             globals.JWT_token = response.token
-            //console.log(globals.JWT_token)
+            globals.userId = response.user
         } else if (retryCount <= 5) {
             retryCount++
             console.log(`${retryCount} try count. Remove login data and try again`)
