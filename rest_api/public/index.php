@@ -86,6 +86,7 @@ $app->post('/login', function (Request $request, Response $response) use ($secre
             'error' => false,
             'token' => $jwt,
             'user' => $user['id'],
+            'playerName' => $user['player_name'],
             'message' => 'Login succeeded'
         ];
 
@@ -292,6 +293,8 @@ $app->post('/add/routes', \RouteController::class . ':add_new');
 
 $app->get('/search/routes/{keyword}', \RouteController::class . ':search');
 $app->get('/get/checkpoints/{id}', \RouteController::class . ':get_checkpoints');
+
+$app->post('/change/player/name', \UserController::class . ':change_player_name');
 
 // Alla API calls som behöver skyddas behöver ligga under den här gruppen
 $app->group('/api', function (\Slim\Routing\RouteCollectorProxy $group) {

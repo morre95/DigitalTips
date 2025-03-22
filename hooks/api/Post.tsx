@@ -4,12 +4,11 @@ function prepareHeaders<T>(data: T) {
     const headers = new Headers();
     headers.set('Content-Type', 'application/json');
     headers.set('Authorization', 'auth_ThisIsMandatory');
-    const requestOptions = {
+    return {
         method: 'POST',
         headers: headers,
         body: JSON.stringify(data)
     };
-    return requestOptions;
 }
 
 /*

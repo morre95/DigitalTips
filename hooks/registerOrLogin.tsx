@@ -13,6 +13,7 @@ type ResponseProp = {
     message: string,
     token?: string,
     user?: number,
+    playerName?: string,
 }
 
 let retryCount = 0;
@@ -52,6 +53,7 @@ const registerOrLogin = async () => {
         if (!response.error && response.token && response.user) {
             globals.JWT_token = response.token
             globals.userId = response.user
+            globals.playerName = response.playerName
         } else if (retryCount <= 5) {
             retryCount++
             await SecureStore.deleteItemAsync('username');

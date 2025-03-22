@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useRef, ComponentRef} from 'react';
-import {StyleSheet, View, Text, Alert, Vibration} from 'react-native';
+import {StyleSheet, View, Text, Alert, Vibration, AppState, AppStateStatus} from 'react-native';
 import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
 
 import {SafeAreaView, SafeAreaProvider} from 'react-native-safe-area-context';
@@ -20,6 +20,8 @@ import FlashMessage from '@/components/FlashMessage'
 
 import {Checkpoint, Question} from "@/interfaces/common";
 import QuestionComponent from '@/components/create_route/QuestionComponent'
+import PlayerNameSelect from '@/components/PlayerNameSelect'
+import updatePlayerName from "@/functions/updatePlayerName";
 
 
 type Region = {
@@ -52,28 +54,46 @@ export default function Maps() {
 
     const [currentRegion, setCurrentRegion] = useState<Region>(initialRegion);
 
-    //const [JWT_token, setJWT_token] = useState<string>();
-    /*
-        {JWT_token ? (
-            <ApiTestJwtToken token={JWT_token} />
-        ) : null}
-    */
-
     const flashMessageRef = useRef<ComponentRef<typeof FlashMessage>>(null);
 
+    const [showSelectPlayerName, setShowSelectPlayerName] = useState<boolean>(true);
+
+
+    const [appState, setAppState] = useState<AppStateStatus>(AppState.currentState);
 
     useEffect(() => {
+        startFunction();
+    }, []);
+
+    useEffect(() => {
+        const subscription = AppState.addEventListener('change', handleAppStateChange);
+        return () => {
+            subscription.remove();
+        };
+    }, [appState]);
+
+    const handleAppStateChange = (nextAppState: AppStateStatus) => {
+        if (appState.match(/inactive|background/) && nextAppState === 'active') {
+            startFunction();
+        }
+        setAppState(nextAppState);
+    };
+
+    const startFunction = () => {
         (async () => {
             await registerOrLogin();
 
             if (globals.JWT_token) {
-                console.log('User id:', globals.userId);
-                //setJWT_token(globals.JWT_token)
+                console.log('User id:', globals.userId, ', player:', globals.playerName);
+                if (!globals.playerName) {
+                    setShowSelectPlayerName(true);
+                }
             } else {
                 console.log('inte inloggad');
             }
         })();
-    }, []);
+    };
+
 
     const {routerData} = useLocalSearchParams();
     useEffect(() => {
@@ -152,6 +172,27 @@ export default function Maps() {
         setCheckpoints(_ => nextCheckpoints)
     };
 
+    const handlePlayerNameSelect = async (playerName: string) => {
+        if (globals.userId) {
+            const error = await updatePlayerName(globals.userId, playerName)
+            if (error) {
+                console.error('player name was not changed')
+            }
+            setShowSelectPlayerName(false);
+        }
+    }
+
+    const handlePlayerNameCancel = async () => {
+        setShowSelectPlayerName(false)
+        if (!globals.playerName && globals.userId) {
+            console.log('Inget namn var valt så', 'Player 1', 'blir det då')
+            const error = await updatePlayerName(globals.userId, 'Player 1')
+            if (error) {
+                console.error('player name was not changed')
+            }
+        }
+        setShowSelectPlayerName(false);
+    }
 
     return (
         <SafeAreaProvider>
@@ -227,6 +268,13 @@ export default function Maps() {
                     question={question.question}
                     onAnswerSelected={(isCorrect) => handleAnswerSelected(isCorrect, question.checkPointId)}
                 />}
+
+                <PlayerNameSelect
+                    visible={showSelectPlayerName}
+                    onSelect={handlePlayerNameSelect}
+                    onCancel={handlePlayerNameCancel}
+                />
+
 
                 {score > 0 ? <Text>Score: {score}</Text> : null}
 
