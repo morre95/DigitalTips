@@ -188,9 +188,7 @@ export default function Maps() {
                                 if (!checkpoint.isAnswered) {
                                     Vibration.vibrate([1000, 1000, 1000]) // vibrerar 1 sek tre gånger
                                     setQuestion({question: question, checkPointId: checkpoint.checkpoint_id});
-                                } /*else {
-                                    console.log('onQuestion:', 'ID:', checkpoint.checkpoint_id, 'is already answered');
-                                }*/
+                                }
                             }}
                             onChange={(distance: number) => {
                                 flashMessageRef.current?.flash(`Distance changed, you are ${distance} meters from the checkpoint #${checkpoint.checkpoint_order}`, 10000);
