@@ -32,7 +32,7 @@ const CreateContext = createContext<{state: CreateState, dispatch: Dispatch<any>
         dispatch: () => {}
     });
 
-export function MapProvider({ children }: { children: React.ReactNode }) {
+export function CreateProvider({ children }: { children: React.ReactNode }) {
     const [state, dispatch] = useReducer(
         createReducer,
         initialState
@@ -49,7 +49,6 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
 export function useCreateDispatch() {
     return useContext(CreateContext);
 }
-
 
 function createReducer(state: CreateState, action: CreateAction) {
     const { type, checkpoint } = action;

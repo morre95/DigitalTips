@@ -1,15 +1,15 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { MapProvider } from "@/components/create_route/CreateContext";
-import { MapComponent } from "@/components/create_route/MapComponent";
+import { CreateProvider } from "@/components/create_route/CreateContext";
+import { CreateMapComponent } from "@/components/create_route/CreateMapComponent";
 
 export default function CreateRoutes() {
 
     return (
         <View style={styles.container}>
-            <MapProvider>
-                <MapComponent />
-            </MapProvider>
+            <CreateProvider>
+                <CreateMapComponent />
+            </CreateProvider>
         </View>
     )
 }

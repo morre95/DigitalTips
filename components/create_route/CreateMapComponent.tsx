@@ -1,4 +1,4 @@
-import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
+import MapView, { Marker, PROVIDER_GOOGLE, Region } from 'react-native-maps';
 import React, {useRef, useState} from "react";
 import {StyleSheet, Text, TouchableOpacity, View, Alert} from "react-native";
 import {MarkerData, RouteData, AnswerData} from "@/interfaces/common";
@@ -13,12 +13,7 @@ import HamburgerMenu from "@/components/create_route/HamburgerMenu";
 import RandomCheckPoints from "@/components/create_route/RandomCheckpoints";
 import HelpPopup from "@/components/create_route/HelpPopup";
 
-type Region = {
-    latitude: number
-    latitudeDelta: number
-    longitude: number
-    longitudeDelta: number
-}
+
 
 const initialRegion: Region = {
     latitude: 58.317435384,
@@ -27,7 +22,7 @@ const initialRegion: Region = {
     longitudeDelta: 0.0700,
 };
 
-export function MapComponent() {
+export function CreateMapComponent() {
     const {state, dispatch} = useCreateDispatch();
     const markerRef = useRef<RouteData | null>(null);
     const [showAddQuestion, setShowAddQuestion] = useState<boolean>(false);
