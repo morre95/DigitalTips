@@ -54,13 +54,10 @@ export default function Maps() {
         await handlePlayerNameSelect('Player 1');
     }
 
+
+
     return (
         <View style={styles.container}>
-            <Menu trigger={<Feather name="menu" size={24} color="black" />} topRight>
-                <MenuItem text={'Test 1'} onPress={() => console.log('Menu test 1')} />
-                <MenuItem text={'Test 2'} onPress={() => console.log('Menu test 2')} />
-                <MenuItem text={'Test 3'} onPress={() => console.log('Menu test 3')} />
-            </Menu>
             <MapsProvider>
                 <MapsComponent />
             </MapsProvider>
@@ -78,4 +75,4 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
     },
-})
+});

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-
+import {StyleSheet, Text} from 'react-native'
 import { getDistance } from 'geolib';
 
 import * as Location from 'expo-location';
@@ -8,15 +8,17 @@ import { Marker } from 'react-native-maps';
 import { MarkerImages } from "@/hooks/images";
 
 import {Checkpoint, Question} from "@/interfaces/common";
+import {prepareUIRegistry} from "react-native-reanimated/lib/typescript/frameCallback/FrameCallbackRegistryUI";
 
 
 interface ICheckPoint {
     checkpoint: Checkpoint;
     onQuestion: (question: Question, id: number) => void;
     activeCheckpoint: boolean;
-    onEnter?: () => void;
-    onLeave?: () => void;
-    onChange?: (distance: number) => void;
+    onEnter: () => void;
+    onLeave: () => void;
+    onChange: (distance: number) => void;
+    showNextCheckpoint: boolean;
     // TBD: currentPosition har bara laggts till för att användas i debug syfte
     currentPosition?: Coordinate;
 }
@@ -39,7 +41,8 @@ const CheckPoint: React.FC<ICheckPoint> = (
         onChange,
         onLeave,
         onEnter,
-        currentPosition
+        currentPosition,
+        showNextCheckpoint
     }) => {
 
     const [currentCoordinate, setCurrentCoordinate] = useState<Coordinate | null>(null);
@@ -156,10 +159,20 @@ const CheckPoint: React.FC<ICheckPoint> = (
             key={checkpoint.checkpoint_id}
             coordinate={{ latitude: Number(checkpoint.latitude), longitude: Number(checkpoint.longitude)  }}
             title={`Checkpoint: ${checkpoint.checkpoint_order}`}
-            image={{uri: MarkerImages}}
+            image={showNextCheckpoint ? undefined : {uri: MarkerImages}}
             onPress={handelOnPress}
-        />
+        >
+            {showNextCheckpoint ? <Text style={styles.markerText}>{checkpoint.checkpoint_order}</Text> : null}
+        </Marker>
     )
 }
+
+const styles = StyleSheet.create({
+    markerText: {
+        fontWeight: 'bold',
+        fontSize: 24,
+        color: '#f800ff',
+    },
+});
 
 export default CheckPoint

@@ -111,11 +111,11 @@ const Menu = ({ trigger, children, topRight, topLeft, bottomRight, bottomLeft } 
         } else {
             setPressablePosition({top: 10, left: layoutWidth - (10 + triggerDimensions.width)})
         }
-    }, [topRight, topLeft, bottomRight, bottomLeft]);
+    }, [topRight, topLeft, bottomRight, bottomLeft, triggerDimensions.width, triggerDimensions.height]);
 
     return (
         <>
-            <View style={[{position: 'absolute', zIndex: 2000}, pressablePosition]}>
+            <View style={[{position: 'absolute', zIndex:1}, pressablePosition]}>
                 <Pressable
                     onPress={() => {
                         setModalVisible(true);

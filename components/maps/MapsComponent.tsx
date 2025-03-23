@@ -9,6 +9,8 @@ import FontAwesome from "@expo/vector-icons/FontAwesome";
 import Autocomplete from "./Autocomplete";
 import {getCheckpoints, SearchResponse} from "@/hooks/api/Get";
 import AnswerQuestionComponent from "@/components/maps/AnswerQuestionComponent";
+import Feather from "@expo/vector-icons/Feather";
+import Menu, {MenuItem} from "@/components/maps/Menu";
 
 
 const initialRegion: Region = {
@@ -33,6 +35,7 @@ const MapsComponent = ({}: Props) => {
     const [currentCheckpointIndex, setCurrentCheckpointIndex] = useState<number>(0);
     const [score, setScore] = useState(0);
     const [showSearchButton, setShowSearchButton] = useState(true);
+    const [showNextCheckpoint, setShowNextCheckpoint] = useState(false);
 
     const handleMapPress = (event: any) => {
         const { coordinate } = event.nativeEvent;
@@ -96,9 +99,18 @@ const MapsComponent = ({}: Props) => {
         dispatch(() => nextCheckpoints)
     };
 
+    const handleNextCheckpoint = () => {
+        setShowNextCheckpoint(!showNextCheckpoint);
+    }
+
     return (
         <View style={styles.container}>
             <FlashMessage ref={flashMessageRef} />
+            <Menu trigger={<Feather name="menu" size={24} color="black" />} topRight>
+                <MenuItem text={showNextCheckpoint ? 'Show Checkpoints Flags only':'Next Checkpoint'} onPress={handleNextCheckpoint} />
+                <MenuItem text={'Test 2'} onPress={() => console.log('Menu test 2')} />
+                <MenuItem text={'Test 3'} onPress={() => console.log('Menu test 3')} />
+            </Menu>
             <MapView
                 provider={PROVIDER_GOOGLE}
                 style={styles.map}
@@ -124,10 +136,12 @@ const MapsComponent = ({}: Props) => {
                             flashMessageRef.current?.flash(`Distance changed, you are ${distance} meters from the checkpoint #${checkpoint.checkpoint_order}`, 10000);
                         }}
                         activeCheckpoint={currentCheckpointIndex === index}
+                        showNextCheckpoint={currentCheckpointIndex === index && showNextCheckpoint}
                         onLeave={() => {
                             console.log('onLeave()', 'id:', checkpoint.checkpoint_id)
                             setQuestion(null)
                         }}
+                        onEnter={() => console.log('onEnter()', 'id:', checkpoint.checkpoint_id)}
                     />
                 ))}
             </MapView>
