@@ -1,0 +1,214 @@
+import React, { useState, useRef, useEffect, useMemo } from "react";
+import {
+    View,
+    Pressable,
+    StyleSheet,
+    TouchableOpacity,
+    Text,
+    Modal,
+    Dimensions,
+} from "react-native";
+
+const { width: layoutWidth, height: layoutHeight } = Dimensions.get("window");
+
+interface IMenuProps {
+    trigger: React.ReactNode,
+    children: React.ReactNode,
+    topRight?: boolean,
+    topLeft?: boolean,
+    bottomRight?: boolean,
+    bottomLeft?: boolean,
+}
+
+const Menu = ({ trigger, children, topRight, topLeft, bottomRight, bottomLeft } : IMenuProps) => {
+    const [modalVisible, setModalVisible] = useState(false);
+    const triggerWrapperRef = useRef<View>(null);
+    const itemsWrapperRef = useRef<View>(null);
+    const [pressablePosition, setPressablePosition] = useState<{top: number, left: number, }>({top: 0, left: 0});
+
+    // states to hold the trigger and menu dimensions
+    const [triggerDimensions, setTriggerDimensions] = useState({
+        top: 0,
+        left: 0,
+        width: 0,
+        height: 0,
+    });
+
+    const [modalDimensions, setModalDimensions] = useState({
+        width: 0,
+        height: 0,
+    });
+
+    const calculateDimensions = () => {
+        if (triggerWrapperRef && triggerWrapperRef.current) {
+            triggerWrapperRef.current.measureInWindow((x, y, width, height) => {
+                setTriggerDimensions({
+                    top: Math.max(y, 0),
+                    left: x,
+                    width,
+                    height,
+                });
+            });
+
+            setTimeout(() => {
+                if (itemsWrapperRef && itemsWrapperRef.current) {
+                    itemsWrapperRef.current.measureInWindow((x, y, width, height) => {
+                        setModalDimensions({width, height});
+                    });
+                }
+            }, 200);
+        }
+    };
+
+    // run the calculateDimensions each time the menu is visible
+    useEffect(() => {
+        if (modalVisible) {
+            if (triggerWrapperRef.current) calculateDimensions();
+        }
+    }, [modalVisible]);
+
+    const { top, left } = useMemo(() => {
+        let left = 0;
+        let top = 0;
+
+        /*left =
+            triggerDimensions.left - modalDimensions.width + triggerDimensions.width;
+        // if the popup is outside the screen from the left
+        if (triggerDimensions.left - modalDimensions.width < 0)
+            left = triggerDimensions.left;*/
+
+        const initialTriggerTop =
+            triggerDimensions.top +
+            triggerDimensions.height;
+
+        top =
+            initialTriggerTop + modalDimensions.height >
+            layoutHeight
+                ? initialTriggerTop -
+                triggerDimensions.height -
+                modalDimensions.height
+                : initialTriggerTop;
+
+        return { top, left };
+    }, [modalDimensions, triggerDimensions]);
+
+    const menuPositionStyles = { left, top };
+
+    const closeModal = () => {
+        setModalVisible(false);
+    };
+
+
+    useEffect(() => {
+        if (topRight) {
+            setPressablePosition({top: 10, left: layoutWidth - (10 + triggerDimensions.width)})
+        } else if (topLeft) {
+            setPressablePosition({top: 10, left: 10})
+        } else if (bottomRight) {
+            setPressablePosition({top: layoutHeight - (130 + triggerDimensions.height), left: layoutWidth - (10 + triggerDimensions.width)})
+        } else if (bottomLeft) {
+            setPressablePosition({top: layoutHeight - (130 + triggerDimensions.height), left: 10})
+        } else {
+            setPressablePosition({top: 10, left: layoutWidth - (10 + triggerDimensions.width)})
+        }
+    }, [topRight, topLeft, bottomRight, bottomLeft]);
+
+    return (
+        <>
+            <View style={[{position: 'absolute', zIndex: 2000}, pressablePosition]}>
+                <Pressable
+                    onPress={() => {
+                        setModalVisible(true);
+                    }}
+                    ref={triggerWrapperRef}
+
+                >
+                    {trigger}
+                </Pressable>
+            </View>
+            <Modal visible={modalVisible} transparent={true} animationType="fade">
+                <TouchableOpacity
+                    activeOpacity={1}
+                    onPress={closeModal}
+                    style={styles.modalWrapper}
+                >
+                    <View
+                        style={[styles.activeSection, menuPositionStyles]}
+                        collapsable={false}
+                        ref={itemsWrapperRef}
+                    >
+                        {
+                            React.Children.map(children, child => {
+                                if (React.isValidElement(child)) {
+                                    return React.cloneElement(child as React.ReactElement<any>, {closeModal})
+                                }
+                            })
+                        }
+                    </View>
+                </TouchableOpacity>
+            </Modal>
+        </>
+    );
+};
+
+
+
+interface IMenuItemProps {
+    text: string;
+    onPress: () => void;
+    closeModal?: () => void;
+}
+export const MenuItem = ({ text, onPress, closeModal }: IMenuItemProps) => {
+    const handleOnPress = () => {
+        onPress();
+        if (closeModal) closeModal();
+    };
+
+    return (
+        <TouchableOpacity style={styles.touchableButton} onPress={handleOnPress}>
+            <Text style={styles.touchableText} numberOfLines={1}>{text}</Text>
+        </TouchableOpacity>
+    );
+};
+
+const styles = StyleSheet.create({
+    modalWrapper: {
+        ...StyleSheet.absoluteFillObject,
+        backgroundColor: 'rgba(0,0,0,0.3)',
+        /*flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',*/
+    },
+    activeSection: {
+        margin: 20,
+        backgroundColor: 'white',
+        borderRadius: 20,
+        padding: 35,
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5,
+    },
+    touchableButton: {
+        alignItems: 'center',
+        padding: 10,
+        borderRadius: 15,
+        borderWidth: 1,
+        backgroundColor: '#0569FF',
+        borderColor: '#0569FF',
+    },
+    touchableText: {
+        fontSize: 17,
+        lineHeight: 24,
+        fontWeight: '600',
+        color: '#fff',
+    },
+});
+
+
+export default Menu;

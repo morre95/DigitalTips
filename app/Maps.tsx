@@ -1,11 +1,13 @@
 import React, {useEffect, useState} from 'react';
-import {AppState, AppStateStatus, StyleSheet, View} from 'react-native';
+import {AppState, AppStateStatus, StyleSheet, View, Text} from 'react-native';
 import {MapsProvider} from "@/components/maps/MapsContext";
 import MapsComponent from "@/components/maps/MapsComponent";
 import registerOrLogin from "@/hooks/registerOrLogin";
 import {getPlayerName} from "@/functions/common";
 import PlayerNameSelect from "@/components/PlayerNameSelect";
 import updatePlayerName from "@/functions/updatePlayerName";
+import Menu, {MenuItem} from "@/components/maps/Menu";
+import Feather from '@expo/vector-icons/Feather';
 
 export default function Maps() {
     const [appState, setAppState] = useState<AppStateStatus>(AppState.currentState);
@@ -54,6 +56,11 @@ export default function Maps() {
 
     return (
         <View style={styles.container}>
+            <Menu trigger={<Feather name="menu" size={24} color="black" />} topRight>
+                <MenuItem text={'Test 1'} onPress={() => console.log('Menu test 1')} />
+                <MenuItem text={'Test 2'} onPress={() => console.log('Menu test 2')} />
+                <MenuItem text={'Test 3'} onPress={() => console.log('Menu test 3')} />
+            </Menu>
             <MapsProvider>
                 <MapsComponent />
             </MapsProvider>
@@ -62,6 +69,7 @@ export default function Maps() {
                 onSelect={handlePlayerNameSelect}
                 onCancel={handlePlayerNameCancel}
             />
+
         </View>
     )
 }

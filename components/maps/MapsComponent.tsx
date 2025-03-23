@@ -37,6 +37,8 @@ const MapsComponent = ({}: Props) => {
     const handleMapPress = (event: any) => {
         const { coordinate } = event.nativeEvent;
         console.log(coordinate);
+
+        setShowSearchButton(true)
     }
 
     const handleSearchPress = () => {
