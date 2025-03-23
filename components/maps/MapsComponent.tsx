@@ -1,5 +1,5 @@
 import React, {useState, useRef, ComponentRef} from 'react';
-import {StyleSheet, View, Vibration} from 'react-native';
+import {StyleSheet, View, Vibration, Alert} from 'react-native';
 import MapView, {PROVIDER_GOOGLE, Region} from "react-native-maps";
 import CheckPoint from "./CheckPoint";
 import {Checkpoint, Question} from "@/interfaces/common";
@@ -103,13 +103,46 @@ const MapsComponent = ({}: Props) => {
         setShowNextCheckpoint(!showNextCheckpoint);
     }
 
+    const handleResetGame = () => {
+        function reset() {
+            const checkpoints = state.checkpoints.map(checkpoint => {
+                if (checkpoint.isAnswered) {
+                    checkpoint.isAnswered = false;
+                }
+                return checkpoint
+            })
+            dispatch(() => checkpoints);
+        }
+
+        Alert.alert(
+            'Reset the game',
+            'Do you really want to rest the game?',
+            [
+                {
+                    text: 'Cancel',
+                    onPress: () => console.log('Cancel Pressed'),
+                    style: 'cancel',
+                },
+                {
+                    text: 'OK',
+                    onPress: () =>
+                        reset()
+                },
+            ]
+        )
+
+    }
+    const handleRestartGame = () => {
+        console.log('Not implemented yet')
+    }
+
     return (
         <View style={styles.container}>
             <FlashMessage ref={flashMessageRef} />
             <Menu trigger={<Feather name="menu" size={24} color="black" />} topRight>
                 <MenuItem text={showNextCheckpoint ? 'Show Checkpoints Flags only':'Next Checkpoint'} onPress={handleNextCheckpoint} />
-                <MenuItem text={'Test 2'} onPress={() => console.log('Menu test 2')} />
-                <MenuItem text={'Test 3'} onPress={() => console.log('Menu test 3')} />
+                <MenuItem text={'Reset the game'} onPress={handleResetGame} />
+                <MenuItem text={'Test 3'} onPress={handleRestartGame} />
             </Menu>
             <MapView
                 provider={PROVIDER_GOOGLE}
