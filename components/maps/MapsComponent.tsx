@@ -8,7 +8,7 @@ import FlashMessage from "@/components/FlashMessage";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import Autocomplete from "./Autocomplete";
 import {getCheckpoints, SearchResponse} from "@/hooks/api/Get";
-import QuestionComponent from "@/components/maps/QuestionComponent";
+import AnswerQuestionComponent from "@/components/maps/AnswerQuestionComponent";
 
 
 const initialRegion: Region = {
@@ -148,7 +148,7 @@ const MapsComponent = ({}: Props) => {
                 />
             ) }
 
-            {question && <QuestionComponent
+            {question && <AnswerQuestionComponent
                 question={question.question}
                 onAnswerSelected={(isCorrect) => handleAnswerSelected(isCorrect, question.checkPointId)}
             />}

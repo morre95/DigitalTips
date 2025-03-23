@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
 import {Question} from '@/interfaces/common';
@@ -9,7 +9,7 @@ interface Props {
     onAnswerSelected: (isCorrect: boolean) => void;
 }
 
-const QuestionComponent: React.FC<Props> = ({ question, onAnswerSelected }) => {
+const AnswerQuestionComponent: React.FC<Props> = ({ question, onAnswerSelected }) => {
     return (
         <View style={styles.container}>
             <Text style={styles.questionText}>{question.text}</Text>
@@ -48,4 +48,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default QuestionComponent;
+export default AnswerQuestionComponent;
