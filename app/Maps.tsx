@@ -6,8 +6,6 @@ import registerOrLogin from "@/hooks/registerOrLogin";
 import {getPlayerName} from "@/functions/common";
 import PlayerNameSelect from "@/components/PlayerNameSelect";
 import updatePlayerName from "@/functions/updatePlayerName";
-import Menu, {MenuItem} from "@/components/maps/Menu";
-import Feather from '@expo/vector-icons/Feather';
 
 export default function Maps() {
     const [appState, setAppState] = useState<AppStateStatus>(AppState.currentState);
