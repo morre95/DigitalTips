@@ -57,7 +57,7 @@ export default function Maps() {
 
     const flashMessageRef = useRef<ComponentRef<typeof FlashMessage>>(null);
 
-    const [showSelectPlayerName, setShowSelectPlayerName] = useState<boolean>(true);
+    const [showSelectPlayerName, setShowSelectPlayerName] = useState<boolean>(false);
 
 
     const [appState, setAppState] = useState<AppStateStatus>(AppState.currentState);
@@ -85,7 +85,7 @@ export default function Maps() {
             await registerOrLogin();
 
             const playerName = await getPlayerName();
-            if (!playerName) {
+            if (playerName === null) {
                 setShowSelectPlayerName(true);
             }
         })();
