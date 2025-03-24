@@ -7,9 +7,9 @@ import { Alert, Button, StyleSheet, Text, TextInput, View } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import { ButtonsComponent } from './ButtonsComponent';
 import { RouteData } from '@/interfaces/common';
-import globals from '@/hooks/globals';
 import CityComponent from './CityComponent';
 import Spacer from '../Spacer'
+import {getPlayerId}  from '@/functions/common'
 
 
 type ResponseData = {
@@ -40,14 +40,44 @@ const NextRoutesOverlay: FC<Props> = ({ currentRoutes, onFinish, onClose }) => {
     const [qrCodeName, setQrCodeName] = useState<string>('')
     const [showNext, setShowNext] = useState<boolean>(false);
 
+    const [nameError, setNameError] = useState<string | null>(null)
+    const [descriptionError, setDescriptionError] = useState<string | null>(null)
 
-    //TBD: Det finns inga checkar på om stad, namn och beskrivning är ifyllda
+
+    const validateName = (): boolean => {
+        if (routeName.trim() === '') {
+            setNameError('You need set a name')
+            return false;
+        } else if (routeName.trim().length < 3) {
+            setNameError('The name is to short')
+            return false;
+        } else {
+            setNameError(null)
+        }
+
+        return true;
+    }
+
+    const validateDescription = (): boolean => {
+        if (routeDescription.trim() === '') {
+            setDescriptionError('You need set a description')
+            return false;
+        } else {
+            setDescriptionError(null)
+        }
+
+        return true;
+    }
+
     const handleFinishPress = async () => {
-        let userId = -1
-        if (globals.userId) userId = globals.userId
-        else {
+        if (!validateName() || !validateDescription()) {
+            return;
+        }
+
+        let userId = await getPlayerId();
+        if (userId < 0) {
             Alert.alert('Your app has not identify it self')
-            return
+            return;
         }
 
         const result: SendData = {
@@ -81,23 +111,34 @@ const NextRoutesOverlay: FC<Props> = ({ currentRoutes, onFinish, onClose }) => {
 
     const getCitys= () => {
         const result = currentRoutes.map(route => route.marker.city)
-        type uniqueArr = Set<string>;
-        const uniqueSet: uniqueArr = new Set(result);
-        return [...uniqueSet]
+        const sorted = result.sort()
+        if (sorted.length <= 0) sorted.push('Unknown')
+        return sorted
     }
 
     const handeOnChangeCity = (citys: string[]) => {
         setRouteCity(citys.join(', '))
     }
 
+    const handleNameChange = (text: string) => {
+        setRouteName(text)
+        validateName()
+    }
+
+    const handleDescriptionChange = (text: string) => {
+        setRouteDescription(text)
+        validateDescription()
+    }
+
     return !showNext ? (
         <View style={styles.container}>
             <TextInput
                 placeholder={'Name the route'}
-                style={styles.input}
+                style={[styles.input, nameError && {borderColor: 'red'}]}
                 value={routeName}
-                onChangeText={text => setRouteName(text)}
+                onChangeText={handleNameChange}
             />
+            <Text style={{ color: "red" }}>{nameError}</Text>
             <CityComponent
                 citys={getCitys()}
                 onChange={handeOnChangeCity}
@@ -105,11 +146,12 @@ const NextRoutesOverlay: FC<Props> = ({ currentRoutes, onFinish, onClose }) => {
             <TextInput
                 placeholder={'Description'}
                 multiline={true}
-                style={styles.textaria}
+                style={[styles.textaria, descriptionError && {borderColor: 'red'}]}
                 value={routeDescription}
                 textAlignVertical={'top'}
-                onChangeText={desc => setRouteDescription(desc)}
+                onChangeText={handleDescriptionChange}
             />
+            <Text style={{ color: "red" }}>{descriptionError}</Text>
             <ButtonsComponent.CancelAndFinishButtons
                 onFinish={handleFinishPress}
                 onCancel={onClose}
