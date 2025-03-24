@@ -12,19 +12,23 @@ import {
 const { width: layoutWidth, height: layoutHeight } = Dimensions.get("window");
 
 interface IMenuProps {
-    trigger: React.ReactNode,
-    children: React.ReactNode,
-    topRight?: boolean,
-    topLeft?: boolean,
-    bottomRight?: boolean,
-    bottomLeft?: boolean,
+    trigger: React.ReactNode;
+    children: React.ReactNode;
+    topRight?: boolean;
+    topLeft?: boolean;
+    bottomRight?: boolean;
+    bottomLeft?: boolean;
+    top?: number;
+    left?: number;
+    right?: number;
+    bottom?: number;
 }
 
 const Menu = ({ trigger, children, topRight, topLeft, bottomRight, bottomLeft } : IMenuProps) => {
     const [modalVisible, setModalVisible] = useState(false);
     const triggerWrapperRef = useRef<View>(null);
     const itemsWrapperRef = useRef<View>(null);
-    const [pressablePosition, setPressablePosition] = useState<{top: number, left: number, }>({top: 0, left: 0});
+    const [pressablePosition, setPressablePosition] = useState<{top: number, left: number}>({top: 0, left: 0});
 
     // states to hold the trigger and menu dimensions
     const [triggerDimensions, setTriggerDimensions] = useState({
@@ -40,7 +44,9 @@ const Menu = ({ trigger, children, topRight, topLeft, bottomRight, bottomLeft } 
     });
 
     const calculateDimensions = () => {
+        //console.log('Calculate Dimensions');
         if (triggerWrapperRef && triggerWrapperRef.current) {
+            //console.log('measure', 'triggerWrapperRef');
             triggerWrapperRef.current.measureInWindow((x, y, width, height) => {
                 setTriggerDimensions({
                     top: Math.max(y, 0),
@@ -60,34 +66,21 @@ const Menu = ({ trigger, children, topRight, topLeft, bottomRight, bottomLeft } 
         }
     };
 
-    // run the calculateDimensions each time the menu is visible
-    useEffect(() => {
-        if (modalVisible) {
-            if (triggerWrapperRef.current) calculateDimensions();
-        }
-    }, [modalVisible]);
-
     const { top, left } = useMemo(() => {
         let left = 0;
         let top = 0;
 
         /*left =
             triggerDimensions.left - modalDimensions.width + triggerDimensions.width;
-        // if the popup is outside the screen from the left
+        // Tanken är här att om popupen är utanför skärmen ska den skjutas tillbaka
         if (triggerDimensions.left - modalDimensions.width < 0)
             left = triggerDimensions.left;*/
 
-        const initialTriggerTop =
-            triggerDimensions.top +
-            triggerDimensions.height;
+        const initialTriggerTop = triggerDimensions.top + triggerDimensions.height;
 
-        top =
-            initialTriggerTop + modalDimensions.height >
-            layoutHeight
-                ? initialTriggerTop -
-                triggerDimensions.height -
-                modalDimensions.height
-                : initialTriggerTop;
+        top = initialTriggerTop + modalDimensions.height > layoutHeight ?
+            initialTriggerTop - triggerDimensions.height - modalDimensions.height :
+            initialTriggerTop;
 
         return { top, left };
     }, [modalDimensions, triggerDimensions]);
@@ -100,33 +93,37 @@ const Menu = ({ trigger, children, topRight, topLeft, bottomRight, bottomLeft } 
 
 
     useEffect(() => {
-        if (topRight) {
-            setPressablePosition({top: 10, left: layoutWidth - (10 + triggerDimensions.width)})
-        } else if (topLeft) {
+        if (topLeft) {
             setPressablePosition({top: 10, left: 10})
-        } else if (bottomRight) {
-            setPressablePosition({top: layoutHeight - (130 + triggerDimensions.height), left: layoutWidth - (10 + triggerDimensions.width)})
+        } else if (topRight) {
+            setPressablePosition({top: 10, left: layoutWidth - (10 + triggerDimensions.width)})
         } else if (bottomLeft) {
             setPressablePosition({top: layoutHeight - (130 + triggerDimensions.height), left: 10})
-        } else {
-            setPressablePosition({top: 10, left: layoutWidth - (10 + triggerDimensions.width)})
+        } else if (bottomRight) {
+            setPressablePosition({top: layoutHeight - (130 + triggerDimensions.height), left: layoutWidth - (10 + triggerDimensions.width)})
         }
     }, [topRight, topLeft, bottomRight, bottomLeft, triggerDimensions.width, triggerDimensions.height]);
 
+    const onTriggerLayout = () => {
+        calculateDimensions();
+    }
+
     return (
         <>
-            <View style={[{position: 'absolute', zIndex:1}, pressablePosition]}>
+            <View
+                style={[{position: 'absolute', zIndex:1}, pressablePosition]}
+                onLayout={onTriggerLayout}
+            >
                 <Pressable
                     onPress={() => {
                         setModalVisible(true);
                     }}
                     ref={triggerWrapperRef}
-
                 >
                     {trigger}
                 </Pressable>
             </View>
-            <Modal visible={modalVisible} transparent={true} animationType="fade">
+            <Modal visible={modalVisible} transparent={true} animationType="fade" onLayout={onTriggerLayout}>
                 <TouchableOpacity
                     activeOpacity={1}
                     onPress={closeModal}
@@ -166,7 +163,7 @@ export const MenuItem = ({ text, onPress, closeModal }: IMenuItemProps) => {
 
     return (
         <TouchableOpacity style={styles.touchableButton} onPress={handleOnPress}>
-            <Text style={styles.touchableText} numberOfLines={1}>{text}</Text>
+            <Text style={styles.touchableText}>{text}</Text>
         </TouchableOpacity>
     );
 };
@@ -197,6 +194,7 @@ const styles = StyleSheet.create({
     touchableButton: {
         alignItems: 'center',
         padding: 10,
+        marginVertical: 5,
         borderRadius: 15,
         borderWidth: 1,
         backgroundColor: '#0569FF',

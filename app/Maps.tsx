@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {AppState, AppStateStatus, StyleSheet, View, Text} from 'react-native';
+import {AppState, AppStateStatus, StyleSheet, View} from 'react-native';
 import {MapsProvider} from "@/components/maps/MapsContext";
 import MapsComponent from "@/components/maps/MapsComponent";
 import registerOrLogin from "@/hooks/registerOrLogin";
@@ -12,7 +12,9 @@ export default function Maps() {
     const [showSelectPlayerName, setShowSelectPlayerName] = useState<boolean>(false);
 
     useEffect(() => {
-        startFunction();
+        (async () => {
+            await startFunction()
+        })();
     }, []);
 
     useEffect(() => {
@@ -22,22 +24,20 @@ export default function Maps() {
         };
     }, [appState]);
 
-    const handleAppStateChange = (nextAppState: AppStateStatus) => {
+    const handleAppStateChange = async (nextAppState: AppStateStatus) => {
         if (appState.match(/inactive|background/) && nextAppState === 'active') {
-            startFunction();
+            await startFunction();
         }
         setAppState(nextAppState);
     };
 
-    const startFunction = () => {
-        (async () => {
-            await registerOrLogin();
+    const startFunction = async () => {
+        await registerOrLogin();
 
-            const playerName = await getPlayerName();
-            if (playerName === null) {
-                setShowSelectPlayerName(true);
-            }
-        })();
+        const playerName = await getPlayerName();
+        if (playerName === null) {
+            setShowSelectPlayerName(true);
+        }
     };
 
     const handlePlayerNameSelect = async (playerName: string) => {
@@ -52,8 +52,6 @@ export default function Maps() {
         await handlePlayerNameSelect('Player 1');
     }
 
-
-
     return (
         <View style={styles.container}>
             <MapsProvider>
@@ -64,7 +62,6 @@ export default function Maps() {
                 onSelect={handlePlayerNameSelect}
                 onCancel={handlePlayerNameCancel}
             />
-
         </View>
     )
 }
