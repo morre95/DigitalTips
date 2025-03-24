@@ -70,6 +70,9 @@ const Menu = ({ trigger, children, topRight, topLeft, bottomRight, bottomLeft } 
         let left = 0;
         let top = 0;
 
+        // TBD: Kan vara värt att ta en titt på KeyboardAvoidingView:
+        // https://reactnative.dev/docs/keyboardavoidingview
+
         /*left =
             triggerDimensions.left - modalDimensions.width + triggerDimensions.width;
         // Tanken är här att om popupen är utanför skärmen ska den skjutas tillbaka

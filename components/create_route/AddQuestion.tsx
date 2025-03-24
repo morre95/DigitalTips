@@ -89,7 +89,7 @@ export default function AddQuestion({visible, onSave, onCancel, currentCheckpoin
     return (
         <Modal
             visible={visible}
-            animationType="slide"
+            animationType="none"
             transparent={true}
             onRequestClose={() => {}}
         >

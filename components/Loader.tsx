@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import {
     StyleSheet,
     View,
@@ -20,6 +20,7 @@ const Loader = ({loading}: Props) => {
             <View style={styles.modalBackground}>
                 <View style={styles.activityIndicatorWrapper}>
                     <ActivityIndicator
+                        size="large"
                         animating={loading} />
                 </View>
             </View>

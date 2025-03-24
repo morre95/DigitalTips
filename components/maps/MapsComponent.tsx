@@ -24,9 +24,7 @@ type QuestionType = {
     checkPointId: number;
 }
 
-interface Props {}
-
-const MapsComponent = ({}: Props) => {
+const MapsComponent = () => {
     const router = useRouter();
     const state = useMapsState();
     const dispatch = useMapDispatch();

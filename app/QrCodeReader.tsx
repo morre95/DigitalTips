@@ -1,6 +1,6 @@
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import { useState } from 'react';
-import { Button, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Button, StyleSheet, Text, TouchableOpacity, View, Platform, StatusBar } from 'react-native';
 
 export default function QrCodeReader() {
     const [facing, setFacing] = useState<CameraType>('back');
@@ -40,6 +40,7 @@ export default function QrCodeReader() {
                 }}
             >
                 <View style={styles.buttonContainer}>
+                    {Platform.OS === "android" ? <StatusBar hidden /> : null}
                     <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
                         <Text style={styles.text}>Flip Camera</Text>
                     </TouchableOpacity>

@@ -112,7 +112,8 @@ const NextRoutesOverlay: FC<Props> = ({ currentRoutes, onFinish, onClose }) => {
         const result = currentRoutes.map(route => route.marker.city)
         const sorted = result.sort()
         if (sorted.length <= 0) sorted.push('Unknown')
-        return sorted
+
+        return [...new Set(sorted)];
     }
 
     const handeOnChangeCity = (citys: string[]) => {
