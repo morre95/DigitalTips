@@ -52,7 +52,8 @@
     "react-native-svg": "15.8.0",
     "react-native-web": "^0.19.13",
     "react-native-webview": "13.12.5",
-    "undefined": "..fix"
+    "undefined": "..fix",
+    "expo-camera": "~16.0.18"
   },
   "devDependencies": {
     "@babel/core": "^7.26.9",

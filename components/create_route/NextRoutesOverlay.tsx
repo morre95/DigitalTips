@@ -31,7 +31,6 @@ interface Props {
     onClose: () => void;
 }
 
-
 const NextRoutesOverlay: FC<Props> = ({ currentRoutes, onFinish, onClose }) => {
     const [routeName, setRouteName] = useState<string>('')
     const [routeCity, setRouteCity] = useState<string>('')

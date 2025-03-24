@@ -66,7 +66,7 @@ const MapsComponent = ({}: Props) => {
 
     const handleAutoOnSubmit = (item: string) => {
         setShowSearchButton(true)
-        router.push( '/search/[details}');
+        router.push( './search/[details}');
         router.setParams({ details: item })
     }
 
@@ -144,6 +144,10 @@ const MapsComponent = ({}: Props) => {
         console.log('Restart Game!!!', 'Not implemented yet!!!');
     }
 
+    const handleQrReader = () => {
+        router.replace('./QrCodeReader');
+    }
+
     return (
         <View style={styles.container}>
             <FlashMessage ref={flashMessageRef} />
@@ -151,6 +155,7 @@ const MapsComponent = ({}: Props) => {
                 <MenuItem text={showNextCheckpoint ? 'Show Checkpoints Flags only':'Next Checkpoint'} onPress={handleNextCheckpoint} />
                 <MenuItem text={'Reset the game'} onPress={handleResetGame} />
                 <MenuItem text={'Restart previous game'} onPress={handleRestartGame} />
+                <MenuItem text={'Qr Code Reader'} onPress={handleQrReader} />
             </Menu>
             <MapView
                 provider={PROVIDER_GOOGLE}

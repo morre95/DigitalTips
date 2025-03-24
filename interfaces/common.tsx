@@ -25,7 +25,7 @@ export interface MarkerData {
     id: number;
     latitude: number;
     longitude: number;
-    title: string;
+    name: string;
     markerOrder: number;
     city: string;
 }
