@@ -11,7 +11,7 @@ import {getCheckpoints, SearchResponse} from "@/hooks/api/Get";
 import AnswerQuestionComponent from "@/components/maps/AnswerQuestionComponent";
 import Feather from "@expo/vector-icons/Feather";
 import Menu, {MenuItem} from "@/components/maps/Menu";
-
+import { useRouter } from 'expo-router';
 
 const initialRegion: Region = {
     latitude: 58.317435384,
@@ -27,6 +27,7 @@ type QuestionType = {
 interface Props {}
 
 const MapsComponent = ({}: Props) => {
+    const router = useRouter();
     const state = useMapsState();
     const dispatch = useMapDispatch();
     const flashMessageRef = useRef<ComponentRef<typeof FlashMessage>>(null);
@@ -41,14 +42,14 @@ const MapsComponent = ({}: Props) => {
         const { coordinate } = event.nativeEvent;
         console.log(coordinate);
 
-        setShowSearchButton(true)
+        setShowSearchButton(true);
     }
 
     const handleSearchPress = () => {
         setShowSearchButton(!showSearchButton);
     }
 
-    const handelAutoOnSelect = async (item: SearchResponse) => {
+    const handleAutoOnSelect = async (item: SearchResponse) => {
         setShowSearchButton(true)
         type Markers = {
             checkpoints: Checkpoint[];
@@ -57,10 +58,16 @@ const MapsComponent = ({}: Props) => {
 
         const checkpoints = markers.checkpoints.map(checkpoint => {
             checkpoint.question.answers = [...checkpoint.question.answers].sort(() => Math.random() - 0.5);
-            return checkpoint
+            return checkpoint;
         })
 
         dispatch(() => checkpoints);
+    }
+
+    const handleAutoOnSubmit = (item: string) => {
+        setShowSearchButton(true)
+        router.push( '/search/[details}');
+        router.setParams({ details: item })
     }
 
     const handleAnswerSelected = (isCorrect: boolean, id: number) => {
@@ -96,7 +103,7 @@ const MapsComponent = ({}: Props) => {
             console.log('Next finished', nextCheckpoints.filter(checkpoint => checkpoint.isAnswered).length, ', checkpoints', state.checkpoints.length)
         }
 
-        dispatch(() => nextCheckpoints)
+        dispatch(() => nextCheckpoints);
     };
 
     const handleNextCheckpoint = () => {
@@ -110,7 +117,7 @@ const MapsComponent = ({}: Props) => {
                     checkpoint.isAnswered = false;
                 }
                 return checkpoint
-            })
+            });
             dispatch(() => checkpoints);
         }
 
@@ -132,8 +139,9 @@ const MapsComponent = ({}: Props) => {
         )
 
     }
+
     const handleRestartGame = () => {
-        console.log('Not implemented yet')
+        console.log('Restart Game!!!', 'Not implemented yet!!!');
     }
 
     return (
@@ -142,7 +150,7 @@ const MapsComponent = ({}: Props) => {
             <Menu trigger={<Feather name="menu" size={24} color="black" />} topRight>
                 <MenuItem text={showNextCheckpoint ? 'Show Checkpoints Flags only':'Next Checkpoint'} onPress={handleNextCheckpoint} />
                 <MenuItem text={'Reset the game'} onPress={handleResetGame} />
-                <MenuItem text={'Test 3'} onPress={handleRestartGame} />
+                <MenuItem text={'Restart previous game'} onPress={handleRestartGame} />
             </Menu>
             <MapView
                 provider={PROVIDER_GOOGLE}
@@ -189,11 +197,8 @@ const MapsComponent = ({}: Props) => {
                 </View>
             ) : (
                 <Autocomplete
-                    onSelect={handelAutoOnSelect}
-                    onSubmit={(item: string) => {
-                        console.log('On Submit is item:', item)
-                        setShowSearchButton(true)
-                    }}
+                    onSelect={handleAutoOnSelect}
+                    onSubmit={handleAutoOnSubmit}
                 />
             ) }
 
