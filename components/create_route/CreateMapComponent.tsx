@@ -12,6 +12,7 @@ import AddQuestionFromDb from "@/components/create_route/AddQuestionFromDb";
 import HamburgerMenu from "@/components/create_route/HamburgerMenu";
 import RandomCheckPoints from "@/components/create_route/RandomCheckpoints";
 import HelpPopup from "@/components/create_route/HelpPopup";
+import Loader from "@/components/Loader";
 
 
 
@@ -26,14 +27,16 @@ export function CreateMapComponent() {
     const {state, dispatch} = useCreateDispatch();
     const markerRef = useRef<RouteData | null>(null);
     const [showAddQuestion, setShowAddQuestion] = useState<boolean>(false);
-    const [showNext, setShowNext] = useState<boolean>(false)
-    const [showDbQuestionSelect, setShowDbQuestionSelect] = useState<boolean>(false)
-    const [showHamburgerMenu, setShowHamburgerMenu] = useState<boolean>(false)
-    const [showGenerateRandomCheckpoints, setShowGenerateRandomCheckpoints] = useState<boolean>(false)
+    const [showNext, setShowNext] = useState<boolean>(false);
+    const [showDbQuestionSelect, setShowDbQuestionSelect] = useState<boolean>(false);
+    const [showHamburgerMenu, setShowHamburgerMenu] = useState<boolean>(false);
+    const [showGenerateRandomCheckpoints, setShowGenerateRandomCheckpoints] = useState<boolean>(false);
     const [currentRegion, setCurrentRegion] = useState<Region>(initialRegion);
-    const [showHelpPopup, setShowHelpPopup] = useState<boolean>(false)
+    const [showHelpPopup, setShowHelpPopup] = useState<boolean>(false);
+    const [loading, setLoading] = useState(false);
 
     const handleMapPress = async (event: any) => {
+        setLoading(true);
         const { coordinate } = event.nativeEvent
 
         const city = await getCity({latitude: coordinate.latitude, longitude: coordinate.longitude})
@@ -55,6 +58,7 @@ export function CreateMapComponent() {
     const addQuestion = (marker: RouteData) => {
         setShowAddQuestion(true)
         markerRef.current = marker
+        setLoading(false);
     }
 
     const handelDrag = async (event: any, route: RouteData) => {
@@ -209,7 +213,7 @@ export function CreateMapComponent() {
                             draggable
                             onDragEnd={(event) => handelDrag(event, route)}
                             onPress={() => {
-                                addQuestion(route)
+                                addQuestion(route);
                             }}
                         >
                             <CircleMarker
@@ -268,6 +272,7 @@ export function CreateMapComponent() {
                 onHelp={handleHelp}
                 onGenerateRandomCheckpoints={generateRandomCheckpoints}
             />
+            <Loader loading={loading} />
         </View>
     )
 }

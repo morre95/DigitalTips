@@ -38,6 +38,7 @@ const MapsComponent = ({}: Props) => {
     const [showSearchButton, setShowSearchButton] = useState(true);
     const [showNextCheckpoint, setShowNextCheckpoint] = useState(false);
 
+
     const handleMapPress = (event: any) => {
         const { coordinate } = event.nativeEvent;
         console.log(coordinate);
