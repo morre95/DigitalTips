@@ -1,22 +1,28 @@
-import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
+import { CameraView, CameraType, useCameraPermissions, BarcodeScanningResult } from 'expo-camera';
 import { useState } from 'react';
-import { Button, StyleSheet, Text, TouchableOpacity, View, Platform, StatusBar } from 'react-native';
+import {Button, StyleSheet, Text, TouchableOpacity, View, Platform, StatusBar, Vibration} from 'react-native';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import Loader from "@/components/Loader";
 
 export default function QrCodeReader() {
     const [facing, setFacing] = useState<CameraType>('back');
-    const [qrResult, setQrResult] = useState<string>('');
+    const [qrResult, setQrResult] = useState<string | null>(null);
     const [permission, requestPermission] = useCameraPermissions();
 
     if (!permission) {
         // Camera permissions are still loading.
-        return <View />;
+        return (
+            <View>
+                <Loader loading={true} />
+            </View>
+        );
     }
 
     if (!permission.granted) {
         // Camera permissions are not granted yet.
         return (
             <View style={styles.container}>
-                <Text style={styles.message}>We need your permission to show the camera</Text>
+                <Text style={styles.message}>To scan qr codes for this game we need your permission to show the camera</Text>
                 <Button onPress={requestPermission} title="grant permission" />
             </View>
         );
@@ -24,6 +30,12 @@ export default function QrCodeReader() {
 
     function toggleCameraFacing() {
         setFacing(current => (current === 'back' ? 'front' : 'back'));
+    }
+
+    const handleScanResult = (scanResult: BarcodeScanningResult) => {
+        const { data } = scanResult;
+        setQrResult(data);
+        Vibration.vibrate([1000])
     }
 
     return (
@@ -34,19 +46,17 @@ export default function QrCodeReader() {
                 barcodeScannerSettings={{
                     barcodeTypes: ["qr"],
                 }}
-                onBarcodeScanned={(scanningResult) => {
-                    console.log(scanningResult);
-                    setQrResult(scanningResult.data)
-                }}
+                onBarcodeScanned={handleScanResult}
             >
                 <View style={styles.buttonContainer}>
                     {Platform.OS === "android" ? <StatusBar hidden /> : null}
                     <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
-                        <Text style={styles.text}>Flip Camera</Text>
+                        <MaterialIcons name="flip-camera-android" size={24} color="white" />
                     </TouchableOpacity>
-                    <Text>{qrResult}</Text>
+
                 </View>
             </CameraView>
+            {qrResult && <Text style={{backgroundColor: '#fff'}}>{qrResult}</Text>}
         </View>
     );
 }

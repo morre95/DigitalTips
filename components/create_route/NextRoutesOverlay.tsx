@@ -3,18 +3,21 @@ import { QR_codeIcon } from '@/hooks/images';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import * as Clipboard from 'expo-clipboard';
 import React, { FC, useState } from 'react';
-import { Alert, Button, StyleSheet, Text, TextInput, View } from 'react-native';
+import {Alert, Button, Dimensions, StyleSheet, Text, TextInput, View} from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import { ButtonsComponent } from './ButtonsComponent';
-import { RouteData } from '@/interfaces/common';
+import {QrCodeType, RouteData} from '@/interfaces/common';
 import CityComponent from './CityComponent';
 import Spacer from '../Spacer'
 import {getPlayerId}  from '@/functions/common'
+
+const { width: layoutWidth} = Dimensions.get("window");
 
 
 type ResponseData = {
     error: boolean | string;
     message: string;
+    routId: number;
 }
 
 interface SendData {
@@ -41,6 +44,7 @@ const NextRoutesOverlay: FC<Props> = ({ currentRoutes, onFinish, onClose }) => {
 
     const [nameError, setNameError] = useState<string | null>(null)
     const [descriptionError, setDescriptionError] = useState<string | null>(null)
+    const [qrCodeValue, setQrCodeValue] = useState<QrCodeType>()
 
 
     const validateName = (): boolean => {
@@ -95,6 +99,7 @@ const NextRoutesOverlay: FC<Props> = ({ currentRoutes, onFinish, onClose }) => {
         } else {
             //Alert.alert('The route is now saved')
             setQrCodeName(routeName)
+            setQrCodeValue({name: routeName, routeId: response.routId})
             setShowNext(true)
         }
         setRouteCity('')
@@ -173,8 +178,8 @@ const NextRoutesOverlay: FC<Props> = ({ currentRoutes, onFinish, onClose }) => {
             </View>
             <Text>{"\n"}{"\n"}{"\n"}</Text>
             <QRCode
-                value={qrCodeName}
-                size={150}
+                value={JSON.stringify(qrCodeValue)}
+                size={layoutWidth - 70}
                 logo={{ uri: QR_codeIcon }}
                 logoSize={40}
                 logoBackgroundColor='transparent'

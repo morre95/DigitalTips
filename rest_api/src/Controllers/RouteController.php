@@ -69,7 +69,12 @@ class RouteController
                 ]);
             }
 
-            $response->getBody()->write(json_encode(['route_id' => $route_id]));
+            $json = [
+                'routeId' => $route_id,
+                'message' => 'Successfully saved routes'
+            ];
+
+            $response->getBody()->write(json_encode($json));
             return $response
                 ->withHeader('content-type', 'application/json')
                 ->withStatus(200);

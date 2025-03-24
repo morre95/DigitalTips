@@ -46,3 +46,8 @@ export type Coordinate = {
     latitude: number
     longitude: number
 }
+
+export type QrCodeType = {
+    name: string;
+    routeId: number;
+}
