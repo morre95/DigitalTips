@@ -128,7 +128,7 @@ const RandomCheckPoints: React.FC<iProps> = ({ isVisible, onFinish, currentCoord
                     id: len + 1, //++markersCount,
                     latitude: coordinate.latitude,
                     longitude: coordinate.longitude,
-                    title: `Marker ${len + 1}`,
+                    name: `Marker ${len + 1}`,
                     markerOrder: len + 1,
                     city: city
                 }

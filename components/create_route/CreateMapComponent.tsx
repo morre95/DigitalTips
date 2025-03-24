@@ -43,7 +43,7 @@ export function CreateMapComponent() {
             id: len + 1,
             latitude: coordinate.latitude,
             longitude: coordinate.longitude,
-            title: `Marker ${len + 1}`,
+            name: `Marker ${len + 1}`,
             markerOrder: len + 1,
             city: city ?? ''
         }

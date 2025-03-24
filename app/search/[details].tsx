@@ -3,18 +3,44 @@ import {View, Text, StyleSheet, FlatList} from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 
 
-const DATA = [
+function addDays(date: Date, days: number): Date {
+    date.setDate(date.getDate() + days);
+    return date;
+}
+
+interface IData {
+    id: string;
+    name: string;
+    owner: number;
+    city: string;
+    description: string;
+    date: Date;
+}
+
+const DATA : IData[] = [
     {
-        id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
-        title: 'First Item',
+        id: '1',
+        owner: 0,
+        name: 'First Item',
+        city: 'London',
+        description: 'First Item Description',
+        date: new Date(),
     },
     {
-        id: '3ac68afc-c605-48d3-a4f8-fbd91aa97f63',
-        title: 'Second Item',
+        id: '2',
+        owner: 1,
+        name: 'Second Item',
+        city: 'Stockholm',
+        description: 'Second Item Description',
+        date: addDays(new Date(), 2)
     },
     {
-        id: '58694a0f-3da1-471f-bd96-145571e29d72',
-        title: 'Third Item',
+        id: '3',
+        owner: 2,
+        name: 'Third Item',
+        city: 'Uddevalla',
+        description: 'Third Item Description',
+        date: addDays(new Date(), -35),
     },
 ];
 
@@ -29,21 +55,42 @@ const Details = ({}: IProps) => {
             <Text>Your search: <Text style={styles.details}>{details}</Text></Text>
             <FlatList
                 data={DATA}
-                renderItem={({item}) => <Item title={item.title} />}
+                renderItem={({item}) => <Item name={item.name} owner={item.owner} city={item.city} description={item.description} date={item.date} />}
                 keyExtractor={item => item.id}
             />
         </View>
     )
 }
 
+interface ItemProps {
+    name: string;
+    owner: number;
+    city: string;
+    description: string;
+    date: Date;
+}
+const Item = ({name, owner, city, description, date}: ItemProps) => {
+    const users = [
+        'Kalle',
+        'Walle',
+        'Skalle'
+    ]
 
-type ItemProps = {title: string};
-
-const Item = ({title}: ItemProps) => (
-    <View style={styles.item}>
-        <Text style={styles.title}>{title}</Text>
-    </View>
-);
+    const padStart = (value: number): string =>
+        value.toString().padStart(2, '0');
+    const formatDate = (date: Date): string =>
+        `${date.getFullYear()}-${padStart(date.getMonth() + 1)}-${padStart(date.getDate())} ` +
+        `${padStart(date.getHours())}:${padStart(date.getMinutes())}`
+    return (
+        <View style={styles.item}>
+            <Text style={styles.name}>{name}</Text>
+            <Text>Creator: {users[owner]}</Text>
+            <Text>{description}</Text>
+            <Text>{city}</Text>
+            <Text>{formatDate(date)}</Text>
+        </View>
+    );
+}
 
 const styles = StyleSheet.create({
     container: {
@@ -56,12 +103,13 @@ const styles = StyleSheet.create({
         color: 'red',
     },
     item: {
-        backgroundColor: '#f9c2ff',
+        backgroundColor: '#96aab3',
         padding: 20,
         marginVertical: 8,
         marginHorizontal: 16,
+        borderRadius: 5,
     },
-    title: {
+    name: {
         fontSize: 32,
     },
 });
