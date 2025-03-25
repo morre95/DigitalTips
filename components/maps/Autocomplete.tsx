@@ -1,12 +1,11 @@
-import React, { useState } from 'react';
-import {View, TextInput, FlatList, Text, TouchableOpacity, StyleSheet, } from 'react-native';
-
+import React, {useEffect, useState} from 'react';
+import {View, TextInput, FlatList, Text, TouchableOpacity, StyleSheet} from 'react-native';
 import {getSearch, SearchResponse} from '@/functions/api/Get'
 
 import Tooltip, {Position} from "@/components/Tooltip";
-
+import {getPlayerId} from '@/functions/common';
 import EvilIcons from '@expo/vector-icons/EvilIcons';
-
+import AntDesign from '@expo/vector-icons/AntDesign';
 
 
 interface IAutocompleteProps {
@@ -19,6 +18,13 @@ const Autocomplete: React.FC<IAutocompleteProps> = ({ onSelect, onSubmit, placeh
     const [query, setQuery] = useState('');
     const [filteredData, setFilteredData] = useState<SearchResponse[]>([]);
     const [isFocused, setIsFocused] = useState(false);
+    const [appUserId, setAppUserId] = useState<number | null>(null);
+
+    useEffect(() => {
+        (async () => {
+            setAppUserId(await getPlayerId());
+        })();
+    }, []);
 
     const handleInputChange = async (text: string) => {
         setQuery(text);
@@ -44,11 +50,12 @@ const Autocomplete: React.FC<IAutocompleteProps> = ({ onSelect, onSubmit, placeh
 
     const Item = (item: SearchResponse) => {
         if (item.isPrivate) return null;
+
+        const isAdmin = Number(item.owner) === appUserId
         return (
             <TouchableOpacity key={item.routeId} onPress={() => handleSelect(item)}>
-
                 <View style={[styles.item, styles.row]}>
-                    <Text style={{maxWidth: '96%'}}>{item.name} </Text>
+                    <Text style={{maxWidth: '96%'}}>{item.name}</Text>
                     <View style={{flex: 1, alignItems: 'flex-end', marginRight: 3}}>
                         <Tooltip content={`${item.description}\n(With ${item.count} checkpoints)`} position={Position.Left}>
                             <EvilIcons name="question" size={24} color="black" />
@@ -57,7 +64,13 @@ const Autocomplete: React.FC<IAutocompleteProps> = ({ onSelect, onSubmit, placeh
                 </View>
                 <Text style={styles.date}>{item.date.toLocaleString()}</Text>
                 <Text style={styles.city}>{item.city}</Text>
-
+                {isAdmin && <AntDesign
+                    style={{position: 'absolute', top: 0, right: 0, }}
+                    name="edit"
+                    size={14}
+                    color="black"
+                    onPress={() => console.log('Edit not implemented yet')}
+                />}
             </TouchableOpacity>
         )
     }
@@ -86,6 +99,7 @@ const Autocomplete: React.FC<IAutocompleteProps> = ({ onSelect, onSubmit, placeh
                         date={item.date}
                         inOrder={item.inOrder}
                         isPrivate={item.isPrivate}
+                        owner={item.owner}
                     />
                 )}
             />

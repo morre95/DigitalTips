@@ -1,6 +1,7 @@
 import MapView, { Marker, PROVIDER_GOOGLE, Region } from 'react-native-maps';
-import React, {useRef, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {StyleSheet, View, Alert} from "react-native";
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import {MarkerData, RouteData, AnswerData} from "@/interfaces/common";
 import { getCity } from "@/functions/request";
 import { useCreateDispatch } from "@/components/create_route/CreateContext";
@@ -13,8 +14,6 @@ import HamburgerMenu from "@/components/create_route/HamburgerMenu";
 import RandomCheckPoints from "@/components/create_route/RandomCheckpoints";
 import HelpPopup from "@/components/create_route/HelpPopup";
 import Loader from "@/components/Loader";
-
-
 
 const initialRegion: Region = {
     latitude: 58.317435384,
@@ -33,6 +32,17 @@ export function CreateMapComponent() {
     const [currentRegion, setCurrentRegion] = useState<Region>(initialRegion);
     const [showHelpPopup, setShowHelpPopup] = useState<boolean>(false);
     const [loading, setLoading] = useState(false);
+    const {routeId} = useLocalSearchParams()
+    const router = useRouter();
+
+    useEffect(() => {
+        const id = Number(routeId)
+        if (id > 0) {
+            console.log(routeId, router);
+            // TODO: skapa en GET json function som hämtar med routeId
+            router.setParams({});
+        }
+    }, [routeId]);
 
     const handleMapPress = async (event: any) => {
         setLoading(true);

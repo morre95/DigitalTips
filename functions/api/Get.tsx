@@ -50,6 +50,7 @@ interface SearchResponse {
     description: string;
     isPrivate: boolean;
     inOrder: boolean;
+    owner: number;
 }
 
 async function getSearch(keyword: string): Promise<SearchResponse[]|null> {
@@ -60,15 +61,16 @@ async function getSearch(keyword: string): Promise<SearchResponse[]|null> {
     }
 
     interface IRoute {
-        route_id: number
-        name: string
-        description: string
-        created_at: Date
-        updated_at: Date
-        city: string
-        marker_count: number
-        is_private: boolean
-        in_order: boolean
+        route_id: number;
+        name: string;
+        description: string;
+        created_at: Date;
+        updated_at: Date;
+        city: string;
+        marker_count: number;
+        is_private: boolean;
+        in_order: boolean;
+        owner: number;
     }
 
     const response = await getJson<IResp>(`search/routes/${encodeURIComponent(keyword)}`)
@@ -85,6 +87,7 @@ async function getSearch(keyword: string): Promise<SearchResponse[]|null> {
             date: (r.created_at < r.updated_at) ? r.updated_at : r.created_at,
             isPrivate: r.is_private,
             inOrder: r.in_order,
+            owner: Number(r.owner),
         }
     ))
 }

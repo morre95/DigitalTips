@@ -12,6 +12,7 @@ import AnswerQuestionComponent from "@/components/maps/AnswerQuestionComponent";
 import Feather from "@expo/vector-icons/Feather";
 import Menu, {MenuItem} from "@/components/maps/Menu";
 import { useRouter } from 'expo-router';
+import {getPlayerId} from "@/functions/common";
 
 const initialRegion: Region = {
     latitude: 58.317435384,
@@ -50,6 +51,32 @@ const MapsComponent = () => {
 
     const handleAutoOnSelect = async (item: SearchResponse) => {
         setShowSearchButton(true)
+        const playerId = await getPlayerId()
+        const isAdmin = Number(item.owner) === playerId
+        if (isAdmin) {
+            let isEdit = false;
+            Alert.alert(
+                'You are admin',
+                'Do you want to start or edit', [
+                {
+                    text: 'Start Game',
+                    //onPress: () => console.log('Ask me later pressed'),
+                },
+                {
+                    text: 'Cancel',
+                    onPress: () => { isEdit = true; },
+                    style: 'cancel',
+                },
+                {text: 'Yes', onPress: () => {
+                        router.replace({pathname: './CreateRoutes', params: {routeId: item.routeId}})
+                        isEdit = true;
+                    }},
+            ])
+            if (isEdit) {
+                return;
+            }
+        }
+
         type Markers = {
             checkpoints: Checkpoint[];
         }
