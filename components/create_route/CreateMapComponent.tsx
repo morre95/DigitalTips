@@ -1,6 +1,6 @@
 import MapView, { Marker, PROVIDER_GOOGLE, Region } from 'react-native-maps';
 import React, {useRef, useState} from "react";
-import {StyleSheet, Text, TouchableOpacity, View, Alert} from "react-native";
+import {StyleSheet, View, Alert} from "react-native";
 import {MarkerData, RouteData, AnswerData} from "@/interfaces/common";
 import { getCity } from "@/functions/request";
 import { useCreateDispatch } from "@/components/create_route/CreateContext";
@@ -29,7 +29,6 @@ export function CreateMapComponent() {
     const [showAddQuestion, setShowAddQuestion] = useState<boolean>(false);
     const [showNext, setShowNext] = useState<boolean>(false);
     const [showDbQuestionSelect, setShowDbQuestionSelect] = useState<boolean>(false);
-    const [showHamburgerMenu, setShowHamburgerMenu] = useState<boolean>(false);
     const [showGenerateRandomCheckpoints, setShowGenerateRandomCheckpoints] = useState<boolean>(false);
     const [currentRegion, setCurrentRegion] = useState<Region>(initialRegion);
     const [showHelpPopup, setShowHelpPopup] = useState<boolean>(false);
@@ -109,7 +108,7 @@ export function CreateMapComponent() {
     }
 
     const handleContinue = () => {
-        setShowNext(true)
+        setShowNext(true);
     }
 
     const handleDeleteAll = () => {
@@ -159,9 +158,9 @@ export function CreateMapComponent() {
         handleSaveQuestion(question.question, answers, order)
     }
 
-    const toggleHamburgerMenu = () => {
+    /*const toggleHamburgerMenu = () => {
         setShowHamburgerMenu(!showHamburgerMenu);
-    }
+    }*/
 
     const generateRandomCheckpoints = () => {
         setShowGenerateRandomCheckpoints(true)
@@ -231,8 +230,8 @@ export function CreateMapComponent() {
                 numberOfCheckpoints={state.checkpoints.length}
                 onDelete={handeDeleteCheckpoint}
                 onAddQuestionFromDb={() => {
-                    setShowDbQuestionSelect(true)
-                    setShowAddQuestion(false)
+                    setShowDbQuestionSelect(true);
+                    setShowAddQuestion(false);
                 }}
             />
 
@@ -241,7 +240,7 @@ export function CreateMapComponent() {
                     currentRoutes={state.checkpoints}
                     onFinish={handleDeleteAll}
                     onClose={() => {
-                        setShowNext(false)
+                        setShowNext(false);
                     }}
                 />
             }
@@ -263,12 +262,9 @@ export function CreateMapComponent() {
                 currentCoordinate={{ latitude: currentRegion.latitude, longitude: currentRegion.longitude }}
             />
 
-            <TouchableOpacity style={styles.hamburgerButton} onPress={toggleHamburgerMenu}>
-                <Text style={styles.hamburgerButtonText}>≡</Text>
-            </TouchableOpacity>
             <HamburgerMenu
-                visible={showHamburgerMenu}
-                onClose={toggleHamburgerMenu}
+                /*visible={showHamburgerMenu}
+                onClose={toggleHamburgerMenu}*/
                 onHelp={handleHelp}
                 onGenerateRandomCheckpoints={generateRandomCheckpoints}
             />
@@ -281,21 +277,5 @@ const styles = StyleSheet.create({
     map: {
         flex: 1,
     },
-    hamburgerButton: {
-        position: 'absolute',
-        bottom: 20,
-        right: 20,
-        backgroundColor: '#ccc',
-        padding: 15,
-        borderRadius: 30,
-        elevation: 5, // för att ge en liten skugga (Android)
-        shadowColor: '#000', // för iOS
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.3,
-        shadowRadius: 3,
-    },
-    hamburgerButtonText: {
-        fontSize: 24,
-        textAlign: 'center',
-    },
+
 })
