@@ -7,7 +7,7 @@ import {useMapDispatch, useMapsState} from "./MapsContext";
 import FlashMessage from "@/components/FlashMessage";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import Autocomplete from "./Autocomplete";
-import {getCheckpoints, SearchResponse} from "@/hooks/api/Get";
+import {getCheckpoints, SearchResponse} from "@/functions/api/Get";
 import AnswerQuestionComponent from "@/components/maps/AnswerQuestionComponent";
 import Feather from "@expo/vector-icons/Feather";
 import Menu, {MenuItem} from "@/components/maps/Menu";

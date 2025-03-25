@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {View, FlatList, Text, Button, StyleSheet, ActivityIndicator} from 'react-native';
 
-import getJson, { getRestricted } from '../hooks/api/Get'
+import getJson, { getRestricted } from '@/functions/api/Get'
 
 interface Props {
     token: string;

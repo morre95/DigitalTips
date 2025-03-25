@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {View, FlatList, Text, Button, StyleSheet, ActivityIndicator} from 'react-native';
 
-import getJson, { BaseUrl } from '../hooks/api/Get'
+import getJson, { BaseUrl } from '@/functions/api/Get'
 
 interface Props {
     url?: string;

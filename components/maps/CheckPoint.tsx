@@ -5,7 +5,7 @@ import { getDistance } from 'geolib';
 import * as Location from 'expo-location';
 
 import { Marker } from 'react-native-maps';
-import { MarkerImages } from "@/hooks/images";
+import { MarkerImages } from "@/assets/images";
 
 import {Checkpoint, Question} from "@/interfaces/common";
 import {prepareUIRegistry} from "react-native-reanimated/lib/typescript/frameCallback/FrameCallbackRegistryUI";

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {View, TextInput, FlatList, Text, TouchableOpacity, StyleSheet, } from 'react-native';
 
-import {getSearch, SearchResponse} from '@/hooks/api/Get'
+import {getSearch, SearchResponse} from '@/functions/api/Get'
 
 import Tooltip, {Position} from "@/components/Tooltip";
 

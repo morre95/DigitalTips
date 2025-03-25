@@ -1,4 +1,4 @@
-import {registerUser} from './api/Post'
+import {registerUser} from '@/functions/api/Post'
 import * as Crypto from 'expo-crypto';
 import * as SecureStore from 'expo-secure-store';
 

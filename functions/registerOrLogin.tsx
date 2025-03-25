@@ -1,4 +1,4 @@
-import postJson from './api/Post'
+import postJson from '@/functions/api/Post'
 import register from './register'
 import globals from './globals'
 import * as SecureStore from 'expo-secure-store';

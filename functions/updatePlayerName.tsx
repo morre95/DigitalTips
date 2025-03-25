@@ -1,5 +1,5 @@
 import {setPlayerName} from "@/functions/common";
-import postJson from "@/hooks/api/Post";
+import postJson from "@/functions/api/Post";
 import {getPlayerId} from "@/functions/common";
 
 interface IResult {

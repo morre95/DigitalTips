@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {AppState, AppStateStatus, StyleSheet, View} from 'react-native';
 import {MapsProvider} from "@/components/maps/MapsContext";
 import MapsComponent from "@/components/maps/MapsComponent";
-import registerOrLogin from "@/hooks/registerOrLogin";
+import registerOrLogin from "@/functions/registerOrLogin";
 import {getPlayerName} from "@/functions/common";
 import PlayerNameSelect from "@/components/PlayerNameSelect";
 import updatePlayerName from "@/functions/updatePlayerName";

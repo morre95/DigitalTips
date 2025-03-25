@@ -1,5 +1,5 @@
-import postJson from "@/hooks/api/Post";
-import { QR_codeIcon } from '@/hooks/images';
+import postJson from "@/functions/api/Post";
+import { QR_codeIcon } from '@/assets/images';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import * as Clipboard from 'expo-clipboard';
 import React, { FC, useState, useRef } from 'react';
