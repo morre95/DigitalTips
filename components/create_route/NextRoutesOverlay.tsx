@@ -10,6 +10,7 @@ import {QrCodeType, RouteData} from '@/interfaces/common';
 import CityComponent from './CityComponent';
 import Spacer from '../Spacer'
 import {getPlayerId}  from '@/functions/common'
+import Loader from "@/components/Loader";
 
 const { width: layoutWidth} = Dimensions.get("window");
 
@@ -42,9 +43,10 @@ const NextRoutesOverlay: FC<Props> = ({ currentRoutes, onFinish, onClose }) => {
     const [qrCodeName, setQrCodeName] = useState<string>('')
     const [showNext, setShowNext] = useState<boolean>(false);
 
-    const [nameError, setNameError] = useState<string | null>(null)
-    const [descriptionError, setDescriptionError] = useState<string | null>(null)
-    const [qrCodeValue, setQrCodeValue] = useState<QrCodeType>()
+    const [nameError, setNameError] = useState<string | null>(null);
+    const [descriptionError, setDescriptionError] = useState<string | null>(null);
+    const [qrCodeValue, setQrCodeValue] = useState<QrCodeType>();
+    const [isLoading, setIsLoading] = useState<boolean>(false);
 
 
     const validateName = (): boolean => {
@@ -77,6 +79,8 @@ const NextRoutesOverlay: FC<Props> = ({ currentRoutes, onFinish, onClose }) => {
             return;
         }
 
+        setIsLoading(true);
+
         let userId = await getPlayerId();
         if (userId < 0) {
             Alert.alert('Your app has not identify it self')
@@ -107,6 +111,7 @@ const NextRoutesOverlay: FC<Props> = ({ currentRoutes, onFinish, onClose }) => {
         setRouteName('')
 
         onFinish()
+        setIsLoading(false);
     }
 
     const copyToClipboard = async () => {
@@ -135,60 +140,66 @@ const NextRoutesOverlay: FC<Props> = ({ currentRoutes, onFinish, onClose }) => {
         validateDescription()
     }
 
-    return !showNext ? (
+    return (
         <View style={styles.container}>
-            <TextInput
-                placeholder={'Name the route'}
-                style={[styles.input, nameError && {borderColor: 'red'}]}
-                value={routeName}
-                onChangeText={handleNameChange}
-            />
-            <Text style={{ color: "red" }}>{nameError}</Text>
-            <CityComponent
-                citys={getCitys()}
-                onChange={handeOnChangeCity}
-            />
-            <TextInput
-                placeholder={'Description'}
-                multiline={true}
-                style={[styles.textaria, descriptionError && {borderColor: 'red'}]}
-                value={routeDescription}
-                textAlignVertical={'top'}
-                onChangeText={handleDescriptionChange}
-            />
-            <Text style={{ color: "red" }}>{descriptionError}</Text>
-            <ButtonsComponent.CancelAndFinishButtons
-                onFinish={handleFinishPress}
-                onCancel={onClose}
-            />
+            <Loader loading={isLoading} />
+            {!showNext ? (
+                <>
+                    <TextInput
+                        placeholder={'Name the route'}
+                        style={[styles.input, nameError && {borderColor: 'red'}]}
+                        value={routeName}
+                        onChangeText={handleNameChange}
+                    />
+                    <Text style={{color: "red"}}>{nameError}</Text>
+                    <CityComponent
+                        citys={getCitys()}
+                        onChange={handeOnChangeCity}
+                    />
+                    <TextInput
+                        placeholder={'Description'}
+                        multiline={true}
+                        style={[styles.textaria, descriptionError && {borderColor: 'red'}]}
+                        value={routeDescription}
+                        textAlignVertical={'top'}
+                        onChangeText={handleDescriptionChange}
+                    />
+                    <Text style={{color: "red"}}>{descriptionError}</Text>
+                    <ButtonsComponent.CancelAndFinishButtons
+                        onFinish={handleFinishPress}
+                        onCancel={onClose}
+                        disabled={isLoading}
+                    />
+                </>
+            ) : (
+                <>
+                    <Text>Your route is published!!!</Text>
+                    <Text>{"\n"}</Text>
+                    <View style={styles.row}>
+                        <Text style={{marginTop: 15}}>{qrCodeName} </Text>
+                        <FontAwesome6.Button
+                            name="copy"
+                            backgroundColor={"transparent"}
+                            size={32}
+                            color="black"
+                            onPress={async () => await copyToClipboard()}
+                        />
+                    </View>
+                    <Text>{"\n"}{"\n"}{"\n"}</Text>
+                    <QRCode
+                        value={JSON.stringify(qrCodeValue)}
+                        size={layoutWidth - 70}
+                        logo={{uri: QR_codeIcon}}
+                        logoSize={40}
+                        logoBackgroundColor='transparent'
+                        logoBorderRadius={5}
+                    />
+                    <Spacer size={20}/>
+                    <Button title={'Close'} onPress={() => onClose()}/>
+                </>
+            )}
         </View>
-    ) : (
-        <View style={styles.container}>
-            <Text>Your route is published!!!</Text>
-            <Text>{"\n"}</Text>
-            <View style={styles.row}>
-                <Text style={{ marginTop: 15 }}>{qrCodeName} </Text>
-                <FontAwesome6.Button
-                    name="copy"
-                    backgroundColor={"transparent"}
-                    size={32}
-                    color="black"
-                    onPress={async () => await copyToClipboard()}
-                />
-            </View>
-            <Text>{"\n"}{"\n"}{"\n"}</Text>
-            <QRCode
-                value={JSON.stringify(qrCodeValue)}
-                size={layoutWidth - 70}
-                logo={{ uri: QR_codeIcon }}
-                logoSize={40}
-                logoBackgroundColor='transparent'
-                logoBorderRadius={5}
-            />
-            <Spacer size={20} />
-            <Button title={'Close'} onPress={() => onClose()} />
-        </View>
-    );
+    )
 };
 
 const styles = StyleSheet.create({

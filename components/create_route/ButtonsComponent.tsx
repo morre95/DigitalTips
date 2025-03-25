@@ -42,6 +42,7 @@ const styles = StyleSheet.create({
 interface FinishProps {
     onFinish: () => void;
     onCancel: () => void;
+    disabled?: boolean;
 }
 interface ContinueProps {
     onContinue: () => void;
@@ -53,13 +54,13 @@ interface SaveProps {
     onCancel: () => void;
 }
 
-const CancelAndFinishButtons: FC<FinishProps> = ({ onFinish, onCancel }) => {
+const CancelAndFinishButtons: FC<FinishProps> = ({ onFinish, onCancel, disabled }) => {
     return (
         <View style={styles.buttonContainer}>
-            <Pressable style={styles.cancelButton} onPress={onCancel}>
+            <Pressable disabled={disabled} style={styles.cancelButton} onPress={onCancel}>
                 <Text style={styles.text}>{'Cancel'}</Text>
             </Pressable>
-            <Pressable style={styles.finishButton} onPress={onFinish}>
+            <Pressable disabled={disabled} style={styles.finishButton} onPress={onFinish}>
                 <Text style={styles.text}>{'Finish'}</Text>
             </Pressable>
         </View>
