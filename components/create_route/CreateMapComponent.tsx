@@ -7,7 +7,7 @@ import { useCreateDispatch } from "@/components/create_route/CreateContext";
 import CircleMarker from "@/components/create_route/CircleMarker";
 import AddQuestion from "@/components/create_route/AddQuestion";
 import {ButtonsComponent} from "@/components/create_route/ButtonsComponent";
-import NextRoutesOverlay from "@/components/create_route/NextRoutesOverlay";
+import NextRoutesOverlay from "@/components/create_route/saving_routes/NextRoutesOverlay";
 import AddQuestionFromDb from "@/components/create_route/AddQuestionFromDb";
 import HamburgerMenu from "@/components/create_route/HamburgerMenu";
 import RandomCheckPoints from "@/components/create_route/RandomCheckpoints";

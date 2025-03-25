@@ -48,6 +48,8 @@ interface SearchResponse {
     date: Date;
     count: number;
     description: string;
+    isPrivate: boolean;
+    inOrder: boolean;
 }
 
 async function getSearch(keyword: string): Promise<SearchResponse[]|null> {
@@ -65,15 +67,26 @@ async function getSearch(keyword: string): Promise<SearchResponse[]|null> {
         updated_at: Date
         city: string
         marker_count: number
+        is_private: boolean
+        in_order: boolean
     }
-    const url = `${BaseUrl.remote}search/routes/${encodeURIComponent(keyword)}`
 
     const response = await getJson<IResp>(`search/routes/${encodeURIComponent(keyword)}`)
 
     if (response.error) return null;
 
-    return response.routes.map(r =>
-        ({count: r.marker_count, name: r.name, description: r.description, routeId: r.route_id, city: r.city, date: (r.created_at < r.updated_at) ? r.updated_at : r.created_at}))
+    return response.routes.map(r => (
+        {
+            count: r.marker_count,
+            name: r.name,
+            description: r.description,
+            routeId: r.route_id,
+            city: r.city,
+            date: (r.created_at < r.updated_at) ? r.updated_at : r.created_at,
+            isPrivate: r.is_private,
+            inOrder: r.in_order,
+        }
+    ))
 }
 
 

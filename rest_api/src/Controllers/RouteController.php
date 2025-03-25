@@ -18,25 +18,26 @@ class RouteController
 
         $this->logger->info("Add routes: " . var_export($json,true));
 
-        $sql_routes = "INSERT INTO routes (owner, name, city, description)
-                VALUES (:owner, :name, :city, :description)";
+        $sql_routes = "INSERT INTO routes (owner, name, city, description, is_private, in_order)
+                       VALUES (:owner, :name, :city, :description, :is_private, :in_order)";
         try {
             $db = new Db();
             $pdo = $db->connect();
             $statement = $pdo->prepare($sql_routes);
-            // TODO: bör updaters så det kommer från appen
+
             $statement->execute([
                 ':owner' => $json["owner"],
                 ':name' => $json["name"],
                 ':city' => $json["city"],
                 ':description' => $json["description"],
+                ':is_private' => $json["isPrivate"],
+                ':in_order' => $json["inOrder"],
             ]);
             $route_id = $pdo->lastInsertId();
 
             $sql_question = "INSERT INTO questions (question_text)
-                   VALUES (:question_text)";
+                             VALUES (:question_text)";
 
-            $i = 0;
             foreach ($json["data"] as $item) {
                 $statement = $pdo->prepare($sql_question);
                 $statement->execute([
@@ -90,19 +91,23 @@ class RouteController
                 ->withHeader('content-type', 'application/json')
                 ->withStatus(500);
         }
-
-
-        //$response->getBody()->write(json_encode($json));
-        /*$response->getBody()->write(json_encode($json[0]['question']));
-        return $response
-            ->withHeader('content-type', 'application/json')
-            ->withStatus(200);*/
     }
 
     public function search(ServerRequestInterface $request, ResponseInterface $response, $args) {
 
-        $sql = "SELECT * FROM `routes` WHERE `name` LIKE :keyword OR `description` LIKE :keyword2";
-        $this->logger->info("Search routes: " . var_export($args,true));
+        $sql = "SELECT 
+                    `route_id`, 
+                    `owner`, 
+                    `name`, 
+                    `city`, 
+                    `description`, 
+                    IF(`is_private`, 'true', 'false') `is_private`, 
+                    IF(`in_order`, 'true', 'false') `in_order`, 
+                    `created_at`, 
+                    `updated_at` 
+                FROM `routes` 
+                    WHERE `name` 
+                        LIKE :keyword OR `description` LIKE :keyword2";
 
         try {
             $db = new Db();
@@ -115,8 +120,6 @@ class RouteController
             $stmt->execute();
             $routes = $stmt->fetchAll(PDO::FETCH_OBJ);
 
-
-
             for($i = 0; $i < count($routes); $i++) {
                 $route = $routes[$i];
 
@@ -127,11 +130,21 @@ class RouteController
                 
                 $marker_count = $stmt->fetch(PDO::FETCH_OBJ);
                 $routes[$i]->marker_count = $marker_count->num;
+
+                // Konvertera från sträng till boolean
+                $routes[$i]->is_private = $routes[$i]->is_private === 'true';
+                $routes[$i]->in_order = $routes[$i]->in_order === 'true';
             }
 
             $db = null;
 
-            $result = (object) ["routes" => $routes, "count" => count($routes), "error" => false];
+            $this->logger->info("Search routes: " . var_export($routes,true));
+
+            $result = (object) [
+                "routes" => $routes,
+                "count" => count($routes),
+                "error" => false
+            ];
 
             $response->getBody()->write(json_encode($result));
             return $response

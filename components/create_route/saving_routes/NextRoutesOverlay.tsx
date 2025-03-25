@@ -2,15 +2,16 @@ import postJson from "@/hooks/api/Post";
 import { QR_codeIcon } from '@/hooks/images';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import * as Clipboard from 'expo-clipboard';
-import React, { FC, useState } from 'react';
+import React, { FC, useState, useRef } from 'react';
 import {Alert, Button, Dimensions, StyleSheet, Text, TextInput, View} from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
-import { ButtonsComponent } from './ButtonsComponent';
+import { ButtonsComponent } from '../ButtonsComponent';
 import {QrCodeType, RouteData} from '@/interfaces/common';
 import CityComponent from './CityComponent';
-import Spacer from '../Spacer'
+import Spacer from '../../Spacer'
 import {getPlayerId}  from '@/functions/common'
 import Loader from "@/components/Loader";
+import AreRoutesPrivateAndInOrder from "./AreRoutesPrivateAndInOrder";
 
 const { width: layoutWidth} = Dimensions.get("window");
 
@@ -27,6 +28,8 @@ interface SendData {
     name: string;
     city: string;
     description: string;
+    isPrivate: boolean;
+    inOrder: boolean;
 }
 
 interface Props {
@@ -47,6 +50,8 @@ const NextRoutesOverlay: FC<Props> = ({ currentRoutes, onFinish, onClose }) => {
     const [descriptionError, setDescriptionError] = useState<string | null>(null);
     const [qrCodeValue, setQrCodeValue] = useState<QrCodeType>();
     const [isLoading, setIsLoading] = useState<boolean>(false);
+
+    const refPrivateInorder = useRef<{isPrivate: boolean, isInOrder: boolean}>({isPrivate: false, isInOrder: false})
 
 
     const validateName = (): boolean => {
@@ -93,6 +98,8 @@ const NextRoutesOverlay: FC<Props> = ({ currentRoutes, onFinish, onClose }) => {
             name: routeName,
             city: routeCity,
             description: routeDescription,
+            isPrivate: refPrivateInorder.current.isPrivate,
+            inOrder: refPrivateInorder.current.isInOrder
         }
 
         const url = '/add/routes'
@@ -140,6 +147,10 @@ const NextRoutesOverlay: FC<Props> = ({ currentRoutes, onFinish, onClose }) => {
         validateDescription()
     }
 
+    const handlePrivateInOrderChanged = (ticks: any) => {
+        refPrivateInorder.current = {isPrivate: ticks.isPrivate, isInOrder: ticks.isInOrder};
+    }
+
     return (
         <View style={styles.container}>
             <Loader loading={isLoading} />
@@ -165,6 +176,9 @@ const NextRoutesOverlay: FC<Props> = ({ currentRoutes, onFinish, onClose }) => {
                         onChangeText={handleDescriptionChange}
                     />
                     <Text style={{color: "red"}}>{descriptionError}</Text>
+                    <AreRoutesPrivateAndInOrder
+                        inputChanged={handlePrivateInOrderChanged}
+                    />
                     <ButtonsComponent.CancelAndFinishButtons
                         onFinish={handleFinishPress}
                         onCancel={onClose}

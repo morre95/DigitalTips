@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS `rate_limit` (
 );
 
 
-CREATE TABLE `users` (
+CREATE TABLE IF NOT EXISTS `users` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `username` VARCHAR(50) NOT NULL UNIQUE,
   `player_name` VARCHAR(50),
@@ -35,26 +35,28 @@ INSERT INTO `users` (`username`, `password`) VALUES
 
 
 
-CREATE TABLE routes (
+CREATE TABLE IF NOT EXISTS routes (
     route_id INT AUTO_INCREMENT PRIMARY KEY,
     owner INT NOT NULL,
     name VARCHAR(100) NOT NULL,
     city TEXT,
     description TEXT,
+    is_private BOOLEAN,
+    in_order BOOLEAN,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
 /*ALTER TABLE routes ADD city VARCHAR(100) NOT NULL;*/
 
-CREATE TABLE questions (
+CREATE TABLE IF NOT EXISTS questions (
     question_id INT AUTO_INCREMENT PRIMARY KEY,
     question_text TEXT NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
-CREATE TABLE answers (
+CREATE TABLE IF NOT EXISTS answers (
      answer_id INT AUTO_INCREMENT PRIMARY KEY,
      question_id INT NOT NULL,
      answer_text TEXT NOT NULL,
@@ -66,7 +68,7 @@ CREATE TABLE answers (
              ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
-CREATE TABLE checkpoints (
+CREATE TABLE IF NOT EXISTS checkpoints (
      checkpoint_id INT AUTO_INCREMENT PRIMARY KEY,
      route_id INT NOT NULL,
      latitude DECIMAL(10, 8) NOT NULL,
@@ -81,6 +83,23 @@ CREATE TABLE checkpoints (
      CONSTRAINT fk_checkpoints_question
          FOREIGN KEY (question_id) REFERENCES questions(question_id)
              ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS `results` (
+    `result_id` int AUTO_INCREMENT PRIMARY KEY,
+    `route_id` int NOT NULL,
+    `user_id` int NOT NULL,
+    `correct` int DEFAULT NULL,
+    `incorrect` int DEFAULT NULL,
+    `not_answered` int DEFAULT NULL,
+    `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_results_routes
+        FOREIGN KEY (`route_id`) REFERENCES `routes` (`route_id`)
+            ON DELETE CASCADE,
+    CONSTRAINT `fk_results_users`
+        FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
+            ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
 

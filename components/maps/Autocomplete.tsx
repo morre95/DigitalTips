@@ -8,15 +8,6 @@ import Tooltip, {Position} from "@/components/Tooltip";
 import EvilIcons from '@expo/vector-icons/EvilIcons';
 
 
-interface IItem {
-    routeId: number;
-    name: string;
-    city: string;
-    date: Date;
-    count: number;
-    description: string;
-}
-
 
 interface IAutocompleteProps {
     onSelect: (item: SearchResponse) => void;
@@ -51,7 +42,8 @@ const Autocomplete: React.FC<IAutocompleteProps> = ({ onSelect, onSubmit, placeh
         onSubmit(query);
     };
 
-    const Item = (item: IItem) => {
+    const Item = (item: SearchResponse) => {
+        if (item.isPrivate) return null;
         return (
             <TouchableOpacity key={item.routeId} onPress={() => handleSelect(item)}>
 
@@ -81,15 +73,22 @@ const Autocomplete: React.FC<IAutocompleteProps> = ({ onSelect, onSubmit, placeh
                 onFocus={() => setIsFocused(true)}
                 onSubmitEditing={handleOnSubmit}
             />
-            {filteredData.length > 0 && (
-                <FlatList
-                    data={filteredData}
-                    keyExtractor={(item) => item.routeId.toString()}
-                    renderItem={({ item }) => (
-                        <Item description={item.description} count={item.count} routeId={item.routeId} name={item.name} city={item.city} date={item.date}/>
-                    )}
-                />
-            )}
+            <FlatList
+                data={filteredData}
+                keyExtractor={(item) => item.routeId.toString()}
+                renderItem={({ item }) => (
+                    <Item
+                        description={item.description}
+                        count={item.count}
+                        routeId={item.routeId}
+                        name={item.name}
+                        city={item.city}
+                        date={item.date}
+                        inOrder={item.inOrder}
+                        isPrivate={item.isPrivate}
+                    />
+                )}
+            />
         </View>
     );
 };

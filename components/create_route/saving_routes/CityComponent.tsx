@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import {StyleSheet, Text, View, Pressable} from 'react-native';
 
-import SelectCityPopup from "./SelectCityPopup";
+import SelectCityPopup from "../SelectCityPopup";
 
 import {City} from '@/interfaces/City'
 
