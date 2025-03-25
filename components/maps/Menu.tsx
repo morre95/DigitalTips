@@ -27,7 +27,6 @@ interface IMenuProps {
 const Menu = ({ trigger, children, topRight, topLeft, bottomRight, bottomLeft } : IMenuProps) => {
     const [modalVisible, setModalVisible] = useState(false);
     const triggerWrapperRef = useRef<View>(null);
-    const itemsWrapperRef = useRef<View>(null);
     const [pressablePosition, setPressablePosition] = useState<{top: number, left: number}>({top: 0, left: 0});
 
     // states to hold the trigger and menu dimensions
@@ -43,10 +42,8 @@ const Menu = ({ trigger, children, topRight, topLeft, bottomRight, bottomLeft } 
         height: 0,
     });
 
-    const calculateDimensions = () => {
-        //console.log('Calculate Dimensions');
+    const calculateTriggerDimensions = () => {
         if (triggerWrapperRef && triggerWrapperRef.current) {
-            //console.log('measure', 'triggerWrapperRef');
             triggerWrapperRef.current.measureInWindow((x, y, width, height) => {
                 setTriggerDimensions({
                     top: Math.max(y, 0),
@@ -55,29 +52,16 @@ const Menu = ({ trigger, children, topRight, topLeft, bottomRight, bottomLeft } 
                     height,
                 });
             });
-
-            setTimeout(() => {
-                if (itemsWrapperRef && itemsWrapperRef.current) {
-                    itemsWrapperRef.current.measureInWindow((x, y, width, height) => {
-                        setModalDimensions({width, height});
-                    });
-                }
-            }, 200);
         }
     };
 
-    const { top, left } = useMemo(() => {
-        let left = 0;
-        let top = 0;
+    const calculateWrapperDimensions = (event: any) => {
+        const {width, height} = event.nativeEvent.layout;
+        setModalDimensions({width, height});
+    }
 
-        // TBD: Kan vara värt att ta en titt på KeyboardAvoidingView:
-        // https://reactnative.dev/docs/keyboardavoidingview
-
-        /*left =
-            triggerDimensions.left - modalDimensions.width + triggerDimensions.width;
-        // Tanken är här att om popupen är utanför skärmen ska den skjutas tillbaka
-        if (triggerDimensions.left - modalDimensions.width < 0)
-            left = triggerDimensions.left;*/
+    const menuPositionStyles = useMemo(() => {
+        let top : number;
 
         const initialTriggerTop = triggerDimensions.top + triggerDimensions.height;
 
@@ -85,10 +69,9 @@ const Menu = ({ trigger, children, topRight, topLeft, bottomRight, bottomLeft } 
             initialTriggerTop - triggerDimensions.height - modalDimensions.height :
             initialTriggerTop;
 
-        return { top, left };
+        return { top: top, left: 0 };
     }, [modalDimensions, triggerDimensions]);
 
-    const menuPositionStyles = { left, top };
 
     const closeModal = () => {
         setModalVisible(false);
@@ -107,15 +90,11 @@ const Menu = ({ trigger, children, topRight, topLeft, bottomRight, bottomLeft } 
         }
     }, [topRight, topLeft, bottomRight, bottomLeft, triggerDimensions.width, triggerDimensions.height]);
 
-    const onTriggerLayout = () => {
-        calculateDimensions();
-    }
-
     return (
         <>
             <View
                 style={[{position: 'absolute', zIndex:1}, pressablePosition]}
-                onLayout={onTriggerLayout}
+                onLayout={calculateTriggerDimensions}
             >
                 <Pressable
                     onPress={() => {
@@ -126,7 +105,7 @@ const Menu = ({ trigger, children, topRight, topLeft, bottomRight, bottomLeft } 
                     {trigger}
                 </Pressable>
             </View>
-            <Modal visible={modalVisible} transparent={true} animationType="fade" onLayout={onTriggerLayout}>
+            <Modal visible={modalVisible} transparent={true} animationType="fade" onLayout={calculateWrapperDimensions}>
                 <TouchableOpacity
                     activeOpacity={1}
                     onPress={closeModal}
@@ -135,7 +114,7 @@ const Menu = ({ trigger, children, topRight, topLeft, bottomRight, bottomLeft } 
                     <View
                         style={[styles.activeSection, menuPositionStyles]}
                         collapsable={false}
-                        ref={itemsWrapperRef}
+                        onLayout={calculateWrapperDimensions}
                     >
                         {
                             React.Children.map(children, child => {

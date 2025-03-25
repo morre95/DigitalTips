@@ -150,7 +150,7 @@ const MapsComponent = () => {
     return (
         <View style={styles.container}>
             <FlashMessage ref={flashMessageRef} />
-            <Menu trigger={<Feather name="menu" size={24} color="black" />} topRight>
+            <Menu trigger={<Feather name="menu" size={24} color="black" />} bottomRight>
                 <MenuItem text={showNextCheckpoint ? 'Show Checkpoints Flags only':'Next Checkpoint'} onPress={handleNextCheckpoint} />
                 <MenuItem text={'Reset the game'} onPress={handleResetGame} />
                 <MenuItem text={'Restart previous game'} onPress={handleRestartGame} />
