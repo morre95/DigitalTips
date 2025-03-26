@@ -177,10 +177,26 @@ export function CreateMapComponent() {
         dispatch({type: 'deleteAll'})
 
         if (JWT_token) {
-            const id = Number(routeId)
-            console.log(id)
-            await deleteCheckpoint(id, JWT_token)
-            router.setParams({});
+            async function deleteApiCheckpoints(JWT_token: string): Promise<void> {
+                const id = Number(routeId)
+                await deleteCheckpoint(id, JWT_token)
+                router.setParams({});
+            }
+
+            Alert.alert(
+                'Permanent delete checkpoints',
+                'Du you want to delete this route permanently',
+                [
+                    {
+                        text: 'Cancel',
+                        style: 'cancel',
+                    },
+                    {
+                        text: 'Yes delete',
+                        onPress: () => deleteApiCheckpoints(JWT_token)
+                    }
+                ]
+            )
         }
     }
 

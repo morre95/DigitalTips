@@ -57,7 +57,7 @@ const MapsComponent = () => {
         const playerId = await getPlayerId()
         const isAdmin = Number(item.owner) === playerId
         if (isAdmin) {
-            /*Alert.alert(
+            Alert.alert(
                 'You are admin',
                 'Do you want to start or edit', [
                 {
@@ -72,8 +72,7 @@ const MapsComponent = () => {
                 {text: 'Yes', onPress: () => {
                         router.replace({pathname: './CreateRoutes', params: {routeId: item.routeId}})
                     }},
-            ])*/
-            router.replace({pathname: './CreateRoutes', params: {routeId: item.routeId}})
+            ])
         } else {
             type Markers = {
                 checkpoints: Checkpoint[];
