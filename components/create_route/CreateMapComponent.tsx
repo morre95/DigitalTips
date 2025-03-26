@@ -36,7 +36,7 @@ export function CreateMapComponent() {
     const [showHelpPopup, setShowHelpPopup] = useState<boolean>(false);
     const [loading, setLoading] = useState(false);
     const {routeId} = useLocalSearchParams()
-    //const router = useRouter();
+    const router = useRouter();
     const [JWT_token, setJWT_token] = useState<string>();
 
     useEffect(() => {
@@ -180,6 +180,7 @@ export function CreateMapComponent() {
             const id = Number(routeId)
             console.log(id)
             await deleteCheckpoint(id, JWT_token)
+            router.setParams({});
         }
     }
 
