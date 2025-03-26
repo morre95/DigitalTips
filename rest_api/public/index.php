@@ -253,7 +253,7 @@ $beforeMiddleware = function (Request $request, RequestHandler $handler) use ($a
 };
 
 $db = new Db();
-$rateLimitMiddleware = new RateLimitMiddleware($db->connect(), 100, 60, get_logger($app->getContainer()));
+$rateLimitMiddleware = new RateLimitMiddleware($db->connect(), 1000, 60, get_logger($app->getContainer()));
 $app->add($rateLimitMiddleware);
 
 $app->add($beforeMiddleware);
