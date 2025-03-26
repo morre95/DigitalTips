@@ -69,7 +69,7 @@ const MapsComponent = () => {
                     //onPress: () => { isEdit = true; },
                     style: 'cancel',
                 },
-                {text: 'Yes', onPress: () => {
+                {text: 'Edit', onPress: () => {
                         router.replace({pathname: './CreateRoutes', params: {routeId: item.routeId}})
                     }},
             ])
