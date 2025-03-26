@@ -2,7 +2,7 @@ import MapView, { Marker, PROVIDER_GOOGLE, Region } from 'react-native-maps';
 import React, {useEffect, useRef, useState} from "react";
 import {StyleSheet, View, Alert} from "react-native";
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import {MarkerData, RouteData, AnswerData} from "@/interfaces/common";
+import {MarkerData, RouteData, Checkpoint, Answer} from "@/interfaces/common";
 import { getCity } from "@/functions/request";
 import { useCreateDispatch } from "@/components/create_route/CreateContext";
 import CircleMarker from "@/components/create_route/CircleMarker";
@@ -14,6 +14,9 @@ import HamburgerMenu from "@/components/create_route/HamburgerMenu";
 import RandomCheckPoints from "@/components/create_route/RandomCheckpoints";
 import HelpPopup from "@/components/create_route/HelpPopup";
 import Loader from "@/components/Loader";
+import {deleteCheckpoint, getCheckpoints} from "@/functions/api/Get";
+import registerOrLogin from '@/functions/registerOrLogin'
+import globals from "@/functions/globals";
 
 const initialRegion: Region = {
     latitude: 58.317435384,
@@ -33,14 +36,63 @@ export function CreateMapComponent() {
     const [showHelpPopup, setShowHelpPopup] = useState<boolean>(false);
     const [loading, setLoading] = useState(false);
     const {routeId} = useLocalSearchParams()
-    const router = useRouter();
+    //const router = useRouter();
+    const [JWT_token, setJWT_token] = useState<string>();
+
+    useEffect(() => {
+        (async () => {
+            await registerOrLogin();
+
+            if (globals.JWT_token) {
+                console.log('JWT token:', globals.JWT_token);
+                setJWT_token(globals.JWT_token)
+            } else {
+                console.log('inte inloggad');
+            }
+        })();
+    }, [])
 
     useEffect(() => {
         const id = Number(routeId)
         if (id > 0) {
-            console.log(routeId, router);
-            // TODO: skapa en GET json function som hämtar med routeId
-            router.setParams({});
+            //console.log(routeId, router);
+            //router.setParams({});
+
+            (async () => {
+                type Markers = {
+                    checkpoints: Checkpoint[];
+                }
+
+                const markers = await getCheckpoints<Markers>(id)
+
+                const checkpoints = markers.checkpoints.map(checkpoint => {
+                    checkpoint.question.answers = [...checkpoint.question.answers].sort(() => Math.random() - 0.5);
+                    return checkpoint;
+                });
+
+                for (let i = 0; i < checkpoints.length; i++) {
+
+                    const marker : RouteData = {
+                        marker: {
+                            id: checkpoints[i].checkpoint_id,
+                            latitude: Number(checkpoints[i].latitude),
+                            longitude: Number(checkpoints[i].longitude),
+                            name: `Checkpoint ${checkpoints[i].checkpoint_order}`,
+                            markerOrder: checkpoints[i].checkpoint_order,
+                            city: '',
+                        },
+                        question: checkpoints[i].question.text,
+                        answers: checkpoints[i].question.answers
+                    };
+
+                    dispatch({type: 'add', checkpoint: { marker: marker.marker }})
+                    dispatch({type: 'addQuestion', checkpoint: {
+                            marker: marker.marker,
+                            question: marker.question,
+                            answers: marker.answers
+                        }});
+                }
+            })();
         }
     }, [routeId]);
 
@@ -81,7 +133,7 @@ export function CreateMapComponent() {
         dispatch({type: 'moveCheckpoint', checkpoint: route});
     }
 
-    const handleSaveQuestion = (question: string, answers: AnswerData[], order: number) => {
+    const handleSaveQuestion = (question: string, answers: Answer[], order: number) => {
         setShowAddQuestion(false)
         const marker = markerRef.current
         if (marker) {
@@ -121,8 +173,14 @@ export function CreateMapComponent() {
         setShowNext(true);
     }
 
-    const handleDeleteAll = () => {
+    const handleDeleteAll = async () => {
         dispatch({type: 'deleteAll'})
+
+        if (JWT_token) {
+            const id = Number(routeId)
+            console.log(id)
+            await deleteCheckpoint(id, JWT_token)
+        }
     }
 
     const handleNextCancel = () => {
@@ -137,7 +195,7 @@ export function CreateMapComponent() {
                 },
                 {
                     text: 'Yes', onPress: () => {
-                        handleDeleteAll()
+                        handleDeleteAll() // TODO: fixa denna varning, den kommer av det är ett async call
                     }
                 },
             ]);
@@ -147,18 +205,18 @@ export function CreateMapComponent() {
         setShowDbQuestionSelect(false)
         setShowAddQuestion(true)
 
-        let answers: AnswerData[] = []
-        let newAnswers: AnswerData = {
+        let answers: Answer[] = []
+        let newAnswers: Answer = {
             id: answers.length + 1,
             text: question.correct_answer,
-            isRight: true,
+            isCorrect: true,
         }
         answers.push(newAnswers)
         for (let incorrect of question.incorrect_answers) {
             newAnswers = {
                 id: answers.length + 1,
                 text: incorrect,
-                isRight: false,
+                isCorrect: false,
             }
             answers.push(newAnswers)
         }
@@ -167,10 +225,6 @@ export function CreateMapComponent() {
 
         handleSaveQuestion(question.question, answers, order)
     }
-
-    /*const toggleHamburgerMenu = () => {
-        setShowHamburgerMenu(!showHamburgerMenu);
-    }*/
 
     const generateRandomCheckpoints = () => {
         setShowGenerateRandomCheckpoints(true)

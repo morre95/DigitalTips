@@ -184,6 +184,7 @@ class RouteController
             foreach ($checkpoints as $checkpoint) {
                 $sql = "SELECT
                     q.question_text,
+                    a.answer_id,
                     a.answer_text,
                     a.is_correct
                     FROM questions q
@@ -201,7 +202,7 @@ class RouteController
                 if (count($questions) > 0) {
                     $answers = [];
                     foreach ($questions as $question) {
-                        $answers[] = (object) ["text" => $question->answer_text, "isCorrect" => $question->is_correct === '1'];
+                        $answers[] = (object) ["id" => $question->answer_id,"text" => $question->answer_text, "isCorrect" => $question->is_correct === '1'];
                         $this->logger->info("question: " . var_export($question,true));
                     }
                     $checkpoint->question = new stdClass();
@@ -228,6 +229,84 @@ class RouteController
                 "message" => $e->getMessage()
             );
 
+            $this->logger->error($error["message"]);
+
+            $response->getBody()->write(json_encode($error));
+            return $response
+                ->withHeader('content-type', 'application/json')
+                ->withStatus(500);
+        }
+    }
+
+    public function delete_checkpoint(ServerRequestInterface $request, ResponseInterface $response, $args) {
+        $route_id = (int)$args['id'];
+
+        try {
+            $db = new Db();
+            $conn = $db->connect();
+        } catch (PDOException $e) {
+            $error = array(
+                "error" => true,
+                "message" => $e->getMessage()
+            );
+
+            $this->logger->error($error["message"]);
+
+            $response->getBody()->write(json_encode($error));
+            return $response
+                ->withHeader('content-type', 'application/json')
+                ->withStatus(500);
+        }
+
+
+        try {
+            // Starta en transaktion för att säkerställa att alla operationer lyckas
+            $conn->beginTransaction();
+
+            // Steg 1: Hämta unika question_id från checkpoints som hör till den aktuella route
+            $stmt = $conn->prepare("SELECT DISTINCT question_id FROM checkpoints WHERE route_id = :route_id");
+            $stmt->bindParam(':route_id', $route_id, PDO::PARAM_INT);
+            $stmt->execute();
+            $questionIds = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+            // Steg 2: Om det finns några frågor, ta bort dem
+            if (!empty($questionIds)) {
+                // Skapa en parameterlista baserat på antalet id:n
+                $placeholders = implode(',', array_fill(0, count($questionIds), '?'));
+                $stmt = $conn->prepare("DELETE FROM questions WHERE question_id IN ($placeholders)");
+                $stmt->execute($questionIds);
+            }
+
+            // Steg 3: Ta bort route:n – checkpoints kopplade till denna tas bort automatiskt (ON DELETE CASCADE)
+            $stmt = $conn->prepare("DELETE FROM routes WHERE route_id = :route_id");
+            $stmt->bindParam(':route_id', $route_id, PDO::PARAM_INT);
+            $stmt->execute();
+
+            // Radera route
+            $sql = "DELETE FROM routes WHERE route_id = :route_id";
+            $stmt = $conn->prepare($sql);
+
+            $stmt->bindParam(':route_id', $route_id, PDO::PARAM_INT);
+            $stmt->execute();
+
+            // Avsluta transaktionen
+            $conn->commit();
+
+            $result = [
+                "error" => false,
+                "message" => "The rout with id $route_id has been deleted."
+            ];
+            $response->getBody()->write(json_encode($result));
+            return $response
+                ->withHeader('content-type', 'application/json')
+                ->withStatus(200);
+        } catch (Exception $e) {
+            // Återställ transaktionen vid fel
+            $conn->rollBack();
+            $error = array(
+                "error" => true,
+                "message" => $e->getMessage()
+            );
             $this->logger->error($error["message"]);
 
             $response->getBody()->write(json_encode($error));

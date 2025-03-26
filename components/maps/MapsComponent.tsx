@@ -38,9 +38,12 @@ const MapsComponent = () => {
     const [showNextCheckpoint, setShowNextCheckpoint] = useState(false);
 
 
+    // TBD: bara för testning
+    const [currenPos, setCurrenPos] = useState<{longitude: number, latitude: number}>({longitude: 0, latitude: 0});
     const handleMapPress = (event: any) => {
         const { coordinate } = event.nativeEvent;
         console.log(coordinate);
+        setCurrenPos(coordinate);
 
         setShowSearchButton(true);
     }
@@ -54,8 +57,7 @@ const MapsComponent = () => {
         const playerId = await getPlayerId()
         const isAdmin = Number(item.owner) === playerId
         if (isAdmin) {
-            let isEdit = false;
-            Alert.alert(
+            /*Alert.alert(
                 'You are admin',
                 'Do you want to start or edit', [
                 {
@@ -64,30 +66,27 @@ const MapsComponent = () => {
                 },
                 {
                     text: 'Cancel',
-                    onPress: () => { isEdit = true; },
+                    //onPress: () => { isEdit = true; },
                     style: 'cancel',
                 },
                 {text: 'Yes', onPress: () => {
                         router.replace({pathname: './CreateRoutes', params: {routeId: item.routeId}})
-                        isEdit = true;
                     }},
-            ])
-            if (isEdit) {
-                return;
+            ])*/
+            router.replace({pathname: './CreateRoutes', params: {routeId: item.routeId}})
+        } else {
+            type Markers = {
+                checkpoints: Checkpoint[];
             }
+            const markers = await getCheckpoints<Markers>(item.routeId)
+
+            const checkpoints = markers.checkpoints.map(checkpoint => {
+                checkpoint.question.answers = [...checkpoint.question.answers].sort(() => Math.random() - 0.5);
+                return checkpoint;
+            });
+
+            dispatch(() => checkpoints);
         }
-
-        type Markers = {
-            checkpoints: Checkpoint[];
-        }
-        const markers = await getCheckpoints<Markers>(item.routeId)
-
-        const checkpoints = markers.checkpoints.map(checkpoint => {
-            checkpoint.question.answers = [...checkpoint.question.answers].sort(() => Math.random() - 0.5);
-            return checkpoint;
-        })
-
-        dispatch(() => checkpoints);
     }
 
     const handleAutoOnSubmit = (item: string) => {
@@ -214,6 +213,9 @@ const MapsComponent = () => {
                             setQuestion(null)
                         }}
                         onEnter={() => console.log('onEnter()', 'id:', checkpoint.checkpoint_id)}
+
+                        // TBD: Bara för testning
+                        currentPosition={currenPos}
                     />
                 ))}
             </MapView>

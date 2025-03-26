@@ -8,7 +8,6 @@ import { Marker } from 'react-native-maps';
 import { MarkerImages } from "@/assets/images";
 
 import {Checkpoint, Question} from "@/interfaces/common";
-import {prepareUIRegistry} from "react-native-reanimated/lib/typescript/frameCallback/FrameCallbackRegistryUI";
 
 
 interface ICheckPoint {

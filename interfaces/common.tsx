@@ -17,29 +17,24 @@ export interface Question {
 }
 
 export interface Answer {
+    id:        number;
     text:      string;
     isCorrect: boolean;
 }
 
 export interface MarkerData {
-    id: number;
-    latitude: number;
-    longitude: number;
-    name: string;
+    id:          number;
+    latitude:    number;
+    longitude:   number;
+    name:        string;
     markerOrder: number;
-    city: string;
-}
-
-export interface AnswerData {
-    id: number;
-    text: string;
-    isRight: boolean;
+    city:        string;
 }
 
 export type RouteData = {
     marker: MarkerData;
     question?: string;
-    answers?: AnswerData[];
+    answers?: Answer[];
 }
 
 export type Coordinate = {

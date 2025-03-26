@@ -299,6 +299,7 @@ $app->post('/change/player/name', \UserController::class . ':change_player_name'
 // Alla API calls som behöver skyddas behöver ligga under den här gruppen
 $app->group('/api', function (\Slim\Routing\RouteCollectorProxy $group) {
     $group->get('/get/google/key', UserController::class . ':get_google_api_key');
+    $group->get('/delete/checkpoint/{id}', RouteController::class . ':delete_checkpoint');
 })->add($jwtMiddleware);
 
 $app->run();

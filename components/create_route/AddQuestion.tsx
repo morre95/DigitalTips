@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from "react";
 import {StyleSheet, View, Modal, Text, TextInput, Button, Alert} from "react-native";
-import {AnswerData, RouteData} from "@/interfaces/common";
+import {Answer, RouteData} from "@/interfaces/common";
 import { ButtonsComponent } from '@/components/create_route/ButtonsComponent';
 import Checkbox from "expo-checkbox";
 
@@ -12,7 +12,7 @@ import {Picker} from "@react-native-picker/picker";
 
 interface IQuestionProps {
     visible: boolean;
-    onSave: (question: string, answers: AnswerData[], order: number) => void;
+    onSave: (question: string, answers: Answer[], order: number) => void;
     onCancel: () => void;
     currentCheckpoint: RouteData | null;
     numberOfCheckpoints: number;
@@ -22,7 +22,7 @@ interface IQuestionProps {
 
 export default function AddQuestion({visible, onSave, onCancel, currentCheckpoint, numberOfCheckpoints, onDelete, onAddQuestionFromDb}: IQuestionProps) {
     const [questionText, setQuestionText] = useState('');
-    const [currentAnswers, setCurrentAnswers] = useState<AnswerData[]>([]);
+    const [currentAnswers, setCurrentAnswers] = useState<Answer[]>([]);
     const [order, setOrder] = useState<number>(0);
 
     useEffect(() => {
@@ -42,7 +42,7 @@ export default function AddQuestion({visible, onSave, onCancel, currentCheckpoin
             return
         }
 
-        const isRightCount = currentAnswers.filter((ans) => ans.isRight).length;
+        const isRightCount = currentAnswers.filter((ans) => ans.isCorrect).length;
 
         if (isRightCount <= 0) {
             Alert.alert('You need to tick at least one answer to be the right one')
@@ -61,7 +61,7 @@ export default function AddQuestion({visible, onSave, onCancel, currentCheckpoin
     }
 
     const addAnswerField = () => {
-        setCurrentAnswers([...currentAnswers, { id: Date.now(), text: '', isRight: false }]);
+        setCurrentAnswers([...currentAnswers, { id: Date.now(), text: '', isCorrect: false }]);
     };
 
     const removeAnswerField = (index: number) => {
@@ -78,7 +78,7 @@ export default function AddQuestion({visible, onSave, onCancel, currentCheckpoin
 
     const handleCheckBoxChange = (value: boolean, index: number) => {
         const updatedAnswers = [...currentAnswers];
-        updatedAnswers[index].isRight = value;
+        updatedAnswers[index].isCorrect = value;
         setCurrentAnswers(updatedAnswers);
     };
 
@@ -154,7 +154,7 @@ export default function AddQuestion({visible, onSave, onCancel, currentCheckpoin
                                 autoFocus={currentAnswers.length === index + 1}
                             />
                             <Checkbox
-                                value={field.isRight}
+                                value={field.isCorrect}
                                 onValueChange={(newVal) => handleCheckBoxChange(newVal, index)}
                             />
                             <Button

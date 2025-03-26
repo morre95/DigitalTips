@@ -8,7 +8,7 @@ import { getDistance } from 'geolib';
 
 import {randomCoordinate, Coordinate} from '@/functions/coordinates'
 
-import {MarkerData, AnswerData, RouteData} from '@/interfaces/common'
+import {MarkerData, Answer, RouteData} from '@/interfaces/common'
 import { getCity } from "@/functions/request";
 
 type Questions = Question[]
@@ -99,18 +99,18 @@ const RandomCheckPoints: React.FC<iProps> = ({ isVisible, onFinish, currentCoord
             if (!tooClose) {
                 const question = getRandomQuestion(questions);
 
-                const answers: AnswerData[] = []
-                let newAnswers: AnswerData = {
+                const answers: Answer[] = []
+                let newAnswers: Answer = {
                     id: answers.length + 1,
                     text: question.correct_answer,
-                    isRight: true,
+                    isCorrect: true,
                 }
                 answers.push(newAnswers)
                 for (let incorrect of question.incorrect_answers) {
                     newAnswers = {
                         id: answers.length + 1,
                         text: incorrect,
-                        isRight: false,
+                        isCorrect: false,
                     }
                     answers.push(newAnswers)
                 }
