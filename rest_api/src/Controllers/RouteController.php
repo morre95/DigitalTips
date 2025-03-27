@@ -213,9 +213,11 @@ class RouteController
                 if (count($questions) > 0) {
                     $answers = [];
                     foreach ($questions as $question) {
-                        $answers[] = (object) ["id" => $question->answer_id,"text" => $question->answer_text, "isCorrect" => $question->is_correct === '1'];
-                        $this->logger->info("question: " . var_export($question,true));
+                        $answers[] = (object) ["id" => $question->answer_id, "text" => $question->answer_text, "isCorrect" => $question->is_correct === '1'];
                     }
+
+                    shuffle($answers);
+
                     $checkpoint->question = new stdClass();
                     $checkpoint->question->text = $questions[0]->question_text;
                     $checkpoint->question->answers = $answers;

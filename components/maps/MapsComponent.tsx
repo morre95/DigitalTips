@@ -1,4 +1,4 @@
-import React, {useState, useRef, ComponentRef} from 'react';
+import React, {useState, useRef, ComponentRef, useEffect} from 'react';
 import {StyleSheet, View, Vibration, Alert} from 'react-native';
 import MapView, {PROVIDER_GOOGLE, Region} from "react-native-maps";
 import CheckPoint from "./CheckPoint";
@@ -11,7 +11,7 @@ import {getCheckpoints, SearchResponse} from "@/functions/api/Get";
 import AnswerQuestionComponent from "@/components/maps/AnswerQuestionComponent";
 import Feather from "@expo/vector-icons/Feather";
 import Menu, {MenuTextItem} from "@/components/maps/Menu";
-import { useRouter } from 'expo-router';
+import {useLocalSearchParams, useRouter} from 'expo-router';
 import {getPlayerId} from "@/functions/common";
 
 const initialRegion: Region = {
@@ -36,7 +36,21 @@ const MapsComponent = () => {
     const [score, setScore] = useState(0);
     const [showSearchButton, setShowSearchButton] = useState(true);
     const [showNextCheckpoint, setShowNextCheckpoint] = useState(false);
+    const {routeId} = useLocalSearchParams();
 
+    useEffect(() => {
+        const id = Number(routeId);
+        if (id > 0) {
+            (async () => {
+                type Markers = {
+                    checkpoints: Checkpoint[];
+                }
+                const markers = await getCheckpoints<Markers>(id)
+
+                dispatch(() => markers.checkpoints);
+            })();
+        }
+    }, [routeId]);
 
     // TBD: bara för testning
     const [currenPos, setCurrenPos] = useState<{longitude: number, latitude: number}>({longitude: 0, latitude: 0});
@@ -79,12 +93,12 @@ const MapsComponent = () => {
             }
             const markers = await getCheckpoints<Markers>(item.routeId)
 
-            const checkpoints = markers.checkpoints.map(checkpoint => {
+            /*const checkpoints = markers.checkpoints.map(checkpoint => {
                 checkpoint.question.answers = [...checkpoint.question.answers].sort(() => Math.random() - 0.5);
                 return checkpoint;
-            });
+            });*/
 
-            dispatch(() => checkpoints);
+            dispatch(() => markers.checkpoints);
         }
     }
 
@@ -172,6 +186,10 @@ const MapsComponent = () => {
         router.replace('./QrCodeReader');
     }
 
+    const handleRemoveGame = () => {
+        dispatch(() => []);
+    }
+
     return (
         <View style={styles.container}>
             <FlashMessage ref={flashMessageRef} />
@@ -237,7 +255,8 @@ const MapsComponent = () => {
             <Menu trigger={<Feather name="menu" size={44} color="black" />} bottomRight>
                 <MenuTextItem text={showNextCheckpoint ? 'Show Checkpoints Flags only':'Next Checkpoint'} onPress={handleNextCheckpoint} />
                 <MenuTextItem text={'Reset the game'} onPress={handleResetGame} />
-                <MenuTextItem text={'Restart previous game'} onPress={handleRestartGame} />
+                <MenuTextItem text={'Restart the game'} onPress={handleRestartGame} />
+                <MenuTextItem text={'Remove game'} onPress={handleRemoveGame} />
                 <MenuTextItem text={'Qr Code Reader'} onPress={handleQrReader} />
             </Menu>
         </View>
