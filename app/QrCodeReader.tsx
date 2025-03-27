@@ -1,13 +1,48 @@
 import { CameraView, CameraType, useCameraPermissions, BarcodeScanningResult } from 'expo-camera';
-import { useState } from 'react';
-import {Button, StyleSheet, Text, TouchableOpacity, View, Platform, StatusBar, Vibration} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {Button, StyleSheet, Text, TouchableOpacity, View, Vibration} from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import Loader from "@/components/Loader";
+import Feather from "@expo/vector-icons/Feather";
+import {useRouter} from 'expo-router';
+import Spacer from "@/components/Spacer";
+import {Checkpoint} from '@/interfaces/common';
+import {getCheckpoints} from "@/functions/api/Get";
 
+interface IResult {
+    numberOfCheckpoints: number;
+    name: string;
+    createdAt?: Date;
+}
 export default function QrCodeReader() {
+    const router = useRouter();
     const [facing, setFacing] = useState<CameraType>('back');
     const [qrResult, setQrResult] = useState<string | null>(null);
+    const [resultInfo, setResultInfo] = useState<IResult | null>(null);
     const [permission, requestPermission] = useCameraPermissions();
+    const [cameraIsVisible, setCameraIsVisible] = useState<boolean>(false);
+
+    useEffect(() => {
+        (async () => {
+            if (qrResult) {
+                const jsonObj = JSON.parse(qrResult);
+                type Markers = {
+                    checkpoints: Checkpoint[];
+                }
+                const markers = await getCheckpoints<Markers>(jsonObj.routeId);
+
+                const result: IResult = {
+                    numberOfCheckpoints: jsonObj.numberOfCheckpoints,
+                    name: jsonObj.name,
+                };
+
+                if (result.numberOfCheckpoints > 0) {
+                    result.createdAt =  markers.checkpoints[0].created_at;
+                }
+                setResultInfo(result);
+            }
+        })();
+    }, [qrResult]);
 
     if (!permission) {
         // Camera permissions are still loading.
@@ -35,12 +70,26 @@ export default function QrCodeReader() {
     const handleScanResult = (scanResult: BarcodeScanningResult) => {
         const { data } = scanResult;
         setQrResult(data);
-        Vibration.vibrate([1000])
+        Vibration.vibrate([1000]);
+        handleToggleCamera();
+    }
+
+    const backToMaps = () => {
+        if (qrResult) {
+            const jsonObj = JSON.parse(qrResult);
+            router.replace({ pathname: './maps', params: { routeId: jsonObj.id } });
+            return;
+        }
+        router.replace({ pathname: './maps' });
+    }
+
+    const handleToggleCamera = () => {
+        setCameraIsVisible(!cameraIsVisible);
     }
 
     return (
         <View style={styles.container}>
-            <CameraView
+            {cameraIsVisible ? <CameraView
                 style={styles.camera}
                 facing={facing}
                 barcodeScannerSettings={{
@@ -49,14 +98,32 @@ export default function QrCodeReader() {
                 onBarcodeScanned={handleScanResult}
             >
                 <View style={styles.buttonContainer}>
-                    {Platform.OS === "android" ? <StatusBar hidden /> : null}
                     <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
-                        <MaterialIcons name="flip-camera-android" size={24} color="white" />
+                        <MaterialIcons name="flip-camera-android" size={24} color="white"/>
                     </TouchableOpacity>
-
+                    <TouchableOpacity style={styles.button} onPress={handleToggleCamera}>
+                        <Feather name="camera-off" size={24} color="white" />
+                    </TouchableOpacity>
                 </View>
-            </CameraView>
-            {qrResult && <Text style={{backgroundColor: '#fff'}}>{qrResult}</Text>}
+            </CameraView> :
+                <View style={{ alignItems: 'center',}}>
+                    {resultInfo &&
+                        <View>
+                            <Text>{resultInfo.name}</Text>
+                            <Text>Number of checkpoints: {resultInfo.numberOfCheckpoints}</Text>
+                            <Text>Created at: {resultInfo.createdAt?.toLocaleString() && ''}</Text>
+                            <TouchableOpacity style={styles.touchableButton} onPress={backToMaps}>
+                                <Text style={styles.touchableText}>Start Game</Text>
+                            </TouchableOpacity>
+                        </View>
+                    }
+
+                    <Spacer size={10} />
+                    <TouchableOpacity style={styles.touchableButton} onPress={handleToggleCamera}>
+                        <Text style={styles.touchableText}>Scan</Text>
+                    </TouchableOpacity>
+                </View>
+            }
         </View>
     );
 }
@@ -65,6 +132,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         justifyContent: 'center',
+
     },
     message: {
         textAlign: 'center',
@@ -88,5 +156,21 @@ const styles = StyleSheet.create({
         fontSize: 24,
         fontWeight: 'bold',
         color: 'white',
+    },
+    touchableButton: {
+        alignItems: 'center',
+        padding: 10,
+        marginVertical: 5,
+        borderRadius: 15,
+        borderWidth: 1,
+        backgroundColor: '#0569FF',
+        borderColor: '#0569FF',
+        width: 180,
+    },
+    touchableText: {
+        fontSize: 17,
+        lineHeight: 24,
+        fontWeight: '600',
+        color: '#fff',
     },
 });

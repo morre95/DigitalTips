@@ -46,7 +46,6 @@ const NextRoutesOverlay: FC<Props> = ({ currentRoutes, onFinish, onClose }) => {
     const [routeCity, setRouteCity] = useState<string>('')
     const [routeDescription, setRouteDescription] = useState<string>('')
 
-    const [qrCodeName, setQrCodeName] = useState<string>('')
     const [showNext, setShowNext] = useState<boolean>(false);
 
     const [nameError, setNameError] = useState<string | null>(null);
@@ -117,7 +116,6 @@ const NextRoutesOverlay: FC<Props> = ({ currentRoutes, onFinish, onClose }) => {
             Alert.alert('Something went wrong', response.error as string);
         } else {
             //Alert.alert('The route is now saved')
-            setQrCodeName(routeName);
             setQrCodeValue({name: routeName, routeId: response.routId});
             setShowNext(true);
         }
@@ -130,7 +128,8 @@ const NextRoutesOverlay: FC<Props> = ({ currentRoutes, onFinish, onClose }) => {
     }
 
     const copyToClipboard = async () => {
-        await Clipboard.setStringAsync(qrCodeName);
+        if (qrCodeValue)
+        await Clipboard.setStringAsync(qrCodeValue.name);
     }
 
     const getCitys= () => {
@@ -202,7 +201,7 @@ const NextRoutesOverlay: FC<Props> = ({ currentRoutes, onFinish, onClose }) => {
                     <Text>Your route is published!!!</Text>
                     <Text>{"\n"}</Text>
                     <View style={styles.row}>
-                        <Text style={{marginTop: 15}}>{qrCodeName} </Text>
+                        <Text style={{marginTop: 15}}>{qrCodeValue?.name} </Text>
                         <FontAwesome6.Button
                             name="copy"
                             backgroundColor={"transparent"}
