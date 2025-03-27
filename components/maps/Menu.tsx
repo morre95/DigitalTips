@@ -150,13 +150,13 @@ export const MenuTextItem = ({ text, onPress, closeModal }: IMenuTextItemProps) 
     );
 };
 
-interface IMenuItemProps {
+interface IMenuChildrenItemProps {
     onPress: () => void;
     closeModal?: () => void;
     children: React.ReactNode;
 }
 
-export const MenuItemWithChildren = ({ onPress, closeModal, children }: IMenuItemProps) => {
+export const MenuItemWithChildren = ({ onPress, closeModal, children }: IMenuChildrenItemProps) => {
     const handleOnPress = () => {
         onPress();
         if (closeModal) closeModal();
@@ -173,16 +173,12 @@ const styles = StyleSheet.create({
     modalWrapper: {
         ...StyleSheet.absoluteFillObject,
         backgroundColor: 'rgba(0,0,0,0.3)',
-        /*flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',*/
     },
     activeSection: {
         margin: 20,
         backgroundColor: 'white',
         borderRadius: 20,
         padding: 35,
-        alignItems: 'center',
         shadowColor: '#000',
         shadowOffset: {
             width: 0,

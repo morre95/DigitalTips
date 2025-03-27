@@ -175,12 +175,7 @@ const MapsComponent = () => {
     return (
         <View style={styles.container}>
             <FlashMessage ref={flashMessageRef} />
-            <Menu trigger={<Feather name="menu" size={44} color="black" />} bottomRight>
-                <MenuTextItem text={showNextCheckpoint ? 'Show Checkpoints Flags only':'Next Checkpoint'} onPress={handleNextCheckpoint} />
-                <MenuTextItem text={'Reset the game'} onPress={handleResetGame} />
-                <MenuTextItem text={'Restart previous game'} onPress={handleRestartGame} />
-                <MenuTextItem text={'Qr Code Reader'} onPress={handleQrReader} />
-            </Menu>
+
             <MapView
                 provider={PROVIDER_GOOGLE}
                 style={styles.map}
@@ -238,6 +233,13 @@ const MapsComponent = () => {
                 question={question.question}
                 onAnswerSelected={(isCorrect) => handleAnswerSelected(isCorrect, question.checkPointId)}
             />}
+
+            <Menu trigger={<Feather name="menu" size={44} color="black" />} bottomRight>
+                <MenuTextItem text={showNextCheckpoint ? 'Show Checkpoints Flags only':'Next Checkpoint'} onPress={handleNextCheckpoint} />
+                <MenuTextItem text={'Reset the game'} onPress={handleResetGame} />
+                <MenuTextItem text={'Restart previous game'} onPress={handleRestartGame} />
+                <MenuTextItem text={'Qr Code Reader'} onPress={handleQrReader} />
+            </Menu>
         </View>
     )
 }

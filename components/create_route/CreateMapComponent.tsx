@@ -328,6 +328,26 @@ export function CreateMapComponent() {
                     )
                 )}
             </MapView>
+
+            <Menu trigger={<Feather name="menu" size={44} color="black" />} bottomLeft>
+                <MenuTextItem text={'Help'} onPress={handleHelp} />
+                <MenuTextItem text={'Generate random Checkpoints'} onPress={generateRandomCheckpoints} />
+                <MenuItemWithChildren onPress={() => console.log('Meny item med text länk')}>
+                    <Text style={{fontSize: 24, fontWeight: 900, fontStyle: 'italic', borderBottomWidth: 1, }}>En text länk</Text>
+                </MenuItemWithChildren>
+                <MenuItemWithChildren onPress={() => console.log('Meny med barn')}>
+                    <View style={{ alignItems: 'center',
+                        padding: 10,
+                        marginVertical: 5,
+                        borderRadius: 15,
+                        borderWidth: 5,
+                        backgroundColor: '#c105ff',
+                        borderColor: '#ff8000', }}>
+                        <Text style={{color: '#000', fontSize: 24, fontWeight: 900, fontStyle: 'italic'}}>Test med barn</Text>
+                    </View>
+                </MenuItemWithChildren>
+            </Menu>
+
             <AddQuestion
                 visible={showAddQuestion}
                 onCancel={handelCancelAddQuestion}
@@ -368,21 +388,7 @@ export function CreateMapComponent() {
                 currentCoordinate={{ latitude: currentRegion.latitude, longitude: currentRegion.longitude }}
             />
 
-            <Menu trigger={<Feather name="menu" size={44} color="black" />} bottomLeft>
-                <MenuTextItem text={'Help'} onPress={handleHelp} />
-                <MenuTextItem text={'Generate random sheckpoints'} onPress={generateRandomCheckpoints} />
-                <MenuItemWithChildren onPress={() => console.log('Meny med barn')}>
-                    <View style={{ alignItems: 'center',
-                        padding: 10,
-                        marginVertical: 5,
-                        borderRadius: 15,
-                        borderWidth: 5,
-                        backgroundColor: '#c105ff',
-                        borderColor: '#ff8000', }}>
-                        <Text style={{color: '#000', fontSize: 24, fontWeight: 900, fontStyle: 'italic'}}>Test med barn</Text>
-                    </View>
-                </MenuItemWithChildren>
-            </Menu>
+
             <Loader loading={loading} />
         </View>
     )
