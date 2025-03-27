@@ -1,10 +1,10 @@
-import MapView, { Marker, PROVIDER_GOOGLE, Region } from 'react-native-maps';
+import MapView, {Marker, PROVIDER_GOOGLE, Region} from 'react-native-maps';
 import React, {useEffect, useRef, useState} from "react";
-import {StyleSheet, View, Alert} from "react-native";
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import {MarkerData, RouteData, Checkpoint, Answer} from "@/interfaces/common";
-import { getCity } from "@/functions/request";
-import { useCreateDispatch } from "@/components/create_route/CreateContext";
+import {Alert, StyleSheet, View} from "react-native";
+import {useLocalSearchParams, useNavigation, useRouter} from 'expo-router';
+import {Answer, Checkpoint, MarkerData, RouteData} from "@/interfaces/common";
+import {getCity} from "@/functions/request";
+import {useCreateDispatch} from "@/components/create_route/CreateContext";
 import CircleMarker from "@/components/create_route/CircleMarker";
 import AddQuestion from "@/components/create_route/AddQuestion";
 import {ButtonsComponent} from "@/components/create_route/ButtonsComponent";
@@ -37,7 +37,31 @@ export function CreateMapComponent() {
     const [loading, setLoading] = useState(false);
     const {routeId} = useLocalSearchParams()
     const router = useRouter();
+    const navigation = useNavigation();
     const [JWT_token, setJWT_token] = useState<string>();
+
+    // FIXME: det verar inte som detta fungerar eftersom Tabs.Screen används.
+    // TBD: Navigering kanske inte behövs förhindras om Tabs.Screen används?
+    useEffect(() => {
+        return navigation.addListener('beforeRemove', (event) => {
+            if (state.checkpoints.length > 0) {
+                Alert.alert(
+                    'Unsaved route',
+                    'This rout is unsaved.',
+                    [
+                        {
+                            text: 'Cancel',
+                            onPress: () => event.preventDefault(),
+                            style: 'cancel'
+                        }, {
+                            text: 'Move along'
+                        }
+                    ]
+                );
+            }
+        });
+    }, [navigation, state.checkpoints]);
+
 
     useEffect(() => {
         (async () => {
