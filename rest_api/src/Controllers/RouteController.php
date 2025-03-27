@@ -18,12 +18,21 @@ class RouteController
 
         $this->logger->info("Add routes: " . var_export($json,true));
 
-        $sql_routes = "INSERT INTO routes (owner, name, city, description, is_private, in_order)
-                       VALUES (:owner, :name, :city, :description, :is_private, :in_order)";
+        $sql_routes = "INSERT INTO routes (owner, name, city, description, is_private, in_order, start_at, end_at)
+                       VALUES (:owner, :name, :city, :description, :is_private, :in_order, :start_at, :end_at)";
         try {
             $db = new Db();
             $pdo = $db->connect();
             $statement = $pdo->prepare($sql_routes);
+
+            $start_at = null;
+            $end_at = null;
+            if ($json["startAt"] !== null) {
+                $start_at = date("Y-m-d H:i:s", strtotime($json["startAt"]));
+            }
+            if ($json["endAt"] !== null) {
+                $end_at = date("Y-m-d H:i:s", strtotime($json["endAt"]));
+            }
 
             $statement->execute([
                 ':owner' => $json["owner"],
@@ -32,6 +41,8 @@ class RouteController
                 ':description' => $json["description"],
                 ':is_private' => $json["isPrivate"],
                 ':in_order' => $json["inOrder"],
+                ':start_at' => $start_at,
+                ':end_at' => $end_at,
             ]);
             $route_id = $pdo->lastInsertId();
 

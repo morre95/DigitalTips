@@ -23,7 +23,7 @@ const AreRoutesPrivateAndInOrder = ({inputChanged}: IProps) => {
                     onValueChange={setInOrderChecked}
                     color={isInOrderChecked ? '#4630EB' : undefined}
                 />
-                <Text style={styles.paragraph}>The Checkpoints answers needs to be answered in order</Text>
+                <Text style={styles.paragraph}>The Checkpoints is answered in order</Text>
             </View>
             <View style={styles.row}>
                 <Checkbox
@@ -40,7 +40,6 @@ const AreRoutesPrivateAndInOrder = ({inputChanged}: IProps) => {
 
 const styles = StyleSheet.create({
     container: {
-        marginHorizontal: 5,
         marginVertical: 10,
     },
     row: {

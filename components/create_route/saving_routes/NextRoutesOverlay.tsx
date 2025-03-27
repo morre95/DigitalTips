@@ -12,6 +12,7 @@ import Spacer from '../../Spacer'
 import {getPlayerId}  from '@/functions/common'
 import Loader from "@/components/Loader";
 import AreRoutesPrivateAndInOrder from "./AreRoutesPrivateAndInOrder";
+import SetStartAndEndTime from "./SetStartAndEndTime";
 
 const { width: layoutWidth} = Dimensions.get("window");
 
@@ -30,6 +31,8 @@ interface SendData {
     description: string;
     isPrivate: boolean;
     inOrder: boolean;
+    startAt: Date | null;
+    endAt: Date | null;
 }
 
 interface Props {
@@ -52,6 +55,9 @@ const NextRoutesOverlay: FC<Props> = ({ currentRoutes, onFinish, onClose }) => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
     const refPrivateInorder = useRef<{isPrivate: boolean, isInOrder: boolean}>({isPrivate: false, isInOrder: false})
+
+    const [startTime, setStartTime] = useState<Date | null>(null);
+    const [endTime, setEndTime] = useState<Date | null>(null);
 
 
     const validateName = (): boolean => {
@@ -99,25 +105,27 @@ const NextRoutesOverlay: FC<Props> = ({ currentRoutes, onFinish, onClose }) => {
             city: routeCity,
             description: routeDescription,
             isPrivate: refPrivateInorder.current.isPrivate,
-            inOrder: refPrivateInorder.current.isInOrder
-        }
+            inOrder: refPrivateInorder.current.isInOrder,
+            startAt: startTime,
+            endAt: endTime,
+        };
 
-        const url = '/add/routes'
-        const response = await postJson<SendData, ResponseData>(url, result)
+        const url = '/add/routes';
+        const response = await postJson<SendData, ResponseData>(url, result);
 
         if (response.error) {
-            Alert.alert('Something went wrong', response.error as string)
+            Alert.alert('Something went wrong', response.error as string);
         } else {
             //Alert.alert('The route is now saved')
-            setQrCodeName(routeName)
-            setQrCodeValue({name: routeName, routeId: response.routId})
-            setShowNext(true)
+            setQrCodeName(routeName);
+            setQrCodeValue({name: routeName, routeId: response.routId});
+            setShowNext(true);
         }
-        setRouteCity('')
-        setRouteDescription('')
-        setRouteName('')
+        setRouteCity('');
+        setRouteDescription('');
+        setRouteName('');
 
-        onFinish()
+        onFinish();
         setIsLoading(false);
     }
 
@@ -126,9 +134,9 @@ const NextRoutesOverlay: FC<Props> = ({ currentRoutes, onFinish, onClose }) => {
     }
 
     const getCitys= () => {
-        const result = currentRoutes.map(route => route.marker.city)
-        const sorted = result.sort()
-        if (sorted.length <= 0) sorted.push('Unknown')
+        const result = currentRoutes.map(route => route.marker.city);
+        const sorted = result.sort();
+        if (sorted.length <= 0) sorted.push('Unknown');
 
         return [...new Set(sorted)];
     }
@@ -176,6 +184,10 @@ const NextRoutesOverlay: FC<Props> = ({ currentRoutes, onFinish, onClose }) => {
                         onChangeText={handleDescriptionChange}
                     />
                     <Text style={{color: "red"}}>{descriptionError}</Text>
+                    <SetStartAndEndTime
+                        onStartDateChanged={setStartTime}
+                        onEndDateChanged={setEndTime}
+                    />
                     <AreRoutesPrivateAndInOrder
                         inputChanged={handlePrivateInOrderChanged}
                     />
@@ -219,7 +231,7 @@ const NextRoutesOverlay: FC<Props> = ({ currentRoutes, onFinish, onClose }) => {
 const styles = StyleSheet.create({
     container: {
         justifyContent: 'center',
-        alignItems: 'center',
+        alignItems: 'flex-start',
         position: 'absolute',
         top: 0,
         left: 0,

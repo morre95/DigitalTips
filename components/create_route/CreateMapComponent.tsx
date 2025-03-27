@@ -44,7 +44,6 @@ export function CreateMapComponent() {
             await registerOrLogin();
 
             if (globals.JWT_token) {
-                console.log('JWT token:', globals.JWT_token);
                 setJWT_token(globals.JWT_token)
             } else {
                 console.log('inte inloggad');
@@ -176,9 +175,10 @@ export function CreateMapComponent() {
     const handleDeleteAll = async () => {
         dispatch({type: 'deleteAll'})
 
-        if (JWT_token) {
+        const id = Number(routeId)
+        if (JWT_token && id > 0) {
             async function deleteApiCheckpoints(JWT_token: string): Promise<void> {
-                const id = Number(routeId)
+
                 await deleteCheckpoint(id, JWT_token)
                 router.setParams({});
             }
