@@ -132,12 +132,12 @@ const Menu = ({ trigger, children, topRight, topLeft, bottomRight, bottomLeft } 
 
 
 
-interface IMenuItemProps {
+interface IMenuTextItemProps {
     text: string;
     onPress: () => void;
     closeModal?: () => void;
 }
-export const MenuItem = ({ text, onPress, closeModal }: IMenuItemProps) => {
+export const MenuTextItem = ({ text, onPress, closeModal }: IMenuTextItemProps) => {
     const handleOnPress = () => {
         onPress();
         if (closeModal) closeModal();
@@ -149,6 +149,25 @@ export const MenuItem = ({ text, onPress, closeModal }: IMenuItemProps) => {
         </TouchableOpacity>
     );
 };
+
+interface IMenuItemProps {
+    onPress: () => void;
+    closeModal?: () => void;
+    children: React.ReactNode;
+}
+
+export const MenuItemWithChildren = ({ onPress, closeModal, children }: IMenuItemProps) => {
+    const handleOnPress = () => {
+        onPress();
+        if (closeModal) closeModal();
+    };
+
+    return (
+        <TouchableOpacity onPress={handleOnPress}>
+            {children}
+        </TouchableOpacity>
+    );
+}
 
 const styles = StyleSheet.create({
     modalWrapper: {

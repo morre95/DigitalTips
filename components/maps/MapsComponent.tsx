@@ -10,7 +10,7 @@ import Autocomplete from "./Autocomplete";
 import {getCheckpoints, SearchResponse} from "@/functions/api/Get";
 import AnswerQuestionComponent from "@/components/maps/AnswerQuestionComponent";
 import Feather from "@expo/vector-icons/Feather";
-import Menu, {MenuItem} from "@/components/maps/Menu";
+import Menu, {MenuTextItem} from "@/components/maps/Menu";
 import { useRouter } from 'expo-router';
 import {getPlayerId} from "@/functions/common";
 
@@ -175,11 +175,11 @@ const MapsComponent = () => {
     return (
         <View style={styles.container}>
             <FlashMessage ref={flashMessageRef} />
-            <Menu trigger={<Feather name="menu" size={24} color="black" />} bottomRight>
-                <MenuItem text={showNextCheckpoint ? 'Show Checkpoints Flags only':'Next Checkpoint'} onPress={handleNextCheckpoint} />
-                <MenuItem text={'Reset the game'} onPress={handleResetGame} />
-                <MenuItem text={'Restart previous game'} onPress={handleRestartGame} />
-                <MenuItem text={'Qr Code Reader'} onPress={handleQrReader} />
+            <Menu trigger={<Feather name="menu" size={44} color="black" />} bottomRight>
+                <MenuTextItem text={showNextCheckpoint ? 'Show Checkpoints Flags only':'Next Checkpoint'} onPress={handleNextCheckpoint} />
+                <MenuTextItem text={'Reset the game'} onPress={handleResetGame} />
+                <MenuTextItem text={'Restart previous game'} onPress={handleRestartGame} />
+                <MenuTextItem text={'Qr Code Reader'} onPress={handleQrReader} />
             </Menu>
             <MapView
                 provider={PROVIDER_GOOGLE}

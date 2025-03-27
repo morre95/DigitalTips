@@ -1,6 +1,6 @@
 import MapView, {Marker, PROVIDER_GOOGLE, Region} from 'react-native-maps';
 import React, {useEffect, useRef, useState} from "react";
-import {Alert, StyleSheet, View} from "react-native";
+import {Alert, StyleSheet, Text, View} from "react-native";
 import {useLocalSearchParams, useNavigation, useRouter} from 'expo-router';
 import {Answer, Checkpoint, MarkerData, RouteData} from "@/interfaces/common";
 import {getCity} from "@/functions/request";
@@ -10,13 +10,14 @@ import AddQuestion from "@/components/create_route/AddQuestion";
 import {ButtonsComponent} from "@/components/create_route/ButtonsComponent";
 import NextRoutesOverlay from "@/components/create_route/saving_routes/NextRoutesOverlay";
 import AddQuestionFromDb from "@/components/create_route/AddQuestionFromDb";
-import HamburgerMenu from "@/components/create_route/HamburgerMenu";
 import RandomCheckPoints from "@/components/create_route/RandomCheckpoints";
 import HelpPopup from "@/components/create_route/HelpPopup";
 import Loader from "@/components/Loader";
 import {deleteCheckpoint, getCheckpoints} from "@/functions/api/Get";
 import registerOrLogin from '@/functions/registerOrLogin'
 import globals from "@/functions/globals";
+import Feather from "@expo/vector-icons/Feather";
+import Menu, {MenuItemWithChildren, MenuTextItem} from "@/components/maps/Menu";
 
 const initialRegion: Region = {
     latitude: 58.317435384,
@@ -70,10 +71,10 @@ export function CreateMapComponent() {
             if (globals.JWT_token) {
                 setJWT_token(globals.JWT_token)
             } else {
-                console.log('inte inloggad');
+                console.error('Not logged in');
             }
         })();
-    }, [])
+    }, []);
 
     useEffect(() => {
         const id = Number(routeId)
@@ -367,12 +368,21 @@ export function CreateMapComponent() {
                 currentCoordinate={{ latitude: currentRegion.latitude, longitude: currentRegion.longitude }}
             />
 
-            <HamburgerMenu
-                /*visible={showHamburgerMenu}
-                onClose={toggleHamburgerMenu}*/
-                onHelp={handleHelp}
-                onGenerateRandomCheckpoints={generateRandomCheckpoints}
-            />
+            <Menu trigger={<Feather name="menu" size={44} color="black" />} bottomLeft>
+                <MenuTextItem text={'Help'} onPress={handleHelp} />
+                <MenuTextItem text={'Generate random sheckpoints'} onPress={generateRandomCheckpoints} />
+                <MenuItemWithChildren onPress={() => console.log('Meny med barn')}>
+                    <View style={{ alignItems: 'center',
+                        padding: 10,
+                        marginVertical: 5,
+                        borderRadius: 15,
+                        borderWidth: 5,
+                        backgroundColor: '#c105ff',
+                        borderColor: '#ff8000', }}>
+                        <Text style={{color: '#000', fontSize: 24, fontWeight: 900, fontStyle: 'italic'}}>Test med barn</Text>
+                    </View>
+                </MenuItemWithChildren>
+            </Menu>
             <Loader loading={loading} />
         </View>
     )
