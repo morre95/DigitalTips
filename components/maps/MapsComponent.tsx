@@ -67,6 +67,14 @@ const MapsComponent = () => {
     }
 
     const handleAutoOnSelect = async (item: SearchResponse) => {
+        const DispatchCheckpoints = async (routeId: number) => {
+            type Markers = {
+                checkpoints: Checkpoint[];
+            }
+            const markers = await getCheckpoints<Markers>(routeId)
+            dispatch(() => markers.checkpoints);
+        }
+
         setShowSearchButton(true)
         const playerId = await getPlayerId()
         const isAdmin = Number(item.owner) === playerId
@@ -76,7 +84,7 @@ const MapsComponent = () => {
                 'Do you want to start or edit', [
                 {
                     text: 'Start Game',
-                    //onPress: () => console.log('Ask me later pressed'),
+                    onPress: async () => await DispatchCheckpoints(item.routeId),
                 },
                 {
                     text: 'Cancel',
@@ -88,17 +96,7 @@ const MapsComponent = () => {
                     }},
             ])
         } else {
-            type Markers = {
-                checkpoints: Checkpoint[];
-            }
-            const markers = await getCheckpoints<Markers>(item.routeId)
-
-            /*const checkpoints = markers.checkpoints.map(checkpoint => {
-                checkpoint.question.answers = [...checkpoint.question.answers].sort(() => Math.random() - 0.5);
-                return checkpoint;
-            });*/
-
-            dispatch(() => markers.checkpoints);
+            await DispatchCheckpoints(item.routeId);
         }
     }
 
