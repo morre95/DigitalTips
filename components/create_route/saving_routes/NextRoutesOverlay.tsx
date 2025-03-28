@@ -3,7 +3,7 @@ import { QR_codeIcon } from '@/assets/images';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import * as Clipboard from 'expo-clipboard';
 import React, { FC, useState, useRef } from 'react';
-import {Alert, Button, Dimensions, StyleSheet, Text, TextInput, View} from 'react-native';
+import {Alert, Button, Dimensions, StyleSheet, Text, TextInput, View, ScrollView} from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import { ButtonsComponent } from '../ButtonsComponent';
 import {QrCodeType, RouteData} from '@/interfaces/common';
@@ -160,6 +160,7 @@ const NextRoutesOverlay: FC<Props> = ({ currentRoutes, onFinish, onClose }) => {
 
     return (
         <View style={styles.container}>
+            <ScrollView>
             <Loader loading={isLoading} />
             {!showNext ? (
                 <>
@@ -223,6 +224,7 @@ const NextRoutesOverlay: FC<Props> = ({ currentRoutes, onFinish, onClose }) => {
                     <Button title={'Close'} onPress={() => onClose()}/>
                 </>
             )}
+            </ScrollView>
         </View>
     )
 };
