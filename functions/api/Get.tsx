@@ -51,6 +51,8 @@ interface SearchResponse {
     isPrivate: boolean;
     inOrder: boolean;
     owner: number;
+    startAt?: Date;
+    endAt?: Date;
 }
 
 async function getSearch(keyword: string): Promise<SearchResponse[]|null> {
@@ -71,6 +73,8 @@ async function getSearch(keyword: string): Promise<SearchResponse[]|null> {
         is_private: boolean;
         in_order: boolean;
         owner: number;
+        start_at?: Date;
+        end_at?: Date;
     }
 
     const response = await getJson<IResp>(`search/routes/${encodeURIComponent(keyword)}`)
@@ -88,6 +92,8 @@ async function getSearch(keyword: string): Promise<SearchResponse[]|null> {
             isPrivate: r.is_private,
             inOrder: r.in_order,
             owner: Number(r.owner),
+            startAt: r.start_at,
+            endAt: r.end_at,
         }
     ))
 }

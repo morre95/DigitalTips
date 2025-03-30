@@ -2,50 +2,9 @@ import React, {useEffect, useState} from 'react';
 import {View, Text, StyleSheet, FlatList} from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import SearchBar from "@/components/SearchBar";
-import {QR_codeIcon} from "@/assets/images";
-import QRCode from "react-native-qrcode-svg";
-
-
-function addDays(date: Date, days: number): Date {
-    date.setDate(date.getDate() + days);
-    return date;
-}
-
-interface IData {
-    id: string;
-    name: string;
-    owner: number;
-    city: string;
-    description: string;
-    date: Date;
-}
-
-const DATA : IData[] = [
-    {
-        id: '1',
-        owner: 0,
-        name: 'First Item',
-        city: 'London',
-        description: 'First Item Description',
-        date: new Date(),
-    },
-    {
-        id: '2',
-        owner: 1,
-        name: 'Second Item',
-        city: 'Stockholm',
-        description: 'Second Item Description',
-        date: addDays(new Date(), 2)
-    },
-    {
-        id: '3',
-        owner: 2,
-        name: 'Third Item',
-        city: 'Uddevalla',
-        description: 'Third Item Description',
-        date: addDays(new Date(), -35),
-    },
-];
+import {getSearch, SearchResponse} from "@/functions/api/Get";
+import {getPlayerId} from "@/functions/common";
+import QrCodeModal from "@/components/search/QrCodeModal";
 
 interface IProps {
 
@@ -55,66 +14,92 @@ const Details = ({}: IProps) => {
     const { details } = useLocalSearchParams<{details: string}>();
     const [searchPhrase, setSearchPhrase] = useState<string>('');
     const [clicked, setClicked] = useState<boolean>(false);
+    const [filteredData, setFilteredData] = useState<SearchResponse[]>([]);
+    const [appUserId, setAppUserId] = useState<number | null>(null);
+
+    useEffect(() => {
+        (async () => {
+            setAppUserId(await getPlayerId());
+        })();
+    }, []);
 
     useEffect(() => {
         setSearchPhrase(details);
     }, [details]);
+
+    const onSearchPhraseChange = async (text: string) => {
+        setSearchPhrase(text);
+        if (text.length > 2) {
+            const filtered = await getSearch(text);
+            if (filtered) {
+                console.log(filtered);
+                setFilteredData(filtered);
+            }
+        } else {
+            setFilteredData([]);
+        }
+    }
 
     return (
         <View style={styles.container}>
             <SearchBar
                 clicked={clicked}
                 searchPhrase={searchPhrase}
-                setSearchPhrase={setSearchPhrase}
-                setClicked={setClicked}
+                onSearchPhraseChange={onSearchPhraseChange}
+                onClick={setClicked}
             />
             <FlatList
-                data={DATA}
-                renderItem={({item}) => <Item id={item.id} name={item.name} owner={item.owner} city={item.city} description={item.description} date={item.date} />}
-                keyExtractor={item => item.id}
+                data={filteredData}
+                renderItem={({item}) =>
+                    <Item
+                        routeId={item.routeId}
+                        name={item.name}
+                        city={item.city}
+                        description={item.description}
+                        date={item.date}
+                        isAdmin={Number(item.owner) === appUserId}
+                        startAt={item.startAt}
+                        endAt={item.endAt}
+                    />}
+                keyExtractor={item => item.routeId.toString()}
             />
         </View>
     )
 }
 
 interface ItemProps {
-    id: string;
+    routeId: number;
     name: string;
-    owner: number;
     city: string;
     description: string;
     date: Date;
+    isAdmin: boolean;
+    startAt?: Date;
+    endAt?: Date;
 }
-const Item = ({id, name, owner, city, description, date}: ItemProps) => {
-    const users = [
-        'Kalle',
-        'Walle',
-        'Skalle'
-    ]
+const Item = ({routeId, name, city, description, date, isAdmin, startAt, endAt}: ItemProps) => {
+    const [showQrCode, setShowQrCode] = useState<boolean>(false);
 
-    const padStart = (value: number): string =>
-        value.toString().padStart(2, '0');
-    const formatDate = (date: Date): string =>
-        `${date.getFullYear()}-${padStart(date.getMonth() + 1)}-${padStart(date.getDate())} ` +
-        `${padStart(date.getHours())}:${padStart(date.getMinutes())}`
     return (
         <View style={styles.item}>
             <Text style={styles.name}>{name}</Text>
-            <Text>Creator: {users[owner]}</Text>
+            <Text>Creator: {isAdmin ? 'Yes' : 'No'}</Text>
             <Text>{description}</Text>
             <Text>{city}</Text>
-            <Text>{formatDate(date)}</Text>
-            <QRCode
-                value={JSON.stringify({name: name, routeId: id})}
-                size={150}
-                logo={{uri: QR_codeIcon}}
-                logoSize={40}
-                logoBackgroundColor='transparent'
-                logoBorderRadius={5}
+            <Text>Starts: {startAt?.toLocaleString()}</Text>
+            <Text>Ends: {endAt?.toLocaleString()}</Text>
+            <Text>Created at: {date.toLocaleString()}</Text>
+            <QrCodeModal
+                routeId={routeId}
+                name={name}
+                visible={showQrCode}
+                close={() => setShowQrCode(false)}
+                open={() => setShowQrCode(true)}
             />
         </View>
     );
 }
+
 
 const styles = StyleSheet.create({
     container: {

@@ -6,11 +6,11 @@ import { Feather, Entypo } from "@expo/vector-icons";
 interface IProps {
     clicked: boolean;
     searchPhrase: string;
-    setSearchPhrase: (searchPhrase: string) => void;
-    setClicked: (clicked: boolean) => void;
+    onSearchPhraseChange: (searchPhrase: string) => void;
+    onClick: (clicked: boolean) => void;
 }
 
-const SearchBar = ({clicked, searchPhrase, setSearchPhrase, setClicked}: IProps) => {
+const SearchBar = ({clicked, searchPhrase, onSearchPhraseChange, onClick}: IProps) => {
     const textInputRef = useRef<TextInput>(null);
     return (
         <View style={styles.container}>
@@ -34,12 +34,12 @@ const SearchBar = ({clicked, searchPhrase, setSearchPhrase, setClicked}: IProps)
                     style={styles.input}
                     placeholder="Search"
                     value={searchPhrase}
-                    onChangeText={setSearchPhrase}
+                    onChangeText={onSearchPhraseChange}
                     onFocus={() => {
-                        setClicked(true);
+                        onClick(true);
                     }}
                     onBlur={() => {
-                        setClicked(false);
+                        onClick(false);
                     }}
                 />
                 {clicked && (
@@ -49,7 +49,7 @@ const SearchBar = ({clicked, searchPhrase, setSearchPhrase, setClicked}: IProps)
                         color="black"
                         style={styles.deleteIcon}
                         onPress={() => {
-                        setSearchPhrase("")
+                        onSearchPhraseChange("")
                     }}/>
                 )}
             </View>
@@ -57,7 +57,7 @@ const SearchBar = ({clicked, searchPhrase, setSearchPhrase, setClicked}: IProps)
                 <TouchableOpacity
                     onPress={() => {
                         Keyboard.dismiss();
-                        setClicked(false);
+                        onClick(false);
                     }}
                 >
                     <Text style={styles.cancelText}>Cancel</Text>

@@ -114,6 +114,8 @@ class RouteController
                     `description`, 
                     IF(`is_private`, 'true', 'false') `is_private`, 
                     IF(`in_order`, 'true', 'false') `in_order`, 
+                    `start_at`, 
+                    `end_at`,
                     `created_at`, 
                     `updated_at` 
                 FROM `routes` 

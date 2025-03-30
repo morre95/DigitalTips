@@ -30,8 +30,10 @@ const Autocomplete: React.FC<IAutocompleteProps> = ({ onSelect, onSubmit, placeh
         setQuery(text);
         if (text.length > 2) {
             const filtered = await getSearch(text)
-            if (filtered !== null)
-            setFilteredData(filtered);
+            if (filtered) {
+                //setFilteredData(filtered.filter(route => !route.isPrivate));
+                setFilteredData(filtered);
+            }
         } else {
             setFilteredData([]);
         }
@@ -100,6 +102,8 @@ const Autocomplete: React.FC<IAutocompleteProps> = ({ onSelect, onSubmit, placeh
                         inOrder={item.inOrder}
                         isPrivate={item.isPrivate}
                         owner={item.owner}
+                        endAt={item.endAt}
+                        startAt={item.startAt}
                     />
                 )}
             />
