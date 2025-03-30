@@ -329,7 +329,7 @@ export function CreateMapComponent() {
                 )}
             </MapView>
 
-            <Menu trigger={<Feather name="menu" size={44} color="black" />} bottomLeft>
+            <Menu trigger={<Feather name="menu" size={44} color="black" />} bottomRight>
                 <MenuTextItem text={'Help'} onPress={handleHelp} />
                 <MenuTextItem text={'Generate random Checkpoints'} onPress={generateRandomCheckpoints} />
                 <MenuItemWithChildren onPress={() => console.log('Meny item med text länk')}>
