@@ -2,6 +2,8 @@ import React, {useEffect, useState} from 'react';
 import {View, Text, StyleSheet, FlatList} from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import SearchBar from "@/components/SearchBar";
+import {QR_codeIcon} from "@/assets/images";
+import QRCode from "react-native-qrcode-svg";
 
 
 function addDays(date: Date, days: number): Date {
@@ -68,7 +70,7 @@ const Details = ({}: IProps) => {
             />
             <FlatList
                 data={DATA}
-                renderItem={({item}) => <Item name={item.name} owner={item.owner} city={item.city} description={item.description} date={item.date} />}
+                renderItem={({item}) => <Item id={item.id} name={item.name} owner={item.owner} city={item.city} description={item.description} date={item.date} />}
                 keyExtractor={item => item.id}
             />
         </View>
@@ -76,13 +78,14 @@ const Details = ({}: IProps) => {
 }
 
 interface ItemProps {
+    id: string;
     name: string;
     owner: number;
     city: string;
     description: string;
     date: Date;
 }
-const Item = ({name, owner, city, description, date}: ItemProps) => {
+const Item = ({id, name, owner, city, description, date}: ItemProps) => {
     const users = [
         'Kalle',
         'Walle',
@@ -101,6 +104,14 @@ const Item = ({name, owner, city, description, date}: ItemProps) => {
             <Text>{description}</Text>
             <Text>{city}</Text>
             <Text>{formatDate(date)}</Text>
+            <QRCode
+                value={JSON.stringify({name: name, routeId: id})}
+                size={150}
+                logo={{uri: QR_codeIcon}}
+                logoSize={40}
+                logoBackgroundColor='transparent'
+                logoBorderRadius={5}
+            />
         </View>
     );
 }
