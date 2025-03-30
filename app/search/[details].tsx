@@ -1,6 +1,7 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {View, Text, StyleSheet, FlatList} from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
+import SearchBar from "@/components/SearchBar";
 
 
 function addDays(date: Date, days: number): Date {
@@ -50,9 +51,21 @@ interface IProps {
 
 const Details = ({}: IProps) => {
     const { details } = useLocalSearchParams<{details: string}>();
+    const [searchPhrase, setSearchPhrase] = useState<string>('');
+    const [clicked, setClicked] = useState<boolean>(false);
+
+    useEffect(() => {
+        setSearchPhrase(details);
+    }, [details]);
+
     return (
         <View style={styles.container}>
-            <Text>Your search: <Text style={styles.details}>{details}</Text></Text>
+            <SearchBar
+                clicked={clicked}
+                searchPhrase={searchPhrase}
+                setSearchPhrase={setSearchPhrase}
+                setClicked={setClicked}
+            />
             <FlatList
                 data={DATA}
                 renderItem={({item}) => <Item name={item.name} owner={item.owner} city={item.city} description={item.description} date={item.date} />}
