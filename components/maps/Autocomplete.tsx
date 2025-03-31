@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {View, TextInput, FlatList, Text, TouchableOpacity, StyleSheet} from 'react-native';
+import {View, FlatList, Text, TouchableOpacity, StyleSheet} from 'react-native';
 import {getSearch, SearchResponse} from '@/functions/api/Get'
 
 import Tooltip, {Position} from "@/components/Tooltip";
@@ -12,10 +12,9 @@ import SearchBar from "@/components/SearchBar";
 interface IAutocompleteProps {
     onSelect: (item: SearchResponse) => void;
     onSubmit: (item: string) => void;
-    placeholder?: string;
 }
 
-const Autocomplete: React.FC<IAutocompleteProps> = ({ onSelect, onSubmit, placeholder = ''  }) => {
+const Autocomplete: React.FC<IAutocompleteProps> = ({ onSelect, onSubmit }) => {
     const [query, setQuery] = useState('');
     const [filteredData, setFilteredData] = useState<SearchResponse[]>([]);
     const [isFocused, setIsFocused] = useState(false);
@@ -32,8 +31,7 @@ const Autocomplete: React.FC<IAutocompleteProps> = ({ onSelect, onSubmit, placeh
         if (text.length > 2) {
             const filtered = await getSearch(text)
             if (filtered) {
-                //setFilteredData(filtered.filter(route => !route.isPrivate));
-                setFilteredData(filtered);
+                setFilteredData(filtered.filter(route => !route.isPrivate));
             }
         } else {
             setFilteredData([]);
@@ -80,15 +78,6 @@ const Autocomplete: React.FC<IAutocompleteProps> = ({ onSelect, onSubmit, placeh
 
     return (
         <View style={styles.container}>
-            {/*<TextInput
-                style={isFocused ? styles.fokusInput : styles.input}
-                value={query}
-                onChangeText={handleInputChange}
-                placeholder={placeholder}
-                onBlur={() => setIsFocused(false)}
-                onFocus={() => setIsFocused(true)}
-                onSubmitEditing={handleOnSubmit}
-            />*/}
             <SearchBar
                 inFokus={isFocused}
                 searchPhrase={query}
@@ -126,23 +115,6 @@ const styles = StyleSheet.create({
         left: 0,
         width: '95%',
         zIndex: 1100
-    },
-    input: {
-        height: 40,
-        width: '100%',
-        margin: 12,
-        marginBottom: 5,
-        borderWidth: 1,
-        borderRadius: 20,
-        padding: 10,
-    },
-    fokusInput: {
-        height: 40,
-        width: '100%',
-        margin: 12,
-        borderWidth: 2,
-        borderRadius: 14,
-        padding: 10,
     },
     item: {
         flex: 1,
