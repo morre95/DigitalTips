@@ -12,9 +12,10 @@ import SearchBar from "@/components/SearchBar";
 interface IAutocompleteProps {
     onSelect: (item: SearchResponse) => void;
     onSubmit: (item: string) => void;
+    onFokusChanged?: (isFocused: boolean) => void;
 }
 
-const Autocomplete: React.FC<IAutocompleteProps> = ({ onSelect, onSubmit }) => {
+const Autocomplete: React.FC<IAutocompleteProps> = ({ onSelect, onSubmit, onFokusChanged }) => {
     const [query, setQuery] = useState('');
     const [filteredData, setFilteredData] = useState<SearchResponse[]>([]);
     const [isFocused, setIsFocused] = useState(false);
@@ -49,6 +50,12 @@ const Autocomplete: React.FC<IAutocompleteProps> = ({ onSelect, onSubmit }) => {
         onSubmit(query);
     };
 
+    const handelFokusChange = (isFocus: boolean) => {
+        setIsFocused(isFocus)
+
+        if (onFokusChanged) onFokusChanged(isFocus)
+    }
+
     const Item = (item: SearchResponse) => {
         if (item.isPrivate) return null;
 
@@ -82,7 +89,7 @@ const Autocomplete: React.FC<IAutocompleteProps> = ({ onSelect, onSubmit }) => {
                 inFokus={isFocused}
                 searchPhrase={query}
                 onSearchPhraseChange={handleInputChange}
-                onFokusChange={setIsFocused}
+                onFokusChange={handelFokusChange}
                 onSubmit={handleOnSubmit}
             />
             <FlatList

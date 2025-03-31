@@ -242,6 +242,7 @@ const MapsComponent = () => {
                 <Autocomplete
                     onSelect={handleAutoOnSelect}
                     onSubmit={handleAutoOnSubmit}
+                    onFokusChanged={isFokus => setShowSearchButton(!isFokus)}
                 />
             ) }
 
