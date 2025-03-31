@@ -5,6 +5,7 @@ import SearchBar from "@/components/SearchBar";
 import {getSearch, SearchResponse} from "@/functions/api/Get";
 import {getPlayerId} from "@/functions/common";
 import QrCodeModal from "@/components/search/QrCodeModal";
+import SearchSettings from "@/components/search/SearchSettings"
 
 interface IProps {
 
@@ -13,7 +14,7 @@ interface IProps {
 const Details = ({}: IProps) => {
     const { details } = useLocalSearchParams<{details: string}>();
     const [searchPhrase, setSearchPhrase] = useState<string>('');
-    const [clicked, setClicked] = useState<boolean>(false);
+    const [searchInFokus, setSearchInFokus] = useState<boolean>(false);
     const [filteredData, setFilteredData] = useState<SearchResponse[]>([]);
     const [appUserId, setAppUserId] = useState<number | null>(null);
 
@@ -43,11 +44,12 @@ const Details = ({}: IProps) => {
     return (
         <View style={styles.container}>
             <SearchBar
-                clicked={clicked}
+                inFokus={searchInFokus}
                 searchPhrase={searchPhrase}
                 onSearchPhraseChange={onSearchPhraseChange}
-                onClick={setClicked}
+                onFokusChange={setSearchInFokus}
             />
+            <SearchSettings />
             <FlatList
                 data={filteredData}
                 renderItem={({item}) =>

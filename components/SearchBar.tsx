@@ -4,19 +4,25 @@ import { Feather, Entypo } from "@expo/vector-icons";
 
 
 interface IProps {
-    clicked: boolean;
+    inFokus: boolean;
     searchPhrase: string;
     onSearchPhraseChange: (searchPhrase: string) => void;
-    onClick: (clicked: boolean) => void;
+    onFokusChange: (inFokus: boolean) => void;
+    onSubmit?: (text: string) => void;
 }
 
-const SearchBar = ({clicked, searchPhrase, onSearchPhraseChange, onClick}: IProps) => {
+const SearchBar = ({inFokus, searchPhrase, onSearchPhraseChange, onFokusChange, onSubmit}: IProps) => {
     const textInputRef = useRef<TextInput>(null);
+
+    const handleOnSubmit = () => {
+        if (onSubmit) onSubmit(searchPhrase)
+    }
+
     return (
         <View style={styles.container}>
             <View
                 style={
-                    clicked
+                    inFokus
                         ? styles.searchBar__clicked
                         : styles.searchBar__unClicked
                 }
@@ -36,13 +42,14 @@ const SearchBar = ({clicked, searchPhrase, onSearchPhraseChange, onClick}: IProp
                     value={searchPhrase}
                     onChangeText={onSearchPhraseChange}
                     onFocus={() => {
-                        onClick(true);
+                        onFokusChange(true);
                     }}
                     onBlur={() => {
-                        onClick(false);
+                        onFokusChange(false);
                     }}
+                    onSubmitEditing={handleOnSubmit}
                 />
-                {clicked && (
+                {inFokus && (
                     <Entypo
                         name="cross"
                         size={24}
@@ -53,11 +60,11 @@ const SearchBar = ({clicked, searchPhrase, onSearchPhraseChange, onClick}: IProp
                     }}/>
                 )}
             </View>
-            {clicked && (
+            {inFokus && (
                 <TouchableOpacity
                     onPress={() => {
                         Keyboard.dismiss();
-                        onClick(false);
+                        onFokusChange(false);
                     }}
                 >
                     <Text style={styles.cancelText}>Cancel</Text>

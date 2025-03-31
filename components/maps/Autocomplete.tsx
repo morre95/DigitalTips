@@ -6,6 +6,7 @@ import Tooltip, {Position} from "@/components/Tooltip";
 import {getPlayerId} from '@/functions/common';
 import EvilIcons from '@expo/vector-icons/EvilIcons';
 import AntDesign from '@expo/vector-icons/AntDesign';
+import SearchBar from "@/components/SearchBar";
 
 
 interface IAutocompleteProps {
@@ -79,7 +80,7 @@ const Autocomplete: React.FC<IAutocompleteProps> = ({ onSelect, onSubmit, placeh
 
     return (
         <View style={styles.container}>
-            <TextInput
+            {/*<TextInput
                 style={isFocused ? styles.fokusInput : styles.input}
                 value={query}
                 onChangeText={handleInputChange}
@@ -87,6 +88,13 @@ const Autocomplete: React.FC<IAutocompleteProps> = ({ onSelect, onSubmit, placeh
                 onBlur={() => setIsFocused(false)}
                 onFocus={() => setIsFocused(true)}
                 onSubmitEditing={handleOnSubmit}
+            />*/}
+            <SearchBar
+                inFokus={isFocused}
+                searchPhrase={query}
+                onSearchPhraseChange={handleInputChange}
+                onFokusChange={setIsFocused}
+                onSubmit={handleOnSubmit}
             />
             <FlatList
                 data={filteredData}
