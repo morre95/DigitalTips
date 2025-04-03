@@ -1,5 +1,5 @@
 import React, {useRef} from "react";
-import { StyleSheet, TextInput, View, Text, Keyboard, TouchableOpacity } from "react-native";
+import { StyleSheet, TextInput, View, Text, Keyboard, TouchableOpacity, InputModeOptions } from "react-native";
 import { Feather, Entypo } from "@expo/vector-icons";
 
 
@@ -9,9 +9,11 @@ interface IProps {
     onSearchPhraseChange: (searchPhrase: string) => void;
     onFokusChange: (inFokus: boolean) => void;
     onSubmit?: (text: string) => void;
+    placeholder?: string;
+    inputMode?: InputModeOptions;
 }
 
-const SearchBar = ({inFokus, searchPhrase, onSearchPhraseChange, onFokusChange, onSubmit}: IProps) => {
+const SearchBar = ({inFokus, searchPhrase, onSearchPhraseChange, onFokusChange, onSubmit, placeholder, inputMode}: IProps) => {
     const textInputRef = useRef<TextInput>(null);
 
     const handleOnSubmit = () => {
@@ -38,7 +40,7 @@ const SearchBar = ({inFokus, searchPhrase, onSearchPhraseChange, onFokusChange, 
                 <TextInput
                     ref={textInputRef}
                     style={styles.input}
-                    placeholder="Search"
+                    placeholder={placeholder ? placeholder : "Search"}
                     value={searchPhrase}
                     onChangeText={onSearchPhraseChange}
                     onFocus={() => {
@@ -48,6 +50,7 @@ const SearchBar = ({inFokus, searchPhrase, onSearchPhraseChange, onFokusChange, 
                         onFokusChange(false);
                     }}
                     onSubmitEditing={handleOnSubmit}
+                    inputMode={inputMode ? inputMode : 'none'}
                 />
                 {inFokus && (
                     <Entypo

@@ -1,18 +1,19 @@
 import React, {useState} from 'react';
-import {View, Switch, TextInput, StyleSheet, StatusBar} from 'react-native';
+import {View, Switch, TextInput, StyleSheet } from 'react-native';
 
-const SearchFilterSettings = () => {
+interface ISearchFilterSettings {
+    city: string;
+    onCityChange: (value: string) => void;
+}
+
+const SearchFilterSettings = ({city, onCityChange}: ISearchFilterSettings) => {
     const [isEnabled, setIsEnabled] = useState(false);
+
+
     const toggleSwitch = () => setIsEnabled(previousState => !previousState);
 
     return (
         <View style={styles.container}>
-            <StatusBar
-                animated={true}
-                backgroundColor="#61dafb"
-                barStyle={'dark-content'}
-                showHideTransition={'slide'}
-            />
             <Switch
                 trackColor={{false: '#767577', true: '#81b0ff'}}
                 thumbColor={isEnabled ? '#f5dd4b' : '#f4f3f4'}
@@ -20,8 +21,11 @@ const SearchFilterSettings = () => {
                 onValueChange={toggleSwitch}
                 value={isEnabled}
             />
+
             <TextInput
                 style={styles.input}
+                value={city}
+                onChangeText={onCityChange}
                 placeholder="City"
             />
         </View>

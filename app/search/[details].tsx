@@ -7,6 +7,39 @@ import {getPlayerId} from "@/functions/common";
 import QrCodeModal from "@/components/search/QrCodeModal";
 import SearchFilterSettings from "@/components/search/SearchFilterSettings"
 
+interface SearchFilter {
+    city?: string;
+    count?: number;
+    isPrivate?: boolean;
+    inOrder?: boolean;
+}
+
+const filterSearch = (
+    data: SearchResponse[],
+    filter: SearchFilter
+): SearchResponse[] => {
+    return data.filter(item => {
+        const matchesCity = !filter.city || item.city
+            .split(',')
+            .map(cityItem => cityItem.trim().toLowerCase())
+            .some(cityItem => cityItem.includes(filter.city!.toLowerCase()));
+
+        const matchesCount =
+            filter.count || item.count === filter.count;
+        const matchesIsPrivate =
+            filter.isPrivate || item.isPrivate === filter.isPrivate;
+        const matchesInOrder =
+            filter.inOrder || item.inOrder === filter.inOrder;
+
+        return (
+            matchesCity &&
+            matchesCount &&
+            matchesIsPrivate &&
+            matchesInOrder
+        );
+    });
+};
+
 interface IProps {
 
 }
@@ -16,7 +49,10 @@ const Details = ({}: IProps) => {
     const [searchPhrase, setSearchPhrase] = useState<string>('');
     const [searchInFokus, setSearchInFokus] = useState<boolean>(false);
     const [filteredData, setFilteredData] = useState<SearchResponse[]>([]);
+    const [rawData, setRawData] = useState<SearchResponse[]>([]);
     const [appUserId, setAppUserId] = useState<number | null>(null);
+
+    const [city, setCity] = useState('');
 
     useEffect(() => {
         (async () => {
@@ -25,8 +61,22 @@ const Details = ({}: IProps) => {
     }, []);
 
     useEffect(() => {
-        setSearchPhrase(details);
+        (async () => {
+            await onSearchPhraseChange(details);
+        })()
     }, [details]);
+
+    useEffect(() => {
+        console.log(city)
+        //setFilteredData(filterSearch(rawData, { city: city }));
+        setFilteredData(
+            rawData.filter(item => item.city
+                .split(',')
+                .map(cityItem => cityItem.trim().toLowerCase())
+                .some(cityItem => cityItem.includes(city.toLowerCase()))
+            )
+        );
+    }, [city]);
 
     const onSearchPhraseChange = async (text: string) => {
         setSearchPhrase(text);
@@ -35,6 +85,7 @@ const Details = ({}: IProps) => {
             if (filtered) {
                 console.log(filtered);
                 setFilteredData(filtered);
+                setRawData(filtered);
             }
         } else {
             setFilteredData([]);
@@ -48,8 +99,12 @@ const Details = ({}: IProps) => {
                 searchPhrase={searchPhrase}
                 onSearchPhraseChange={onSearchPhraseChange}
                 onFokusChange={setSearchInFokus}
+                placeholder={''}
             />
-            <SearchFilterSettings />
+            <SearchFilterSettings
+                city={city}
+                onCityChange={setCity}
+            />
             <FlatList
                 data={filteredData}
                 renderItem={({item}) =>
