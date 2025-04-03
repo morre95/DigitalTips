@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect} from 'react';
 import {View, Switch, TextInput, StyleSheet, Text } from 'react-native';
 import Slider from '@react-native-community/slider';
 
@@ -9,10 +9,24 @@ interface ISearchFilterSettings {
     onMaxCheckpointsChange: (value: number) => void;
     minCheckpoints: number;
     onMinCheckpointsChange: (value: number) => void;
+    isPrivate: boolean;
+    onIsPrivateChange: (value: boolean) => void;
+    inOrder: boolean;
+    onInOrderChange: (value: boolean) => void;
 }
 
-const SearchFilterSettings = ({city, onCityChange, maxCheckpoints, onMaxCheckpointsChange, minCheckpoints, onMinCheckpointsChange}: ISearchFilterSettings) => {
-    const [isEnabled, setIsEnabled] = useState(false);
+const SearchFilterSettings = ({
+    city,
+    onCityChange,
+    maxCheckpoints,
+    onMaxCheckpointsChange,
+    minCheckpoints,
+    onMinCheckpointsChange,
+    isPrivate,
+    onIsPrivateChange,
+    inOrder,
+    onInOrderChange,
+}: ISearchFilterSettings) => {
 
     useEffect(() => {
         if (maxCheckpoints > 0 && minCheckpoints >= maxCheckpoints) {
@@ -20,17 +34,32 @@ const SearchFilterSettings = ({city, onCityChange, maxCheckpoints, onMaxCheckpoi
         }
     }, [minCheckpoints]);
 
-    const toggleSwitch = () => setIsEnabled(previousState => !previousState);
+    // TBD: Kanske ska finnas inställning som gör att både isPrivate och inOrder inte påverkar sökresultatet
 
     return (
         <View style={styles.container}>
-            <Switch
-                trackColor={{false: '#767577', true: '#81b0ff'}}
-                thumbColor={isEnabled ? '#f5dd4b' : '#f4f3f4'}
-                ios_backgroundColor="#3e3e3e"
-                onValueChange={toggleSwitch}
-                value={isEnabled}
-            />
+            <View style={styles.row}>
+                <Text>Is private</Text>
+                <Switch
+                    trackColor={{false: '#767577', true: '#81b0ff'}}
+                    thumbColor={isPrivate ? '#f5dd4b' : '#f4f3f4'}
+                    ios_backgroundColor="#3e3e3e"
+                    onValueChange={onIsPrivateChange}
+                    value={isPrivate}
+                />
+            </View>
+
+            <View style={styles.row}>
+                <Text>Checkpoints has to be taken in order</Text>
+                <Switch
+                    trackColor={{false: '#767577', true: '#81b0ff'}}
+                    thumbColor={inOrder ? '#f5dd4b' : '#f4f3f4'}
+                    ios_backgroundColor="#3e3e3e"
+                    onValueChange={onInOrderChange}
+                    value={inOrder}
+                />
+            </View>
+
 
             <Text>Min Number of Checkpoints: {minCheckpoints}</Text>
 
@@ -77,6 +106,9 @@ const styles = StyleSheet.create({
         width: '95%',
         padding: 10,
         margin: 10,
+    },
+    row: {
+        flexDirection: 'row',
     },
     input: {
         height: 40,

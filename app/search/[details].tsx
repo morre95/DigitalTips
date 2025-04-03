@@ -7,38 +7,6 @@ import {getPlayerId} from "@/functions/common";
 import QrCodeModal from "@/components/search/QrCodeModal";
 import SearchFilterSettings from "@/components/search/SearchFilterSettings"
 
-interface SearchFilter {
-    city?: string;
-    count?: number;
-    isPrivate?: boolean;
-    inOrder?: boolean;
-}
-
-const filterSearch = (
-    data: SearchResponse[],
-    filter: SearchFilter
-): SearchResponse[] => {
-    return data.filter(item => {
-        const matchesCity = !filter.city || item.city
-            .split(',')
-            .map(cityItem => cityItem.trim().toLowerCase())
-            .some(cityItem => cityItem.includes(filter.city!.toLowerCase()));
-
-        const matchesCount =
-            filter.count || item.count === filter.count;
-        const matchesIsPrivate =
-            filter.isPrivate || item.isPrivate === filter.isPrivate;
-        const matchesInOrder =
-            filter.inOrder || item.inOrder === filter.inOrder;
-
-        return (
-            matchesCity &&
-            matchesCount &&
-            matchesIsPrivate &&
-            matchesInOrder
-        );
-    });
-};
 
 interface IProps {
 
@@ -50,11 +18,13 @@ const Details = ({}: IProps) => {
     const [searchInFokus, setSearchInFokus] = useState<boolean>(false);
     const [filteredData, setFilteredData] = useState<SearchResponse[]>([]);
     const [rawData, setRawData] = useState<SearchResponse[]>([]);
-    const [maxCheckpoints, setMaxCheckpoints] = useState<number>(0);
-    const [minCheckpoints, setMinCheckpoints] = useState<number>(0);
     const [appUserId, setAppUserId] = useState<number | null>(null);
 
     const [city, setCity] = useState('');
+    const [maxCheckpoints, setMaxCheckpoints] = useState<number>(0);
+    const [minCheckpoints, setMinCheckpoints] = useState<number>(0);
+    const [isPrivate, setIsPrivate] = useState<boolean>(false);
+    const [inOrder, setInOrder] = useState<boolean>(true);
 
     useEffect(() => {
         (async () => {
@@ -80,12 +50,31 @@ const Details = ({}: IProps) => {
         );
     }, [city]);
 
+    useEffect(() => {
+        const max = maxCheckpoints === 0 ? Number.MAX_SAFE_INTEGER : maxCheckpoints;
+        setFilteredData(
+            rawData.filter(item => item.count <= max && item.count >= minCheckpoints)
+        );
+    }, [minCheckpoints, maxCheckpoints]);
+
+    useEffect(() => {
+        setFilteredData(
+            rawData.filter(item => item.isPrivate === isPrivate)
+        );
+    }, [isPrivate]);
+
+    useEffect(() => {
+        setFilteredData(
+            rawData.filter(item => item.inOrder === inOrder)
+        );
+    }, [inOrder]);
+
     const onSearchPhraseChange = async (text: string) => {
         setSearchPhrase(text);
         if (text.length > 2) {
             const filtered = await getSearch(text);
             if (filtered) {
-                console.log(filtered);
+                console.log('onSearchPhraseChange()', filtered);
                 setFilteredData(filtered);
                 setRawData(filtered);
             }
@@ -110,6 +99,10 @@ const Details = ({}: IProps) => {
                 onMinCheckpointsChange={setMinCheckpoints}
                 maxCheckpoints={maxCheckpoints}
                 onMaxCheckpointsChange={setMaxCheckpoints}
+                isPrivate={isPrivate}
+                onIsPrivateChange={setIsPrivate}
+                inOrder={inOrder}
+                onInOrderChange={setInOrder}
             />
             <FlatList
                 data={filteredData}
