@@ -50,6 +50,8 @@ const Details = ({}: IProps) => {
     const [searchInFokus, setSearchInFokus] = useState<boolean>(false);
     const [filteredData, setFilteredData] = useState<SearchResponse[]>([]);
     const [rawData, setRawData] = useState<SearchResponse[]>([]);
+    const [maxCheckpoints, setMaxCheckpoints] = useState<number>(0);
+    const [minCheckpoints, setMinCheckpoints] = useState<number>(0);
     const [appUserId, setAppUserId] = useState<number | null>(null);
 
     const [city, setCity] = useState('');
@@ -104,6 +106,10 @@ const Details = ({}: IProps) => {
             <SearchFilterSettings
                 city={city}
                 onCityChange={setCity}
+                minCheckpoints={minCheckpoints}
+                onMinCheckpointsChange={setMinCheckpoints}
+                maxCheckpoints={maxCheckpoints}
+                onMaxCheckpointsChange={setMaxCheckpoints}
             />
             <FlatList
                 data={filteredData}
