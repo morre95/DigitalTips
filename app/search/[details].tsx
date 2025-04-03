@@ -5,7 +5,7 @@ import SearchBar from "@/components/SearchBar";
 import {getSearch, SearchResponse} from "@/functions/api/Get";
 import {getPlayerId} from "@/functions/common";
 import QrCodeModal from "@/components/search/QrCodeModal";
-import SearchSettings from "@/components/search/SearchSettings"
+import SearchFilterSettings from "@/components/search/SearchFilterSettings"
 
 interface IProps {
 
@@ -49,7 +49,7 @@ const Details = ({}: IProps) => {
                 onSearchPhraseChange={onSearchPhraseChange}
                 onFokusChange={setSearchInFokus}
             />
-            <SearchSettings />
+            <SearchFilterSettings />
             <FlatList
                 data={filteredData}
                 renderItem={({item}) =>

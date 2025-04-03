@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import {View, Switch, TextInput, StyleSheet, StatusBar} from 'react-native';
 
-const SearchSettings = () => {
+const SearchFilterSettings = () => {
     const [isEnabled, setIsEnabled] = useState(false);
     const toggleSwitch = () => setIsEnabled(previousState => !previousState);
 
@@ -47,4 +47,4 @@ const styles = StyleSheet.create({
 });
 
 
-export default SearchSettings;
+export default SearchFilterSettings;
