@@ -29,16 +29,10 @@ const SearchFilterSettings = ({
     onInOrderChange,
 }: ISearchFilterSettings) => {
 
-    useEffect(() => {
-        if (maxCheckpoints > 0 && minCheckpoints >= maxCheckpoints) {
-            onMaxCheckpointsChange(minCheckpoints);
-        }
-    }, [minCheckpoints]);
-
     // TBD: Kanske ska finnas inställning som gör att både isPrivate och inOrder inte påverkar sökresultatet
 
     return (
-        <CollapsibleView title="Search Filters">
+        <CollapsibleView title="Search Filters" style={{width:'100%'}}>
             <View style={styles.container}>
                 <View style={styles.row}>
                     <Text>Is private</Text>

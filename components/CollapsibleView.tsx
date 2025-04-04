@@ -1,17 +1,18 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import {View, ViewStyle, Text, TouchableOpacity, StyleProp} from 'react-native';
 
 import AntDesign from '@expo/vector-icons/AntDesign';
 
 interface Props {
     title: string;
     children: React.ReactNode;
+    style?: StyleProp<ViewStyle>;
 }
 
-const CollapsibleView = ({ title, children }: Props) => {
+const CollapsibleView = ({ title, children, style }: Props) => {
     const [isOpen, setIsOpen] = useState(false);
     return (
-        <View>
+        <View style={style}>
             <TouchableOpacity onPress={() => setIsOpen((value) => !value)}>
                 <View style={{flexDirection: 'row'}}>
                     <AntDesign
@@ -23,7 +24,10 @@ const CollapsibleView = ({ title, children }: Props) => {
                     <Text style={{marginLeft: 10}}>{title}</Text>
                 </View>
             </TouchableOpacity>
-            {isOpen && children}
+            {isOpen &&
+                <View>
+                    {children}
+                </View>}
         </View>
     );
 };
