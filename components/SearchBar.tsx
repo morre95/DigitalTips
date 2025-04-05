@@ -1,4 +1,4 @@
-import React, {useRef} from "react";
+import React, {useEffect, useRef} from "react";
 import { StyleSheet, TextInput, View, Text, Keyboard, TouchableOpacity, InputModeOptions } from "react-native";
 import { Feather, Entypo } from "@expo/vector-icons";
 
@@ -15,6 +15,12 @@ interface IProps {
 
 const SearchBar = ({inFokus, searchPhrase, onSearchPhraseChange, onFokusChange, onSubmit, placeholder, inputMode}: IProps) => {
     const textInputRef = useRef<TextInput>(null);
+
+    useEffect(() => {
+        if (inFokus) {
+            textInputRef?.current?.focus();
+        }
+    }, [inFokus]);
 
     const handleOnSubmit = () => {
         if (onSubmit) onSubmit(searchPhrase)

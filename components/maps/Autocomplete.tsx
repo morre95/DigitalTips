@@ -18,7 +18,7 @@ interface IAutocompleteProps {
 const Autocomplete: React.FC<IAutocompleteProps> = ({ onSelect, onSubmit, onFokusChanged }) => {
     const [query, setQuery] = useState('');
     const [filteredData, setFilteredData] = useState<SearchResponse[]>([]);
-    const [isFocused, setIsFocused] = useState(false);
+    const [isFocused, setIsFocused] = useState(true);
     const [appUserId, setAppUserId] = useState<number | null>(null);
 
     useEffect(() => {
