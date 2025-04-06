@@ -15,7 +15,7 @@ export default function AppLayout() {
                     tabBarIcon: ({focused}) => (
                         <FontAwesome5 name="route" size={24}
                                       color={focused ? "rgba(0, 0, 0, 1)" : "rgba(0, 0, 0, 0.5)"}/>
-                    )
+                    ),
                 }}
             />
 

@@ -1,7 +1,6 @@
 import React, {useEffect} from 'react';
 import {Alert} from 'react-native';
-import {useNavigation} from '@react-navigation/native';
-
+import {useNavigation} from 'expo-router';
 import {useCreateDispatch} from "@/components/create_route/CreateContext";
 
 const CheckIfCreateInFokusComponent = () => {
