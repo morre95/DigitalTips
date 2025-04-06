@@ -1,7 +1,7 @@
 import MapView, {Marker, PROVIDER_GOOGLE, Region} from 'react-native-maps';
 import React, {useEffect, useRef, useState} from "react";
 import {Alert, StyleSheet, Text, View} from "react-native";
-import {useLocalSearchParams, useNavigation, useRouter} from 'expo-router';
+import {useLocalSearchParams, useRouter} from 'expo-router';
 import {Answer, Checkpoint, MarkerData, RouteData} from "@/interfaces/common";
 import {getCity} from "@/functions/request";
 import {useCreateDispatch} from "@/components/create_route/CreateContext";
@@ -38,32 +38,9 @@ export function CreateMapComponent() {
     const [loading, setLoading] = useState(false);
     const {routeId} = useLocalSearchParams()
     const router = useRouter();
-    const navigation = useNavigation();
     const [JWT_token, setJWT_token] = useState<string>();
 
-    // FIXME: det verar inte som detta fungerar eftersom Tabs.Screen används.
-    // TBD: Navigering kanske inte behövs förhindras om Tabs.Screen används?
-    useEffect(() => {
-        return navigation.addListener('beforeRemove', (event) => {
-            if (state.checkpoints.length > 0) {
-                Alert.alert(
-                    'Unsaved route',
-                    'This rout is unsaved.',
-                    [
-                        {
-                            text: 'Cancel',
-                            onPress: () => event.preventDefault(),
-                            style: 'cancel'
-                        }, {
-                            text: 'Move along'
-                        }
-                    ]
-                );
-            }
-        });
-    }, [navigation, state.checkpoints]);
-
-
+    // TBD: borde inte behöva köra registerOrLogin() här. Om så är fallet kanske den ska byggas om
     useEffect(() => {
         (async () => {
             await registerOrLogin();
