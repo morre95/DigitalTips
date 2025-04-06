@@ -4,7 +4,7 @@ import {useNavigation} from '@react-navigation/native';
 
 import {useCreateDispatch} from "@/components/create_route/CreateContext";
 
-const PageInFokusComponent = () => {
+const CheckIfCreateInFokusComponent = () => {
     const navigation = useNavigation();
     const {state, dispatch} = useCreateDispatch();
 
@@ -32,5 +32,5 @@ const PageInFokusComponent = () => {
     return <></>
 };
 
-export default PageInFokusComponent;
+export default CheckIfCreateInFokusComponent;
 

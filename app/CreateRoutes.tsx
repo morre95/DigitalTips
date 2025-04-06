@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { CreateProvider } from "@/components/create_route/CreateContext";
 import { CreateMapComponent } from "@/components/create_route/CreateMapComponent";
-import PageInFokusComponent from '@/components/create_route/PageInFokusComponent'
+import CheckIfCreateInFokusComponent from '@/components/create_route/CheckIfCreateInFokusComponent'
 
 export default function CreateRoutes() {
 
@@ -10,7 +10,7 @@ export default function CreateRoutes() {
         <View style={styles.container}>
             <CreateProvider>
                 <CreateMapComponent />
-                <PageInFokusComponent />
+                <CheckIfCreateInFokusComponent />
             </CreateProvider>
         </View>
     )
