@@ -6,8 +6,16 @@ const SetTabBarBadge = () => {
     const {state} = useCreateDispatch();
     const navigation = useNavigation();
     useEffect(() => {
-        if (state.checkpoints.length > 0) {
-            navigation.setOptions({tabBarBadge: state.checkpoints.length})
+        const numberOfCheckpoints = state.checkpoints.length;
+        if (numberOfCheckpoints > 0) {
+            navigation.setOptions(
+    {
+                tabBarBadge: numberOfCheckpoints,
+                tabBarBadgeStyle: {
+                    color: '#fff',
+                    backgroundColor: '#1f9ffb',
+                }
+            })
         } else {
             navigation.setOptions({tabBarBadge: null})
         }
