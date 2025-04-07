@@ -3,7 +3,7 @@ import {Alert} from 'react-native';
 import {useNavigation} from 'expo-router';
 import {useCreateDispatch} from "@/components/create_route/CreateContext";
 
-const CheckIfCreateInFokusComponent = () => {
+const CheckIfCreateInFokus = () => {
     const navigation = useNavigation();
     const {state, dispatch} = useCreateDispatch();
 
@@ -31,5 +31,5 @@ const CheckIfCreateInFokusComponent = () => {
     return <></>
 };
 
-export default CheckIfCreateInFokusComponent;
+export default CheckIfCreateInFokus;
 
