@@ -1,5 +1,5 @@
 import React, {useState, useRef, ComponentRef, useEffect} from 'react';
-import {StyleSheet, View, Vibration, Alert} from 'react-native';
+import {StyleSheet, View, Text, Vibration, Alert} from 'react-native';
 import MapView, {PROVIDER_GOOGLE, Region} from "react-native-maps";
 import CheckPoint from "./CheckPoint";
 import {Checkpoint, Question} from "@/interfaces/common";
@@ -13,6 +13,7 @@ import Feather from "@expo/vector-icons/Feather";
 import Menu, {MenuTextItem} from "@/components/maps/Menu";
 import {useLocalSearchParams, useRouter} from 'expo-router';
 import {getPlayerId} from "@/functions/common";
+import {increaseProgress, setProgress, getProgress} from "@/functions/progress";
 
 const initialRegion: Region = {
     latitude: 58.317435384,
@@ -36,6 +37,7 @@ const MapsComponent = () => {
     const [score, setScore] = useState(0);
     const [showSearchButton, setShowSearchButton] = useState(true);
     const [showNextCheckpoint, setShowNextCheckpoint] = useState(false);
+    const [currentPos, setCurrentPos] = useState<{longitude: number, latitude: number}>({longitude: 0, latitude: 0});
     const {routeId} = useLocalSearchParams();
 
     useEffect(() => {
@@ -52,12 +54,11 @@ const MapsComponent = () => {
         }
     }, [routeId]);
 
-    // TBD: bara för testning
-    const [currenPos, setCurrenPos] = useState<{longitude: number, latitude: number}>({longitude: 0, latitude: 0});
+
     const handleMapPress = (event: any) => {
         const { coordinate } = event.nativeEvent;
         console.log(coordinate);
-        setCurrenPos(coordinate);
+        setCurrentPos(coordinate);
 
         setShowSearchButton(true);
     }
@@ -72,7 +73,43 @@ const MapsComponent = () => {
                 checkpoints: Checkpoint[];
             }
             const markers = await getCheckpoints<Markers>(routeId)
-            dispatch(() => markers.checkpoints);
+
+
+            const progress = await getProgress(markers.checkpoints[0].route_id);
+            if (progress) {
+                Alert.alert(
+                    'You have been here before',
+                    'Do you want to continue where you left off?',
+                    [
+                        {
+                            text: 'Yes',
+                            onPress: () => {
+                                // Om currentCheckpoint har ett värde, då är routen inOrder
+                                if (progress.currentCheckpoint) {
+                                    dispatch(() => markers.checkpoints.map(checkpoint => {
+                                        if (checkpoint.checkpoint_order < Number(progress.currentCheckpoint)) {
+                                            checkpoint.isAnswered = true;
+                                            return checkpoint;
+                                        }
+                                        return checkpoint;
+                                    }));
+                                } else {
+                                    // TODO: när en route inte är inOrder då finns det inget sätt att veta vilka checkpoints som är kvar att svara på så som det är nu.
+                                }
+                            }
+                        }, {
+                            text: 'Go to start',
+                            onPress: async () => {
+                                dispatch(() => markers.checkpoints);
+                                await setProgress(null);
+                            },
+                            style: 'cancel'
+                        }
+                    ]
+                )
+            } else {
+                await setProgress(null);
+            }
         }
 
         setShowSearchButton(true)
@@ -131,12 +168,26 @@ const MapsComponent = () => {
         const isFinished =
             nextCheckpoints.filter(checkpoint => checkpoint.isAnswered).length === state.checkpoints.length;
 
-        // TODO: Gör något med informationen att alla frågor är svarade
         if (isFinished) {
-            // TBD: score här är inte uppdaterad än. Så denna sträng bör skapas på något annat vis. Tex. i setScore()
-            console.log('Japp nu är det klar och ditt score är', score)
+            (async () => {
+                await setProgress(null);
+            })();
+
         } else {
-            console.log('Next finished', nextCheckpoints.filter(checkpoint => checkpoint.isAnswered).length, ', checkpoints', state.checkpoints.length)
+            (async () => {
+                const progress = await increaseProgress(id);
+                const routeId = nextCheckpoints[0].route_id;
+                if (!progress) {
+                    await setProgress({
+                        routeId: routeId,
+                        numberOfCheckpoints: 1,
+                        currentCheckpoint: nextCheckpoints[0].in_order ? 1 : undefined
+                    });
+                } else if (progress.currentCheckpoint) {
+                    progress.currentCheckpoint++;
+                    await setProgress(progress);
+                }
+            })()
         }
 
         dispatch(() => nextCheckpoints);
@@ -225,7 +276,7 @@ const MapsComponent = () => {
                         onEnter={() => console.log('onEnter()', 'id:', checkpoint.checkpoint_id)}
 
                         // TBD: Bara för testning
-                        currentPosition={currenPos}
+                        currentPosition={currentPos}
                     />
                 ))}
             </MapView>
@@ -250,6 +301,8 @@ const MapsComponent = () => {
                 question={question.question}
                 onAnswerSelected={(isCorrect) => handleAnswerSelected(isCorrect, question.checkPointId)}
             />}
+
+            {score > 0 && <Text>{score}</Text>}
 
             <Menu trigger={<Feather name="menu" size={44} color="black" />} bottomRight>
                 <MenuTextItem text={showNextCheckpoint ? 'Show Checkpoints Flags only':'Next Checkpoint'} onPress={handleNextCheckpoint} />

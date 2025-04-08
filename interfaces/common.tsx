@@ -9,6 +9,7 @@ export interface Checkpoint {
     updated_at:       Date;
     question:         Question;
     isAnswered?:      boolean;
+    in_order:         boolean;
 }
 
 export interface Question {

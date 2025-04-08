@@ -183,48 +183,6 @@ $app->post('/register', function (Request $request, Response $response) use ($se
     }
 });
 
-$jwtMiddleware = function (Request $request, $handler) use ($secret_key, $app) {
-    // Läs av Authorization-header
-    $authHeader = $request->getHeaderLine('Authorization');
-
-    $logger = get_logger($app->getContainer());
-    if (!$authHeader) {
-        // Ingen header => 401
-        $logger->error("No token provided");
-        $response = $app->getResponseFactory()->createResponse();
-        $response->getBody()->write(json_encode(['error' => 'No token provided']));
-        return $response->withStatus(401);
-    }
-
-    // Förväntat format: "Bearer_<token>"
-    if (preg_match('/^Bearer_(\S+)/', $authHeader, $matches)) {
-        $jwt = $matches[1];
-    } else {
-        $logger->error("Token format is invalid: $authHeader");
-
-        $response = $app->getResponseFactory()->createResponse();
-        $response->getBody()->write(json_encode(['error' => 'Token format is invalid']));
-        return $response->withStatus(401);
-    }
-
-    try {
-        // Dekodning och validering av token
-        $decoded = JWT::decode($jwt, new Key($secret_key, 'HS256'));
-        // Token är giltig -> skriv till request attribut ifall man vill komma åt i routen
-        $request = $request->withAttribute('decoded_token', $decoded);
-    } catch (\Exception $e) {
-        // Token invalid / utgången
-        $logger->error("Token is invalid or expired: " . $e->getMessage());
-
-        $response = $app->getResponseFactory()->createResponse();
-        $response->getBody()->write(json_encode(['error' => 'Token is invalid or expired']));
-        return $response->withStatus(401);
-    }
-
-    // Allt gick bra -> fortsätt
-    return $handler->handle($request);
-};
-
 // TBD: om alla api calls behöver JWT token bör denna göras om till $jwtMiddleware
 $beforeMiddleware = function (Request $request, RequestHandler $handler) use ($app) {
     // Example: Check for a specific header before proceeding
@@ -281,10 +239,7 @@ if (count($pieces) >= 2 && $pieces[count($pieces) - 2] === 'slimPhp4Test_Slask')
 $errorMiddleware = $app->addErrorMiddleware(true, true, true, get_logger($app->getContainer()));
 
 $app->get('/', function (Request $request, Response $response, $args) {
-    //$logger = $this->get('logger');
-    //$logger->info("Hello World");
-
-    $response->getBody()->write("Hello world!");
+    $response->getBody()->write("You are not authorised to be here!!!");
     return $response;
 });
 
@@ -296,6 +251,48 @@ $app->get('/get/checkpoints/{id}', \RouteController::class . ':get_checkpoints')
 
 $app->post('/change/player/name', \UserController::class . ':change_player_name');
 
+
+$jwtMiddleware = function (Request $request, $handler) use ($secret_key, $app) {
+    // Läs av Authorization-header
+    $authHeader = $request->getHeaderLine('Authorization');
+
+    $logger = get_logger($app->getContainer());
+    if (!$authHeader) {
+        // Ingen header => 401
+        $logger->error("No token provided");
+        $response = $app->getResponseFactory()->createResponse();
+        $response->getBody()->write(json_encode(['error' => 'No token provided']));
+        return $response->withStatus(401);
+    }
+
+    // Förväntat format: "Bearer_<token>"
+    if (preg_match('/^Bearer_(\S+)/', $authHeader, $matches)) {
+        $jwt = $matches[1];
+    } else {
+        $logger->error("Token format is invalid: $authHeader");
+
+        $response = $app->getResponseFactory()->createResponse();
+        $response->getBody()->write(json_encode(['error' => 'Token format is invalid']));
+        return $response->withStatus(401);
+    }
+
+    try {
+        // Dekodning och validering av token
+        $decoded = JWT::decode($jwt, new Key($secret_key, 'HS256'));
+        // Token är giltig -> skriv till request attribut ifall man vill komma åt i routen
+        $request = $request->withAttribute('decoded_token', $decoded);
+    } catch (\Exception $e) {
+        // Token invalid / utgången
+        $logger->error("Token is invalid or expired: " . $e->getMessage());
+
+        $response = $app->getResponseFactory()->createResponse();
+        $response->getBody()->write(json_encode(['error' => 'Token is invalid or expired']));
+        return $response->withStatus(401);
+    }
+
+    // Allt gick bra -> fortsätt
+    return $handler->handle($request);
+};
 // Alla API calls som behöver skyddas behöver ligga under den här gruppen
 $app->group('/api', function (\Slim\Routing\RouteCollectorProxy $group) {
     $group->get('/get/google/key', UserController::class . ':get_google_api_key');

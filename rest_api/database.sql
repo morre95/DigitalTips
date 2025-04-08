@@ -104,9 +104,8 @@ CREATE TABLE IF NOT EXISTS `results` (
             ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
-
-INSERT INTO routes (name, city, description)
-VALUES ('Min första rutt', 'Stora huvudstaden', 'En rutt i centrala stan.');
+INSERT INTO routes (name, city, description, owner)
+VALUES ('Min första rutt', 'Stora huvudstaden', 'En rutt i centrala stan.', 1);
 
 INSERT INTO questions (question_text)
 VALUES ('Vad heter Sveriges huvudstad?');
