@@ -74,7 +74,6 @@ const MapsComponent = () => {
             }
             const markers = await getCheckpoints<Markers>(routeId)
 
-
             const progress = await getProgress(markers.checkpoints[0].route_id);
             if (progress) {
                 Alert.alert(
@@ -109,6 +108,7 @@ const MapsComponent = () => {
                 )
             } else {
                 await setProgress(null);
+                dispatch(() => markers.checkpoints);
             }
         }
 
