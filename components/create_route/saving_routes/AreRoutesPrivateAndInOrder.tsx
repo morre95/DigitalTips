@@ -2,13 +2,24 @@ import React, { useState, useEffect } from 'react';
 import {StyleSheet, Text, View} from 'react-native';
 import Checkbox from "expo-checkbox";
 
-interface IProps {
-    inputChanged: (ticks: {isPrivate: boolean, isInOrder: boolean}) => void;
+type PrivateInOrderProps = {
+    isPrivate: boolean;
+    isInOrder: boolean;
 }
 
-const AreRoutesPrivateAndInOrder = ({inputChanged}: IProps) => {
+interface IProps {
+    inputChanged: (ticks: PrivateInOrderProps) => void;
+    initialValue: PrivateInOrderProps;
+}
+
+const AreRoutesPrivateAndInOrder = ({inputChanged, initialValue}: IProps) => {
     const [isInOrderChecked, setInOrderChecked] = useState(true);
     const [isPrivateChecked, setPrivateChecked] = useState(false);
+
+    useEffect(() => {
+        setInOrderChecked(initialValue.isInOrder);
+        setPrivateChecked(initialValue.isPrivate);
+    }, [initialValue]);
 
     useEffect(() => {
         inputChanged({isPrivate: isPrivateChecked, isInOrder: isInOrderChecked})

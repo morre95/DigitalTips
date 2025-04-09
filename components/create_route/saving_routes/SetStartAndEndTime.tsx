@@ -5,12 +5,18 @@ import Spacer from "@/components/Spacer";
 
 type PickerMode = 'date' | 'time';
 
+type StartEndDate = {
+    start: Date | null;
+    end: Date | null;
+}
+
 interface IProps {
     onStartDateChanged: (date: Date | null) => void;
     onEndDateChanged: (date: Date | null) => void;
+    initialValue: StartEndDate | null;
 }
 
-const SetStartAndEndTime = ({onStartDateChanged, onEndDateChanged}: IProps) => {
+const SetStartAndEndTime = ({onStartDateChanged, onEndDateChanged, initialValue}: IProps) => {
     const [startDate, setStartDate] = useState<Date | null>( null);
     const [startMode, setStartMode] = useState<PickerMode>('date');
     const [showStartPicker, setShowStartPicker] = useState(false);
@@ -18,6 +24,13 @@ const SetStartAndEndTime = ({onStartDateChanged, onEndDateChanged}: IProps) => {
     const [endDate, setEndDate] = useState<Date | null>(null);
     const [endMode, setEndMode] = useState<PickerMode>('date');
     const [showEndPicker, setShowEndPicker] = useState(false);
+
+    useEffect(() => {
+        if (initialValue) {
+            setStartDate(initialValue.start);
+            setEndDate(initialValue.end);
+        }
+    }, [initialValue]);
 
     useEffect(() => {
         if (startDate) {

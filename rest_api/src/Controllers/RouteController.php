@@ -128,6 +128,71 @@ class RouteController
         }
     }
 
+    public function edit_route(ServerRequestInterface $request, ResponseInterface $response, $args) {
+        $json = $request->getParsedBody();
+
+        $sql = "UPDATE routes SET 
+                  owner = :owner, 
+                  name = :name, 
+                  city = :city, 
+                  description = :description, 
+                  is_private = :is_private, 
+                  in_order = :in_order, 
+                  start_at = :start_at, 
+                  end_at = :end_at
+                  WHERE route_id = :route_id";
+        try {
+            $db = new Db();
+            $pdo = $db->connect();
+            $statement = $pdo->prepare($sql);
+
+            $start_at = null;
+            $end_at = null;
+            if ($json["startAt"] !== null) {
+                $start_at = date("Y-m-d H:i:s", strtotime($json["startAt"]));
+            }
+            if ($json["endAt"] !== null) {
+                $end_at = date("Y-m-d H:i:s", strtotime($json["endAt"]));
+            }
+
+            $statement->execute([
+                ':owner' => $json["owner"],
+                ':name' => $json["name"],
+                ':city' => $json["city"],
+                ':description' => $json["description"],
+                ':is_private' => $json["isPrivate"],
+                ':in_order' => $json["inOrder"],
+                ':start_at' => $start_at,
+                ':end_at' => $end_at,
+                ':route_id' => $json["routeId"]
+            ]);
+
+            // TODO: uppdatera även alla checkpoints... Just nu försvinner dom...
+
+            $json = [
+                'routeId' => $json["routeId"],
+                'message' => 'Successfully updated the route'
+            ];
+
+            $response->getBody()->write(json_encode($json));
+            return $response
+                ->withHeader('content-type', 'application/json')
+                ->withStatus(200);
+        } catch (PDOException $e) {
+            $error = array(
+                'error' => true,
+                "message" => $e->getMessage()
+            );
+
+            $this->logger->error($error["message"]);
+
+            $response->getBody()->write(json_encode($error));
+            return $response
+                ->withHeader('content-type', 'application/json')
+                ->withStatus(500);
+        }
+    }
+
     public function search(ServerRequestInterface $request, ResponseInterface $response, $args) {
 
         $sql = "SELECT 
@@ -204,20 +269,7 @@ class RouteController
     }
 
     public function get_route_info(ServerRequestInterface $request, ResponseInterface $response, $args) {
-        $sql = "SELECT 
-                    `route_id`, 
-                    `owner`, 
-                    `name`, 
-                    `city`, 
-                    `description`, 
-                    IF(`is_private`, 'true', 'false') `is_private`, 
-                    IF(`in_order`, 'true', 'false') `in_order`, 
-                    `start_at`, 
-                    `end_at`,
-                    `created_at`, 
-                    `updated_at` 
-                FROM `routes` 
-                    WHERE `route_id` = :route_id";
+        $sql = "SELECT * FROM `routes` WHERE `route_id` = :route_id";
 
         try {
             $db = new Db();
@@ -230,7 +282,10 @@ class RouteController
             ]);
             $route = $stmt->fetch(PDO::FETCH_OBJ);
             if ($route !== null) {
+
                 $route = mapSnakeToCamel($route);
+                $route->inOrder = $route->inOrder === '1';
+                $route->isPrivate = $route->isPrivate === '1';
                 $response->getBody()->write(json_encode($route));
                 return $response
                     ->withHeader('content-type', 'application/json')

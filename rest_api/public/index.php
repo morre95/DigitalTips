@@ -245,6 +245,7 @@ $app->get('/', function (Request $request, Response $response, $args) {
 
 
 $app->post('/add/routes', \RouteController::class . ':add_new');
+$app->post('/edit/route', \RouteController::class . ':edit_route');
 
 $app->get('/search/routes/{keyword}', \RouteController::class . ':search');
 $app->get('/get/checkpoints/{id}', \RouteController::class . ':get_checkpoints');

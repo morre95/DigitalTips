@@ -26,6 +26,7 @@ type ResponseData = {
 }
 
 interface SendData {
+    routeId: number;
     owner: number;
     data: RouteData[];
     name: string;
@@ -57,7 +58,8 @@ const NextRoutesOverlay: FC<Props> = ({ currentRoutes, onFinish, onClose, alread
     const [qrCodeValue, setQrCodeValue] = useState<QrCodeType>();
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
-    const refPrivateInorder = useRef<{isPrivate: boolean, isInOrder: boolean}>({isPrivate: false, isInOrder: false})
+    const refPrivateInorder = useRef<{isPrivate: boolean, isInOrder: boolean}>({isPrivate: false, isInOrder: true})
+    const refInitStartEndTime = useRef<{start: Date | null, end: Date | null} | null>(null);
 
     const [startTime, setStartTime] = useState<Date | null>(null);
     const [endTime, setEndTime] = useState<Date | null>(null);
@@ -71,13 +73,15 @@ const NextRoutesOverlay: FC<Props> = ({ currentRoutes, onFinish, onClose, alread
                 }
 
                 const result = await getRoute(routeId, token as string);
-                console.log(result);
-                // TODO: set startTime, endTime, inOrder and isPrivate in corresponding component
+
                 setRouteName(result.name);
                 setRouteCity(result.city);
                 setRouteDescription(result.description);
                 setStartTime(result.startAt);
                 setEndTime(result.endAt);
+                console.log('private', result.isPrivate, 'inOrder', result.inOrder);
+                refPrivateInorder.current = {isPrivate: result.isPrivate, isInOrder: result.inOrder}
+                refInitStartEndTime.current = {start: result.startAt, end: result.endAt}
             }
         })();
     }, [alreadyInDb]);
@@ -122,6 +126,7 @@ const NextRoutesOverlay: FC<Props> = ({ currentRoutes, onFinish, onClose, alread
         }
 
         const result: SendData = {
+            routeId: routeId === undefined ? -1 : Number(routeId),
             owner: userId,
             data: currentRoutes,
             name: routeName,
@@ -133,8 +138,13 @@ const NextRoutesOverlay: FC<Props> = ({ currentRoutes, onFinish, onClose, alread
             endAt: endTime,
         };
 
-        const url = '/add/routes';
-        const response = await postJson<SendData, ResponseData>(url, result);
+        let url = "";
+        if (alreadyInDb && routeId !== undefined) {
+            url = '/edit/route';
+        } else {
+            url = '/add/routes';
+        }
+            const response = await postJson<SendData, ResponseData>(url, result);
 
         if (response.error) {
             Alert.alert('Something went wrong', response.error as string);
@@ -211,8 +221,10 @@ const NextRoutesOverlay: FC<Props> = ({ currentRoutes, onFinish, onClose, alread
                     <SetStartAndEndTime
                         onStartDateChanged={setStartTime}
                         onEndDateChanged={setEndTime}
+                        initialValue={refInitStartEndTime.current}
                     />
                     <AreRoutesPrivateAndInOrder
+                        initialValue={refPrivateInorder.current}
                         inputChanged={handlePrivateInOrderChanged}
                     />
                     <ButtonsComponent.CancelAndFinishButtons
