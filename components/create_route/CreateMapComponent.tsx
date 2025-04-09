@@ -14,10 +14,9 @@ import RandomCheckPoints from "@/components/create_route/RandomCheckpoints";
 import HelpPopup from "@/components/create_route/HelpPopup";
 import Loader from "@/components/Loader";
 import {deleteCheckpoint, getCheckpoints} from "@/functions/api/Get";
-import registerOrLogin from '@/functions/registerOrLogin'
-import globals from "@/functions/globals";
 import Feather from "@expo/vector-icons/Feather";
 import Menu, {MenuItemWithChildren, MenuTextItem} from "@/components/maps/Menu";
+import {useToken} from '@/components/login/LoginContext'
 
 const initialRegion: Region = {
     latitude: 58.317435384,
@@ -38,26 +37,11 @@ export function CreateMapComponent() {
     const [loading, setLoading] = useState(false);
     const {routeId} = useLocalSearchParams()
     const router = useRouter();
-    const [JWT_token, setJWT_token] = useState<string>();
-
-    // TBD: borde inte behöva köra registerOrLogin() här. Om så är fallet kanske den ska byggas om
-    useEffect(() => {
-        (async () => {
-            await registerOrLogin();
-
-            if (globals.JWT_token) {
-                setJWT_token(globals.JWT_token)
-            } else {
-                console.error('Not logged in');
-            }
-        })();
-    }, []);
+    const {token} = useToken();
 
     useEffect(() => {
         const id = Number(routeId)
         if (id > 0) {
-            //console.log(routeId, router);
-            //router.setParams({});
 
             (async () => {
                 type Markers = {
@@ -176,11 +160,9 @@ export function CreateMapComponent() {
 
     const handleDeleteAll = async () => {
         dispatch({type: 'deleteAll'})
-
         const id = Number(routeId)
-        if (JWT_token && id > 0) {
+        if (token && id > 0) {
             async function deleteApiCheckpoints(JWT_token: string): Promise<void> {
-
                 await deleteCheckpoint(id, JWT_token)
                 router.setParams({});
             }
@@ -195,7 +177,7 @@ export function CreateMapComponent() {
                     },
                     {
                         text: 'Yes delete',
-                        onPress: () => deleteApiCheckpoints(JWT_token)
+                        onPress: () => deleteApiCheckpoints(token)
                     }
                 ]
             )
@@ -213,8 +195,8 @@ export function CreateMapComponent() {
                     style: 'cancel',
                 },
                 {
-                    text: 'Yes', onPress: () => {
-                        handleDeleteAll() // TODO: fixa denna varning, den kommer av det är ett async call
+                    text: 'Yes', onPress: async () => {
+                        await handleDeleteAll();
                     }
                 },
             ]);

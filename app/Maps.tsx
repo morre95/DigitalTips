@@ -2,14 +2,16 @@ import React, {useEffect, useState} from 'react';
 import {AppState, AppStateStatus, StyleSheet, View} from 'react-native';
 import {MapsProvider} from "@/components/maps/MapsContext";
 import MapsComponent from "@/components/maps/MapsComponent";
-import registerOrLogin from "@/functions/registerOrLogin";
 import {getPlayerName} from "@/functions/common";
 import PlayerNameSelect from "@/components/PlayerNameSelect";
 import updatePlayerName from "@/functions/updatePlayerName";
+import {useToken} from "@/components/login/LoginContext";
+import { Redirect } from 'expo-router';
 
 export default function Maps() {
     const [appState, setAppState] = useState<AppStateStatus>(AppState.currentState);
     const [showSelectPlayerName, setShowSelectPlayerName] = useState<boolean>(false);
+    const {isAppRegisteredAsync} = useToken();
 
     useEffect(() => {
         (async () => {
@@ -32,8 +34,10 @@ export default function Maps() {
     };
 
     const startFunction = async () => {
-        await registerOrLogin();
-
+        const isAppRegistered = await isAppRegisteredAsync();
+        if (!isAppRegistered) {
+            return <Redirect href="/sign-in-app" />;
+        }
         const playerName = await getPlayerName();
         if (playerName === null) {
             setShowSelectPlayerName(true);

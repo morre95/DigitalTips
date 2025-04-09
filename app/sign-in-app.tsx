@@ -2,7 +2,7 @@ import React from 'react';
 import {TokenProvider} from "@/components/login/LoginContext";
 import CheckOutToken from "@/components/login/CheckOutToken";
 
-const LoginTest = () => {
+const SignInApp = () => {
     return (
         <TokenProvider>
             <CheckOutToken />
@@ -11,4 +11,4 @@ const LoginTest = () => {
 }
 
 
-export default LoginTest;
+export default SignInApp;

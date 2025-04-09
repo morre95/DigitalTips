@@ -1,6 +1,6 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {StyleSheet, View, Text, TouchableOpacity} from 'react-native';
-
+import { router } from 'expo-router';
 import {useToken} from '@/components/login/LoginContext'
 
 const CheckOutToken = () => {
@@ -10,22 +10,18 @@ const CheckOutToken = () => {
         return <Text>Loading...</Text>;
     }
 
-    if (!token) {
-        return (
-            <View>
-                <Text>No token</Text>
-                <TouchableOpacity style={styles.button} onPress={signInApp}>
-                    <Text style={styles.buttonText}>Sign in</Text>
-                </TouchableOpacity>
-            </View>
-        );
-    }
+    useEffect(() => {
+        if (!token) {
+            signInApp();
+            router.replace('/Maps');
+        }
+    }, [token]);
 
     return (
         <View style={styles.container}>
             <Text>Token: {token}</Text>
             <TouchableOpacity style={styles.button} onPress={signOutApp}>
-                <Text style={styles.buttonText}>Sign out</Text>
+                <Text style={styles.buttonText}>Refresh token</Text>
             </TouchableOpacity>
         </View>
     )

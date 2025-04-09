@@ -12,7 +12,7 @@ type ResponseProp = {
     message: string
 }
 
-const register: () => Promise<boolean> = async () => {
+const register = async (): Promise<boolean> => {
     let savedUsername = await SecureStore.getItemAsync('username');
     if (savedUsername) {
         return false;
@@ -33,7 +33,6 @@ const register: () => Promise<boolean> = async () => {
     const response = await registerUser<BodyProp, ResponseProp>(body)
 
     if (response.error) {
-
         return false;
     }
 

@@ -50,6 +50,7 @@ export default function AppLayout() {
                     headerShown: false,
                 }
             }/>
+            <Tabs.Screen name="sign-in-app" options={{href: null}}/>
             <Tabs.Screen name="QrCodeReader" options={{href: null}}/>
         </Tabs>
     );

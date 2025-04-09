@@ -1,8 +1,9 @@
-import React, {createContext, useContext} from 'react';
+import React, {createContext, useContext, useEffect, useState} from 'react';
 import {useStorageState} from './useStorageState';
 import * as SecureStore from "expo-secure-store";
 import postJson from "@/functions/api/Post";
 import {setPlayerId, setPlayerName} from "@/functions/common";
+import register from "@/functions/register";
 
 
 type LoginBody = {
@@ -21,15 +22,13 @@ type ResponseProp = {
 const AuthContext = createContext<{
     signInApp: () => void;
     signOutApp: () => void;
-    registerApp: () => void;
-    isAppRegistered: () => boolean;
+    isAppRegisteredAsync: () => Promise<boolean>;
     token?: string | null;
     isLoading: boolean;
 }>({
     signInApp: () => null,
     signOutApp: () => null,
-    registerApp: () => null,
-    isAppRegistered: () => false,
+    isAppRegisteredAsync: async () => true,
     token: null,
     isLoading: false,
 });
@@ -40,8 +39,26 @@ export function useToken() {
 
 export function TokenProvider({ children }: { children: React.ReactNode }) {
     const [[isLoading, token], setToken] = useStorageState('session');
+    const [isAppRegistered, setIsAppRegistered] = useState(false);
 
-    const isAppRegistered = false;
+    useEffect(() => {
+        (async () => {
+            const result = await handleIsAppRegistered();
+            if (!result) {
+                if (await register()) {
+                    setIsAppRegistered(true);
+                } else {
+                    throw new Error('Could not register app')
+                }
+            }
+        })();
+    }, [isAppRegistered]);
+
+    const handleIsAppRegistered = async (): Promise<boolean> => {
+        const username = await SecureStore.getItemAsync('username');
+        const password = await SecureStore.getItemAsync('password');
+        return username !== null && password !== null
+    };
 
     const handleSignIn = async () => {
         const username = await SecureStore.getItemAsync('username');
@@ -79,12 +96,8 @@ export function TokenProvider({ children }: { children: React.ReactNode }) {
                 signOutApp: () => {
                     setToken(null);
                 },
-                registerApp: () => {
-                    console.log('Register App, not implemented!!!');
-                },
-                isAppRegistered: () => {
-                    console.log('isRegister App, not implemented yet!!!');
-                    return false;
+                isAppRegisteredAsync: async () => {
+                    return await handleIsAppRegistered();
                 },
                 token,
                 isLoading,
