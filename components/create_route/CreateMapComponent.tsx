@@ -44,7 +44,8 @@ export function CreateMapComponent() {
     }, [token]);
 
     useEffect(() => {
-        const id = Number(routeId)
+        const id = Number(routeId);
+        console.log('route id:', id)
         if (id > 0) {
 
             (async () => {
@@ -330,6 +331,7 @@ export function CreateMapComponent() {
                     onFinish={() => dispatch({type: 'deleteAll'})}
                     onClose={() => {
                         setShowNext(false);
+                        if (Number(routeId) > 0) router.setParams({})
                     }}
                     alreadyInDb={Number(routeId) > 0}
                     routeId={Number(routeId) > 0 ? Number(routeId) : undefined}

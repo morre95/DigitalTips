@@ -27,8 +27,8 @@ const SetStartAndEndTime = ({onStartDateChanged, onEndDateChanged, initialValue}
 
     useEffect(() => {
         if (initialValue) {
-            setStartDate(initialValue.start);
-            setEndDate(initialValue.end);
+            setStartDate(initialValue.start !== null ? new Date(initialValue.start) : null);
+            setEndDate(initialValue.end !== null ? new Date(initialValue.end) : null);
         }
     }, [initialValue]);
 
