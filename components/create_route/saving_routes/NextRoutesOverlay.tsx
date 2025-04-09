@@ -138,13 +138,13 @@ const NextRoutesOverlay: FC<Props> = ({ currentRoutes, onFinish, onClose, alread
             endAt: endTime,
         };
 
-        let url = "";
+        let url: string;
         if (alreadyInDb && routeId !== undefined) {
             url = '/edit/route';
         } else {
             url = '/add/routes';
         }
-            const response = await postJson<SendData, ResponseData>(url, result);
+        const response = await postJson<SendData, ResponseData>(url, result);
 
         if (response.error) {
             Alert.alert('Something went wrong', response.error as string);
