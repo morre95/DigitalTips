@@ -1,10 +1,10 @@
-import postJson from '@/functions/api/Post'
-import register from './register'
-import globals from './globals'
+//import postJson from '@/functions/api/Post'
+//import register from './register'
+//import globals from './globals'
 import * as SecureStore from 'expo-secure-store';
-import {setPlayerId, setPlayerName} from "@/functions/common";
+//import {setPlayerId, setPlayerName} from "@/functions/common";
 
-type BodyProp = {
+/*type BodyProp = {
     username: string,
     password: string
 }
@@ -17,9 +17,9 @@ type ResponseProp = {
     playerName?: string,
 }
 
-let retryCount = 0;
+let retryCount = 0;*/
 
-const registerOrLogin = async () => {
+/*const registerOrLogin = async () => {
     if (globals.JWT_token) {
         return;
     }
@@ -57,15 +57,16 @@ const registerOrLogin = async () => {
             await setPlayerName(response.playerName || null)
         } else if (retryCount <= 5) {
             retryCount++
-            await SecureStore.deleteItemAsync('username');
-            await SecureStore.deleteItemAsync('password');
+            await resetAppUser();
             await registerOrLogin();
         } else {
             console.error('Ingen token', response.message);
 
         }
     }
-}
+}*/
 
-export default registerOrLogin;
-export { globals };
+
+
+//export default registerOrLogin;
+//export { globals };

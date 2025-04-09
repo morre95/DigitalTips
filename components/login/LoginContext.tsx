@@ -4,6 +4,7 @@ import * as SecureStore from "expo-secure-store";
 import postJson from "@/functions/api/Post";
 import {setPlayerId, setPlayerName} from "@/functions/common";
 import register from "@/functions/register";
+import resetAppUser from "@/functions/restAppUser";
 
 
 type LoginBody = {
@@ -73,14 +74,22 @@ export function TokenProvider({ children }: { children: React.ReactNode }) {
             try {
                 response = await postJson<LoginBody, ResponseProp>('login', body)
             } catch (error) {
-                console.error(error);
+                setToken(null);
+                console.error('Error 123', error);
                 return;
             }
 
             if (!response.error && response.token && response.user) {
-                await setPlayerId(response.user)
-                await setPlayerName(response.playerName || null)
+                await setPlayerId(response.user);
+                await setPlayerName(response.playerName || null);
                 setToken(response.token);
+            } else if (response.error && !response.token && !response.user) {
+                await setPlayerId(-1);
+                await setPlayerName(null);
+                setToken(null);
+                console.log('Hej hoppsan')
+                await resetAppUser();
+                setIsAppRegistered(!isAppRegistered);
             } else {
                 throw new Error("Login failed");
             }

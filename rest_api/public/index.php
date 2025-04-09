@@ -94,12 +94,12 @@ $app->post('/login', function (Request $request, Response $response) use ($secre
 
         return $response->withHeader('Content-Type', 'application/json')
             ->withStatus(200);
-    } else if ($user) {
+    } else {
         $responseData = [
             'error' => true,
             'token' => null,
             'user' => null,
-            'message' => 'Login failed'
+            'message' => 'Login failed, wrong password or username'
         ];
 
         $response->getBody()->write(json_encode($responseData));
@@ -108,7 +108,7 @@ $app->post('/login', function (Request $request, Response $response) use ($secre
             ->withStatus(200);
     }
 
-    $logger = get_logger($app->getContainer());
+    /*$logger = get_logger($app->getContainer());
 
     //$logger->error("JWT error: Invalid credentials: DBuser = {$user['username']}, DBpass = {$user['password']}, username = $username, password = $password");
 
@@ -123,7 +123,7 @@ $app->post('/login', function (Request $request, Response $response) use ($secre
     // Felaktiga användaruppgifter
     $response->getBody()->write(json_encode(['error' => 'Invalid credentials', 'message' => 'Can not create JWT token']));
     return $response->withHeader('Content-Type', 'application/json')
-        ->withStatus(401);
+        ->withStatus(401);*/
 });
 
 $app->post('/register', function (Request $request, Response $response) use ($secret_key, $app) {

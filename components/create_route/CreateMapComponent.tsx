@@ -37,7 +37,11 @@ export function CreateMapComponent() {
     const [loading, setLoading] = useState(false);
     const {routeId} = useLocalSearchParams()
     const router = useRouter();
-    const {token} = useToken();
+    const {token, signInApp} = useToken();
+
+    useEffect(() => {
+        if (!token) signInApp();
+    }, [token]);
 
     useEffect(() => {
         const id = Number(routeId)
