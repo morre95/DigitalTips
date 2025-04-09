@@ -327,7 +327,7 @@ export function CreateMapComponent() {
             {showNext &&
                 <NextRoutesOverlay
                     currentRoutes={state.checkpoints}
-                    onFinish={handleDeleteAll}
+                    onFinish={() => dispatch({type: 'deleteAll'})}
                     onClose={() => {
                         setShowNext(false);
                     }}
