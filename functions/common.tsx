@@ -9,8 +9,8 @@ export async function getPlayerName(): Promise<string | null> {
 }
 
 export async function setPlayerName(playerName: string | null): Promise<void> {
-    if (playerName === null) return
-    await SecureStore.setItemAsync('playerName', playerName);
+    if (playerName === null) await SecureStore.deleteItemAsync('playerName');
+    else await SecureStore.setItemAsync('playerName', playerName);
 }
 
 export async function getPlayerId(): Promise<number> {
@@ -22,5 +22,6 @@ export async function getPlayerId(): Promise<number> {
 }
 
 export async function setPlayerId(playerId: number): Promise<void> {
-    await SecureStore.setItemAsync('playerId', playerId.toString());
+    if (playerId > 0) await SecureStore.setItemAsync('playerId', playerId.toString());
+    else await SecureStore.deleteItemAsync('playerId');
 }

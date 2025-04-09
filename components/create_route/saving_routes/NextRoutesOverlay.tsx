@@ -2,7 +2,7 @@ import postJson from "@/functions/api/Post";
 import { QR_codeIcon } from '@/assets/images';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import * as Clipboard from 'expo-clipboard';
-import React, { FC, useState, useRef } from 'react';
+import React, {FC, useState, useRef, useEffect} from 'react';
 import {Alert, Button, Dimensions, StyleSheet, Text, TextInput, View, ScrollView} from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import { ButtonsComponent } from '../ButtonsComponent';
@@ -13,6 +13,8 @@ import {getPlayerId}  from '@/functions/common'
 import Loader from "@/components/Loader";
 import AreRoutesPrivateAndInOrder from "./AreRoutesPrivateAndInOrder";
 import SetStartAndEndTime from "./SetStartAndEndTime";
+import {getRoute} from "@/functions/api/Get";
+import {useToken} from '@/components/login/LoginContext'
 
 const { width: layoutWidth} = Dimensions.get("window");
 
@@ -39,9 +41,11 @@ interface Props {
     currentRoutes: RouteData[];
     onFinish: () => void;
     onClose: () => void;
+    alreadyInDb: boolean;
+    routeId?: number;
 }
 
-const NextRoutesOverlay: FC<Props> = ({ currentRoutes, onFinish, onClose }) => {
+const NextRoutesOverlay: FC<Props> = ({ currentRoutes, onFinish, onClose, alreadyInDb, routeId }) => {
     const [routeName, setRouteName] = useState<string>('')
     const [routeCity, setRouteCity] = useState<string>('')
     const [routeDescription, setRouteDescription] = useState<string>('')
@@ -57,6 +61,26 @@ const NextRoutesOverlay: FC<Props> = ({ currentRoutes, onFinish, onClose }) => {
 
     const [startTime, setStartTime] = useState<Date | null>(null);
     const [endTime, setEndTime] = useState<Date | null>(null);
+    const {token, signInApp} = useToken();
+
+    useEffect(() => {
+        (async () => {
+            if (alreadyInDb && routeId !== undefined) {
+                if (!token) {
+                    signInApp();
+                }
+
+                const result = await getRoute(routeId, token as string);
+                console.log(result);
+                // TODO: set startTime, endTime, inOrder and isPrivate in corresponding component
+                setRouteName(result.name);
+                setRouteCity(result.city);
+                setRouteDescription(result.description);
+                setStartTime(result.startAt);
+                setEndTime(result.endAt);
+            }
+        })();
+    }, [alreadyInDb]);
 
 
     const validateName = (): boolean => {

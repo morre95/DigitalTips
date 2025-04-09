@@ -104,6 +104,25 @@ async function getCheckpoints<T>(id: number): Promise<T> {
     return await getJson<T>(url);
 }
 
+type RouteInfo = {
+    routeId: number;
+    owner: number;
+    name: string;
+    city: string
+    description: string;
+    isPrivate: boolean;
+    inOrder: boolean;
+    startAt: Date | null;
+    endAt: Date | null;
+    createdAt: Date;
+    updatedAt: Date;
+}
+async function getRoute(id: number, token: string) {
+    const url = `api/get/route/info/${id}`;
+    let newToken = `Bearer_${token}`
+    return await getJson<RouteInfo>(url, {'Content-Type': 'application/json', 'Authorization': newToken});
+}
+
 type DeleteType = {
     error: string;
     message: string;
@@ -115,4 +134,4 @@ async function deleteCheckpoint(id: number, token: string): Promise<DeleteType> 
 }
 
 export default getJson;
-export { BaseUrl, getRestricted, getSearch, SearchResponse, getCheckpoints, deleteCheckpoint };
+export { BaseUrl, getRestricted, getSearch, SearchResponse, getCheckpoints, deleteCheckpoint, getRoute };

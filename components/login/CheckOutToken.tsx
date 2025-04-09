@@ -2,12 +2,13 @@ import React, {useEffect} from 'react';
 import {StyleSheet, View, Text, TouchableOpacity} from 'react-native';
 import { router } from 'expo-router';
 import {useToken} from '@/components/login/LoginContext'
+import Loader from "@/components/Loader";
 
 const CheckOutToken = () => {
     const {token, isLoading, signInApp, signOutApp} = useToken();
 
     if (isLoading) {
-        return <Text>Loading...</Text>;
+        return <Loader loading={true} />;
     }
 
     useEffect(() => {

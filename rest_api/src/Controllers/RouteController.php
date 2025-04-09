@@ -5,6 +5,30 @@ use Psr\Http\Message\ServerRequestInterface;
 use Modules\DB;
 use Psr\Log\LoggerInterface;
 
+function snakeToCamel($string): string {
+    return lcfirst(str_replace(' ', '', ucwords(str_replace('_', ' ', $string))));
+}
+
+function mapSnakeToCamel(stdClass $object): stdClass {
+    $newObject = new stdClass();
+
+    foreach ($object as $key => $value) {
+        $newKey = snakeToCamel($key);
+        if (is_object($value)) {
+            $newObject->$newKey = mapSnakeToCamel($value);
+        } elseif (is_array($value)) {
+            $newObject->$newKey = array_map(function($item) {
+                return is_object($item) ? mapSnakeToCamel($item) : $item;
+            }, $value);
+        } else {
+            $newObject->$newKey = $value;
+        }
+    }
+
+    return $newObject;
+}
+
+
 class RouteController
 {
     private $logger;
@@ -177,6 +201,57 @@ class RouteController
                 ->withStatus(500);
         }
 
+    }
+
+    public function get_route_info(ServerRequestInterface $request, ResponseInterface $response, $args) {
+        $sql = "SELECT 
+                    `route_id`, 
+                    `owner`, 
+                    `name`, 
+                    `city`, 
+                    `description`, 
+                    IF(`is_private`, 'true', 'false') `is_private`, 
+                    IF(`in_order`, 'true', 'false') `in_order`, 
+                    `start_at`, 
+                    `end_at`,
+                    `created_at`, 
+                    `updated_at` 
+                FROM `routes` 
+                    WHERE `route_id` = :route_id";
+
+        try {
+            $db = new Db();
+            $conn = $db->connect();
+            $stmt = $conn->prepare($sql);
+
+            $route_id = (int)$args['id'];
+            $stmt->execute([
+                ':route_id' => $route_id
+            ]);
+            $route = $stmt->fetch(PDO::FETCH_OBJ);
+            if ($route !== null) {
+                $route = mapSnakeToCamel($route);
+                $response->getBody()->write(json_encode($route));
+                return $response
+                    ->withHeader('content-type', 'application/json')
+                    ->withStatus(200);
+            } else {
+                throw new \PDOException("Route not found");
+            }
+
+        } catch (PDOException $e) {
+            $error = array(
+                "error" => true,
+                "message" => $e->getMessage()
+            );
+
+            $this->logger->error($error["message"]);
+
+            $response->getBody()->write(json_encode($error));
+            return $response
+                ->withHeader('content-type', 'application/json')
+                ->withStatus(500);
+        }
     }
 
     public function get_checkpoints(ServerRequestInterface $request, ResponseInterface $response, $args) {

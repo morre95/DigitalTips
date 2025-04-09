@@ -331,6 +331,8 @@ export function CreateMapComponent() {
                     onClose={() => {
                         setShowNext(false);
                     }}
+                    alreadyInDb={Number(routeId) > 0}
+                    routeId={Number(routeId) > 0 ? Number(routeId) : undefined}
                 />
             }
 

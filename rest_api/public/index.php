@@ -297,6 +297,7 @@ $jwtMiddleware = function (Request $request, $handler) use ($secret_key, $app) {
 $app->group('/api', function (\Slim\Routing\RouteCollectorProxy $group) {
     $group->get('/get/google/key', UserController::class . ':get_google_api_key');
     $group->get('/delete/checkpoint/{id}', RouteController::class . ':delete_checkpoint');
+    $group->get('/get/route/info/{id}', RouteController::class . ':get_route_info');
 })->add($jwtMiddleware);
 
 $app->run();
