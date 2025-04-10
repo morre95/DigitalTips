@@ -228,6 +228,7 @@ class RouteController
             $response->getBody()->write(json_encode($error));
             return $response
                 ->withHeader('content-type', 'application/json')
+                ->withHeader('x-error-message', $e->getMessage())
                 ->withStatus(500);
         }
     }
@@ -302,6 +303,7 @@ class RouteController
             $response->getBody()->write(json_encode($error));
             return $response
                 ->withHeader('content-type', 'application/json')
+                ->withHeader('x-error-message', $e->getMessage())
                 ->withStatus(500);
         }
 
@@ -344,6 +346,7 @@ class RouteController
             $response->getBody()->write(json_encode($error));
             return $response
                 ->withHeader('content-type', 'application/json')
+                ->withHeader('x-error-message', $e->getMessage())
                 ->withStatus(500);
         }
     }
@@ -418,6 +421,7 @@ class RouteController
             $response->getBody()->write(json_encode($error));
             return $response
                 ->withHeader('content-type', 'application/json')
+                ->withHeader('x-error-message', $e->getMessage())
                 ->withStatus(500);
         }
     }
@@ -439,6 +443,7 @@ class RouteController
             $response->getBody()->write(json_encode($error));
             return $response
                 ->withHeader('content-type', 'application/json')
+                ->withHeader('x-error-message', $e->getMessage())
                 ->withStatus(500);
         }
 
@@ -496,6 +501,7 @@ class RouteController
             $response->getBody()->write(json_encode($error));
             return $response
                 ->withHeader('content-type', 'application/json')
+                ->withHeader('x-error-message', $e->getMessage())
                 ->withStatus(500);
         }
     }

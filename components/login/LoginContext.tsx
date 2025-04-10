@@ -84,6 +84,7 @@ export function TokenProvider({ children }: { children: React.ReactNode }) {
                 await setPlayerName(response.playerName || null);
                 setToken(response.token);
             } else if (response.error && !response.token && !response.user) {
+                console.log(response.message)
                 setToken(null);
                 await resetAppUser();
                 setIsAppRegistered(!isAppRegistered);

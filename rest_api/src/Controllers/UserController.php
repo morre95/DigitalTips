@@ -47,6 +47,7 @@ class UserController
             $response->getBody()->write(json_encode($error));
             return $response
                 ->withHeader('content-type', 'application/json')
+                ->withHeader('x-error-message', $e->getMessage())
                 ->withStatus(500);
         }
     }
@@ -73,7 +74,7 @@ class UserController
                 ]);
             } else {
                 // TBD: kanske inte ska vara PDOException(). Men för att slippa skapa ett catch block till så får detta duga
-                throw new PDOException('Player id was not found');
+                throw new InvalidArgumentException('Player id was not found');
             }
 
             $db = null;
@@ -85,7 +86,7 @@ class UserController
         } catch (PDOException $e) {
             $error = array(
                 "error" => true,
-                "message" => $e->getMessage()
+                "message" => $e->getMessage(),
             );
 
             $this->logger->error($error["message"]);
@@ -93,7 +94,17 @@ class UserController
             $response->getBody()->write(json_encode($error));
             return $response
                 ->withHeader('content-type', 'application/json')
+                ->withHeader('x-error-message', $e->getMessage())
                 ->withStatus(500);
+        } catch (InvalidArgumentException $e) {
+            $message = [
+                "error" => true,
+                "message" => $e->getMessage(),
+            ];
+            $response->getBody()->write(json_encode($message));
+            return $response
+                ->withHeader('content-type', 'application/json')
+                ->withStatus(200);
         }
     }
 

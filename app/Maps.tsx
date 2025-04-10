@@ -7,6 +7,9 @@ import PlayerNameSelect from "@/components/PlayerNameSelect";
 import updatePlayerName from "@/functions/updatePlayerName";
 import {useToken} from "@/components/login/LoginContext";
 import { Redirect } from 'expo-router';
+import register from "@/functions/register";
+
+let updatePlayerTries = 0;
 
 export default function Maps() {
     const [appState, setAppState] = useState<AppStateStatus>(AppState.currentState);
@@ -47,7 +50,12 @@ export default function Maps() {
     const handlePlayerNameSelect = async (playerName: string) => {
         const error = await updatePlayerName(playerName);
         if (!error) {
-            console.error('player name was not changed');
+            if (!await register()) {
+                console.log('Could not register app')
+            } else if (++updatePlayerTries < 5) {
+                return await handlePlayerNameSelect(playerName);
+            }
+            console.log(`Could not set name: ${playerName}`);
         }
         setShowSelectPlayerName(false);
     }

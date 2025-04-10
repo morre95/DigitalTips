@@ -34,16 +34,16 @@ async function postJson<T, TReturn>(url: string, data: T, baseUrl: BaseUrl = Bas
     const requestOptions = prepareHeaders(data);
 
     url = url.startsWith('/') ? `${baseUrl}${url.substring(1)}` : `${baseUrl}${url}`
-    //console.log(url)
+    console.log(url)
 
     try {
         const response = await fetch(url, requestOptions);
         if (!response.ok) {
-            throw new Error(`Blast! Our posted letter was not received favorably: '${response.statusText}' (${response.status})`);
+            throw new Error(`Error message: '${response.headers.get("x-error-message")}' (${response.status})`);
         }
         return await response.json();
     } catch (error) {
-        console.error(`Zounds! Our brave post attempt was met with defeat: `, error);
+        console.error('Error: ', error);
         throw error;
     }
 }
@@ -74,6 +74,8 @@ async function registerUser<T, TReturn>(data: T): Promise<TReturn | IError> {
         throw error;
     }
 }
+
+
 
 export default postJson;
 export { BaseUrl, registerUser};
