@@ -243,6 +243,17 @@ $app->get('/', function (Request $request, Response $response, $args) {
     return $response;
 });
 
+$app->get('/ping', function (Request $request, Response $response, $args) {
+
+    $response->getBody()->write(json_encode([
+        'ping' => 'pong',
+        'timestamp' => time(),
+    ]));
+
+    return $response->withHeader('Content-Type', 'application/json')
+        ->withStatus(200);
+});
+
 
 $app->post('/add/routes', \RouteController::class . ':add_new');
 $app->post('/edit/route', \RouteController::class . ':edit_route');

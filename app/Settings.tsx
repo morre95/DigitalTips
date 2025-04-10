@@ -4,6 +4,7 @@ import {View, Text, StyleSheet, Button, Linking, TouchableOpacity} from 'react-n
 import {fetchCityName} from '@/components/ReverseGeocoding';
 import PlayerNameSelect from "@/components/PlayerNameSelect";
 import updatePlayerName from "@/functions/updatePlayerName";
+import PingApi from "@/components/PingApi";
 
 
 export default function Settings() {
@@ -80,6 +81,9 @@ export default function Settings() {
                     <Text style={styles.touchableText}>Select Player Name</Text>
                 </TouchableOpacity>
             </View>
+
+            <PingApi />
+
             <PlayerNameSelect
                 visible={selectPlayerNameVisible}
                 onSelect={handlePlayerNameSelect}

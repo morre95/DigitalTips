@@ -133,5 +133,10 @@ async function deleteCheckpoint(id: number, token: string): Promise<DeleteType> 
     return await getJson<DeleteType>(url, {'Content-Type': 'application/json', 'Authorization': newToken});
 }
 
+async function pingServer<T>() {
+    const url = 'ping';
+    return await getJson<T>(url);
+}
+
 export default getJson;
-export { BaseUrl, getRestricted, getSearch, SearchResponse, getCheckpoints, deleteCheckpoint, getRoute };
+export { BaseUrl, getRestricted, getSearch, SearchResponse, getCheckpoints, deleteCheckpoint, getRoute, pingServer };
