@@ -10,6 +10,7 @@ export interface Checkpoint {
     question:         Question;
     isAnswered?:      boolean;
     in_order:         boolean;
+    city:             string;
 }
 
 export interface Question {
@@ -35,6 +36,7 @@ export interface MarkerData {
 export type RouteData = {
     marker: MarkerData;
     question?: string;
+    questionId?: number;
     answers?: Answer[];
 }
 

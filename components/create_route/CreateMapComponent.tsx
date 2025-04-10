@@ -69,9 +69,10 @@ export function CreateMapComponent() {
                             longitude: Number(checkpoints[i].longitude),
                             name: `Checkpoint ${checkpoints[i].checkpoint_order}`,
                             markerOrder: checkpoints[i].checkpoint_order,
-                            city: '',
+                            city: checkpoints[i].city,
                         },
                         question: checkpoints[i].question.text,
+                        questionId: checkpoints[i].question_id,
                         answers: checkpoints[i].question.answers
                     };
 
@@ -119,6 +120,7 @@ export function CreateMapComponent() {
 
         const city = await getCity({latitude: coordinate.latitude, longitude: coordinate.longitude})
         route.marker.city = city ?? 'Unknown'
+        console.log(city, 'är det som gäller nu')
 
         dispatch({type: 'moveCheckpoint', checkpoint: route});
     }

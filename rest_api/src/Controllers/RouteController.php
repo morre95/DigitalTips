@@ -91,8 +91,8 @@ class RouteController
                         ':is_correct' => $answer['isRight']
                     ]);
                 }
-                $sql = "INSERT INTO checkpoints (route_id, latitude, longitude, question_id, checkpoint_order)
-                        VALUES (:route_id, :latitude, :longitude, :question_id, :checkpoint_order)";
+                $sql = "INSERT INTO checkpoints (route_id, latitude, longitude, city, question_id, checkpoint_order)
+                        VALUES (:route_id, :latitude, :longitude, :city, :question_id, :checkpoint_order)";
 
                 $checkpoint = $item['marker'];
                 $statement = $pdo->prepare($sql);
@@ -100,6 +100,7 @@ class RouteController
                     ':route_id' => $route_id,
                     ':latitude' => $checkpoint['latitude'],
                     ':longitude' => $checkpoint['longitude'],
+                    ':city' => $checkpoint['city'],
                     ':question_id' => $question_id,
                     ':checkpoint_order' => $checkpoint['markerOrder'] 
                 ]);
@@ -167,14 +168,52 @@ class RouteController
                 ':route_id' => $json["routeId"]
             ]);
 
-            // TODO: uppdatera även alla checkpoints... Just nu försvinner dom...
+            $sql_question = "UPDATE questions SET question_text = :question_text WHERE question_id = :question_id";
 
-            $json = [
+            foreach ($json["data"] as $item) {
+                $statement = $pdo->prepare($sql_question);
+                $statement->execute([
+                    ':question_text' => $item['question'],
+                    ':question_id' => $item['questionId']
+                ]);
+
+                $answer_sql = "UPDATE answers SET 
+                   answer_text = :answer_text, 
+                   is_correct = :is_correct 
+               WHERE answer_id = :answer_id";
+
+                foreach ($item['answers'] as $answer) {
+                    $statement = $pdo->prepare($answer_sql);
+                    $statement->execute([
+                        ':answer_text' => $answer['text'],
+                        ':is_correct' => $answer['isRight'],
+                        ':answer_id' => $answer['id']
+                    ]);
+                }
+                $checkpoint_sql = "UPDATE checkpoints SET 
+                       latitude = :latitude, 
+                       longitude = :longitude, 
+                       city = :city,
+                       checkpoint_order = :checkpoint_order 
+                   WHERE checkpoint_id = :checkpoint_id";
+
+                $checkpoint = $item['marker'];
+                $statement = $pdo->prepare($checkpoint_sql);
+                $statement->execute([
+                    ':latitude' => $checkpoint['latitude'],
+                    ':longitude' => $checkpoint['longitude'],
+                    ':city' => $checkpoint['city'],
+                    ':checkpoint_order' => $checkpoint['markerOrder'],
+                    ':checkpoint_id' => $checkpoint['id']
+                ]);
+            }
+
+            $return = [
                 'routeId' => $json["routeId"],
                 'message' => 'Successfully updated the route'
             ];
 
-            $response->getBody()->write(json_encode($json));
+            $response->getBody()->write(json_encode($return));
             return $response
                 ->withHeader('content-type', 'application/json')
                 ->withStatus(200);

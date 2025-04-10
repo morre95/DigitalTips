@@ -149,7 +149,6 @@ const NextRoutesOverlay: FC<Props> = ({ currentRoutes, onFinish, onClose, alread
         if (response.error) {
             Alert.alert('Something went wrong', response.error as string);
         } else {
-            //Alert.alert('The route is now saved')
             setQrCodeValue({name: routeName, routeId: response.routId});
             setShowNext(true);
         }
