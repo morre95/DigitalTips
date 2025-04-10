@@ -5,6 +5,8 @@ import {fetchCityName} from '@/components/ReverseGeocoding';
 import PlayerNameSelect from "@/components/PlayerNameSelect";
 import updatePlayerName from "@/functions/updatePlayerName";
 import PingApi from "@/components/PingApi";
+import {TokenProvider} from "@/components/login/LoginContext";
+import GetNewToken from "@/components/GetNewToken";
 
 
 export default function Settings() {
@@ -83,6 +85,10 @@ export default function Settings() {
             </View>
 
             <PingApi />
+
+            <TokenProvider>
+                <GetNewToken />
+            </TokenProvider>
 
             <PlayerNameSelect
                 visible={selectPlayerNameVisible}

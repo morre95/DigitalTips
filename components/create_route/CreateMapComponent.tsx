@@ -359,6 +359,7 @@ export function CreateMapComponent() {
 
 
             <Loader loading={loading} />
+            {/*<Text>{token?.slice(-15)}</Text>*/}
         </View>
     )
 }
