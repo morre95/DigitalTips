@@ -4,7 +4,7 @@ import { ExpoConfig, ConfigContext } from 'expo/config';
 // TODO: om nycklarna inte laddas in som dom ska kör "eas update --environment preview" före "eas build -p android --profile preview"
 export default ({ config }: ConfigContext): ExpoConfig => ({
     ...config,
-    slug: 'DigitalTips',
+    slug: 'my-app',
     name: 'Digital Tips',
 
     ios: {
