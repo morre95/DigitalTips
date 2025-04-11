@@ -5,7 +5,7 @@ import FlashMessage from "@/components/FlashMessage";
 
 type PingApiProps = {
     ping: string;
-    timestamp: Date;
+    timestamp: number;
     timeTaken?: number;
 }
 
@@ -17,7 +17,7 @@ const PingApi = () => {
         const result = await pingServer<PingApiProps>();
         const end = new Date().getTime();
         result.timeTaken = end - start;
-        flashMessageRef.current?.success(`Ping: ${result.timeTaken} ms, Server time: ${new Date(result.timestamp).toLocaleString()}`, 5000);
+        flashMessageRef.current?.success(`Ping: ${result.timeTaken} ms, Server time: ${new Date(result.timestamp * 1000).toLocaleString()}`, 5000);
     }
 
     return (
