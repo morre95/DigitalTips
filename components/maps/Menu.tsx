@@ -196,6 +196,13 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         backgroundColor: '#0569FF',
         borderColor: '#0569FF',
+
+        /*Shadow*/
+        shadowColor: 'rgba(0,0,0, .4)', // IOS
+        shadowOffset: { height: 2, width: 1 }, // IOS
+        shadowOpacity: 2, // IOS
+        shadowRadius: 2, //IOS
+        elevation: 4, // Android
     },
     touchableText: {
         fontSize: 17,
