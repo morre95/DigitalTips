@@ -32,11 +32,11 @@ export default function Settings() {
         setSelectPlayerNameVisible(true)
     }
     const handlePlayerNameSelect = async (playerName: string) => {
-        const error = await updatePlayerName(playerName)
+        setSelectPlayerNameVisible(false);
+        const error = await updatePlayerName(playerName);
         if (!error) {
             console.error('player name was not changed')
         }
-        setSelectPlayerNameVisible(false);
     }
     const handlePlayerNameCancel = () => {
         setSelectPlayerNameVisible(false);
