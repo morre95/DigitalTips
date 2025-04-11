@@ -1,5 +1,5 @@
 import React, {useState, useRef, ComponentRef, useEffect} from 'react';
-import {StyleSheet, View, Text, Vibration, Alert} from 'react-native';
+import {StyleSheet, View, Text, Vibration, Alert, Dimensions} from 'react-native';
 import MapView, {PROVIDER_GOOGLE, Region} from "react-native-maps";
 import CheckPoint from "./CheckPoint";
 import {Checkpoint, Question} from "@/interfaces/common";
@@ -15,16 +15,22 @@ import {useLocalSearchParams, useRouter} from 'expo-router';
 import {getPlayerId} from "@/functions/common";
 import {increaseProgress, setProgress, getProgress} from "@/functions/progress";
 
+const {width, height} = Dimensions.get('window');
+const ASPECT_RATIO = width / height;
+const LATITUDE_DELTA = 0.0722;
+const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
+
 const initialRegion: Region = {
     latitude: 58.317435384,
     longitude: 15.123921353,
-    latitudeDelta: 0.0622,
-    longitudeDelta: 0.0700,
+    latitudeDelta: LATITUDE_DELTA,
+    longitudeDelta: LONGITUDE_DELTA,
 };
+
 type QuestionType = {
     question: Question;
     checkPointId: number;
-}
+};
 
 const MapsComponent = () => {
     const router = useRouter();

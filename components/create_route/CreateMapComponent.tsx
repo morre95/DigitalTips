@@ -1,6 +1,6 @@
 import MapView, {Marker, PROVIDER_GOOGLE, Region} from 'react-native-maps';
 import React, {useEffect, useRef, useState} from "react";
-import {Alert, StyleSheet, Text, View} from "react-native";
+import {Alert, StyleSheet, Text, View, Dimensions} from "react-native";
 import {useLocalSearchParams, useRouter} from 'expo-router';
 import {Answer, Checkpoint, MarkerData, RouteData} from "@/interfaces/common";
 import {getCity} from "@/functions/request";
@@ -18,11 +18,16 @@ import Feather from "@expo/vector-icons/Feather";
 import Menu, {MenuItemWithChildren, MenuTextItem} from "@/components/maps/Menu";
 import {useToken} from '@/components/login/LoginContext'
 
+const {width, height} = Dimensions.get('window');
+const ASPECT_RATIO = width / height;
+const LATITUDE_DELTA = 0.0550;
+const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
+
 const initialRegion: Region = {
     latitude: 58.317435384,
     longitude: 15.123921353,
-    latitudeDelta: 0.0622,
-    longitudeDelta: 0.0700,
+    latitudeDelta: LATITUDE_DELTA,
+    longitudeDelta: LONGITUDE_DELTA,
 };
 
 export function CreateMapComponent() {
