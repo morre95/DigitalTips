@@ -34,7 +34,7 @@ async function fetchJson(url: string): Promise<Geocode> {
 
 
 export async function getCity(coordinate: Coordinate): Promise<string | null> {
-    const key = process.env["EXPO_PUBLIC_GEOCODE_API_KAY"];
+    const key = process.env["EXPO_PUBLIC_GEOCODE_API_KEY"];
     const url = `https://geocode.maps.co/reverse?lat=${coordinate.latitude}&lon=${coordinate.longitude}&api_key=${key}`
 
     const result = await fetchJson(url);
