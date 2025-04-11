@@ -158,17 +158,22 @@ $app->post('/register', function (Request $request, Response $response) use ($se
 
     $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
-    $sql = "INSERT INTO users (username, password) VALUES (:username, :password)";
+    $sql = "INSERT INTO users (username, password, player_name) VALUES (:username, :password, :player_name)";
     $stmt = $pdo->prepare($sql);
 
     try {
         $stmt->execute([
             ':username' => $username,
-            ':password' => $hashedPassword
+            ':password' => $hashedPassword,
+            ':player_name' => 'Player 1'
         ]);
+
+        $last_insert_id = $pdo->lastInsertId();
+
         $responseData = [
             'error' => false,
-            'message' => 'Register succeeded'
+            'message' => 'Register succeeded',
+            'userId' => $last_insert_id
         ];
         $response->getBody()->write(json_encode($responseData));
 
