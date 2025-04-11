@@ -20,6 +20,28 @@ const MarkerShaker = ({coordinate, triggerShake, shakeIsFinished, title, image, 
     useEffect(() => {
         if (triggerShake) {
             Animated.sequence([
+
+                Animated.timing(shakeAnimation, {
+                    toValue: 1,
+                    duration: 100,
+                    useNativeDriver: true,
+                }),
+                Animated.timing(shakeAnimation, {
+                    toValue: -1,
+                    duration: 100,
+                    useNativeDriver: true,
+                }),
+                Animated.timing(shakeAnimation, {
+                    toValue: 1,
+                    duration: 100,
+                    useNativeDriver: true,
+                }),
+                Animated.timing(shakeAnimation, {
+                    toValue: 0,
+                    duration: 100,
+                    useNativeDriver: true,
+                }),
+                Animated.delay(500),
                 Animated.timing(shakeAnimation, {
                     toValue: 1,
                     duration: 100,
