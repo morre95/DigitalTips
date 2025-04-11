@@ -1,13 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import {StyleSheet, Text} from 'react-native'
 import { getDistance } from 'geolib';
-
 import * as Location from 'expo-location';
-
-import { Marker } from 'react-native-maps';
 import { MarkerImages } from "@/assets/images";
-
 import {Checkpoint, Question} from "@/interfaces/common";
+import MarkerShaker from "@/components/maps/MarkerShaker";
 
 
 interface ICheckPoint {
@@ -154,23 +151,24 @@ const CheckPoint: React.FC<ICheckPoint> = (
 
 
     return (
-        <Marker
+        <MarkerShaker
             key={checkpoint.checkpoint_id}
             coordinate={{ latitude: Number(checkpoint.latitude), longitude: Number(checkpoint.longitude)  }}
             title={`Checkpoint: ${checkpoint.checkpoint_order}`}
             image={showNextCheckpoint ? undefined : {uri: MarkerImages}}
             onPress={handelOnPress}
+            triggerShake={showNextCheckpoint}
         >
             {showNextCheckpoint ? <Text style={styles.markerText}>{checkpoint.checkpoint_order}</Text> : null}
-        </Marker>
+        </MarkerShaker>
     )
 }
 
 const styles = StyleSheet.create({
     markerText: {
         fontWeight: 'bold',
-        fontSize: 24,
-        color: '#f800ff',
+        fontSize: 26,
+        color: '#a65bb8',
     },
 });
 
