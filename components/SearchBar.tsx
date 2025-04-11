@@ -17,8 +17,8 @@ const SearchBar = ({inFokus, searchPhrase, onSearchPhraseChange, onFokusChange, 
     const textInputRef = useRef<TextInput>(null);
 
     useEffect(() => {
-        if (inFokus) {
-            textInputRef?.current?.focus();
+        if (inFokus && textInputRef.current) {
+            textInputRef.current.focus();
         }
     }, [inFokus]);
 
@@ -56,7 +56,7 @@ const SearchBar = ({inFokus, searchPhrase, onSearchPhraseChange, onFokusChange, 
                         onFokusChange(false);
                     }}
                     onSubmitEditing={handleOnSubmit}
-                    inputMode={inputMode ? inputMode : 'none'}
+                    inputMode={inputMode ? inputMode : 'text'}
                 />
                 {inFokus && (
                     <Entypo
