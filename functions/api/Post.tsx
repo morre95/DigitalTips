@@ -34,7 +34,6 @@ async function postJson<T, TReturn>(url: string, data: T, baseUrl: BaseUrl = Bas
     const requestOptions = prepareHeaders(data);
 
     url = url.startsWith('/') ? `${baseUrl}${url.substring(1)}` : `${baseUrl}${url}`
-    console.log(url)
 
     try {
         const response = await fetch(url, requestOptions);
@@ -53,7 +52,7 @@ interface IError {
     message: string
 }
 
-async function registerUser<T, TReturn>(data: T): Promise<TReturn | IError> {
+async function registerUser<T, TReturn>(data: T): Promise<TReturn> {
     const requestOptions = prepareHeaders(data);
     const url = `${BaseUrl.remote}register`
 
@@ -61,16 +60,13 @@ async function registerUser<T, TReturn>(data: T): Promise<TReturn | IError> {
         const response = await fetch(url, requestOptions);
         if (response.status === 409) {
             console.error('Username already exists');
-            return new Promise((resolve) => {
-                const data: IError = { message: "Username already exists!", error: true };
-                resolve(data);
-            });
+            return { message: "Username already exists!", error: true } as TReturn;
         } else if (!response.ok) {
-            throw new Error(`Blast! Our posted letter was not received favorably: ${response.statusText}`);
+            throw new Error(`This is bad register: ${response.statusText}`);
         }
         return await response.json();
     } catch (error) {
-        console.error(`Zounds! Our brave post attempt was met with defeat: `, error);
+        console.error(`Error: `, error);
         throw error;
     }
 }

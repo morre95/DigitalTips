@@ -45,7 +45,6 @@ export function CreateMapComponent() {
 
     useEffect(() => {
         const id = Number(routeId);
-        console.log('route id:', id)
         if (id > 0) {
 
             (async () => {

@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {AppState, AppStateStatus, StyleSheet, View} from 'react-native';
 import {MapsProvider} from "@/components/maps/MapsContext";
 import MapsComponent from "@/components/maps/MapsComponent";
-import {getPlayerName} from "@/functions/common";
+import {getPlayerId, getPlayerName, sleep} from "@/functions/common";
 import PlayerNameSelect from "@/components/PlayerNameSelect";
 import updatePlayerName from "@/functions/updatePlayerName";
 import {useToken} from "@/components/login/LoginContext";
@@ -48,20 +48,26 @@ export default function Maps() {
     };
 
     const handlePlayerNameSelect = async (playerName: string) => {
+        setShowSelectPlayerName(false);
         const error = await updatePlayerName(playerName);
         if (!error) {
-            if (!await register()) {
-                console.log('Could not register app')
-            } else if (++updatePlayerTries < 5) {
-                return await handlePlayerNameSelect(playerName);
+            let userId = await getPlayerId();
+            let regResult = false;
+            if (userId === -1) {
+                regResult = await register();
+                if (!regResult) {
+                    throw new Error('Could not register app');
+                } else if (++updatePlayerTries < 5) {
+                    await sleep(10);
+                    return await handlePlayerNameSelect(playerName);
+                }
             }
-            console.log(`Could not set name: ${playerName}`);
+            throw new Error(`Could not set name: ${playerName}`);
         }
-        setShowSelectPlayerName(false);
     }
 
     const handlePlayerNameCancel = async () => {
-        await handlePlayerNameSelect('Player 1');
+        setShowSelectPlayerName(false);
     }
 
     return (
