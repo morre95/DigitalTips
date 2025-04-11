@@ -8,12 +8,14 @@ import updatePlayerName from "@/functions/updatePlayerName";
 import {useToken} from "@/components/login/LoginContext";
 import { Redirect } from 'expo-router';
 import register from "@/functions/register";
+import Loader from "@/components/Loader";
 
 let updatePlayerTries = 0;
 
 export default function Maps() {
     const [appState, setAppState] = useState<AppStateStatus>(AppState.currentState);
     const [showSelectPlayerName, setShowSelectPlayerName] = useState<boolean>(false);
+    const [loading, setLoading] = useState<boolean>(false);
     const {isAppRegisteredAsync} = useToken();
 
     useEffect(() => {
@@ -49,6 +51,7 @@ export default function Maps() {
 
     const handlePlayerNameSelect = async (playerName: string) => {
         setShowSelectPlayerName(false);
+        setLoading(true);
         const error = await updatePlayerName(playerName);
         if (!error) {
             let userId = await getPlayerId();
@@ -64,6 +67,7 @@ export default function Maps() {
             }
             throw new Error(`Could not set name: ${playerName}`);
         }
+        setLoading(false);
     }
 
     const handlePlayerNameCancel = async () => {
@@ -80,6 +84,7 @@ export default function Maps() {
                 onSelect={handlePlayerNameSelect}
                 onCancel={handlePlayerNameCancel}
             />
+            <Loader loading={loading} />
         </View>
     )
 }
