@@ -3,10 +3,14 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import {Tabs} from 'expo-router';
 import React from 'react';
 import {TokenProvider} from "@/components/login/LoginContext";
+import RefreshTokenEverXMinutes from '@/components/RefreshTokenEverXMinutes';
 
 export default function AppLayout() {
     return (
         <TokenProvider>
+            <RefreshTokenEverXMinutes
+                minutes={45}
+            />
             <Tabs>
                 <Tabs.Screen
                     name="CreateRoutes"
