@@ -19,7 +19,7 @@ Set up your environment by following this guid: [https://docs.expo.dev/get-start
 
 ## Usage
 
-A few examples of useful commands and/or tasks.
+How to use the app
 
 ```
 $ Creates a route
