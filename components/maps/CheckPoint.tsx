@@ -46,7 +46,7 @@ const CheckPoint: React.FC<ICheckPoint> = (
 
     useEffect(() => {
         if (currentPosition) {
-            setCurrentCoordinate(currentPosition)
+            setCurrentCoordinate(currentPosition);
         }
 
         // TBD: ska tas bort när testning är klar och hur game play ska vara är bestämt
@@ -58,11 +58,11 @@ const CheckPoint: React.FC<ICheckPoint> = (
 
             if (distance <= 0) {
                 if (onChange) {
-                    onChange(0)
+                    onChange(0);
                 }
             } else {
                 if (onChange) {
-                    onChange(distance)
+                    onChange(distance);
                 }
             }
         }
@@ -73,10 +73,10 @@ const CheckPoint: React.FC<ICheckPoint> = (
         if (activeCheckpoint && inActiveRegion) {
             onQuestion(checkpoint.question, checkpoint.checkpoint_id)
             if (onEnter) {
-                onEnter()
+                onEnter();
             }
         } else if (onLeave && activeCheckpoint) {
-            onLeave()
+            onLeave();
         }
     }, [inActiveRegion]);
 
@@ -87,10 +87,10 @@ const CheckPoint: React.FC<ICheckPoint> = (
 
             if (distance < globalThreshold) {
                 //console.log(`Avståndet är ${distance.toFixed(2)} meter, vilket är kortare än ${globalThreshold} meter.`);
-                setInActiveRegion(true)
-                stopForegroundUpdate()
+                setInActiveRegion(true);
+                stopForegroundUpdate();
             } else if (activeCheckpoint) {
-                setInActiveRegion(false)
+                setInActiveRegion(false);
             }
         }
     }, [currentCoordinate]);
@@ -104,7 +104,7 @@ const CheckPoint: React.FC<ICheckPoint> = (
             }
             //if (foreground.granted) await Location.requestBackgroundPermissionsAsync()
             if (activeCheckpoint) {
-                await startForegroundUpdate()
+                await startForegroundUpdate();
                 //console.log('currentCheckpoint id: ', checkpoint.checkpoint_id, 'startForegroundUpdate()')
             }
         })()
@@ -113,7 +113,7 @@ const CheckPoint: React.FC<ICheckPoint> = (
     // Start location tracking in foreground
     const startForegroundUpdate = async () => {
         // Check if foreground permission is granted
-        const { granted } = await Location.getForegroundPermissionsAsync()
+        const { granted } = await Location.getForegroundPermissionsAsync();
         if (!granted) {
             //console.log("location tracking denied")
             return
@@ -136,8 +136,8 @@ const CheckPoint: React.FC<ICheckPoint> = (
 
     // Stop location tracking in foreground
     const stopForegroundUpdate = () => {
-        foregroundSubscription?.remove()
-        setCurrentCoordinate(null)
+        foregroundSubscription?.remove();
+        setCurrentCoordinate(null);
     }
 
     // TBD: för mer om backgound uppdateringar https://chafikgharbi.com/expo-location-tracking/
