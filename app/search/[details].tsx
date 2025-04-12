@@ -5,8 +5,8 @@ import SearchBar from "@/components/SearchBar";
 import {getSearch, SearchResponse} from "@/functions/api/Get";
 import {getPlayerId} from "@/functions/common";
 import QrCodeModal from "@/components/search/QrCodeModal";
-import SearchFilterSettings from "@/components/search/SearchFilterSettings"
-
+import SearchFilterSettings from "@/components/search/SearchFilterSettings";
+import {useToken} from "@/components/login/LoginContext";
 
 interface IProps {
 
@@ -25,6 +25,7 @@ const Details = ({}: IProps) => {
     const [minCheckpoints, setMinCheckpoints] = useState<number>(0);
     const [isPrivate, setIsPrivate] = useState<boolean>(false);
     const [inOrder, setInOrder] = useState<boolean>(true);
+    const {token, signInApp} = useToken();
 
     useEffect(() => {
         (async () => {
@@ -72,9 +73,14 @@ const Details = ({}: IProps) => {
     const onSearchPhraseChange = async (text: string) => {
         setSearchPhrase(text);
         if (text.length > 2) {
-            const filtered = await getSearch(text);
+
+            if (!token) {
+                signInApp();
+            }
+
+            const filtered = await getSearch(text, token as string);
             if (filtered) {
-                console.log('onSearchPhraseChange()', filtered);
+                /*console.log('onSearchPhraseChange()', filtered);*/
                 setFilteredData(filtered);
                 setRawData(filtered);
             }

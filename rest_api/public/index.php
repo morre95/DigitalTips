@@ -107,23 +107,6 @@ $app->post('/login', function (Request $request, Response $response) use ($secre
         return $response->withHeader('Content-Type', 'application/json')
             ->withStatus(200);
     }
-
-    /*$logger = get_logger($app->getContainer());
-
-    //$logger->error("JWT error: Invalid credentials: DBuser = {$user['username']}, DBpass = {$user['password']}, username = $username, password = $password");
-
-    $loggStr = "JWT error: Invalid credentials";
-
-    if ($user)
-    foreach ($user as $item) {
-        $loggStr += " $item,";
-    }
-
-    $logger->error($loggStr);
-    // Felaktiga användaruppgifter
-    $response->getBody()->write(json_encode(['error' => 'Invalid credentials', 'message' => 'Can not create JWT token']));
-    return $response->withHeader('Content-Type', 'application/json')
-        ->withStatus(401);*/
 });
 
 $app->post('/register', function (Request $request, Response $response) use ($secret_key, $app) {
@@ -259,16 +242,6 @@ $app->get('/ping', function (Request $request, Response $response, $args) {
         ->withStatus(200);
 });
 
-
-$app->post('/add/routes', \RouteController::class . ':add_new');
-$app->post('/edit/route', \RouteController::class . ':edit_route');
-
-$app->get('/search/routes/{keyword}', \RouteController::class . ':search');
-$app->get('/get/checkpoints/{id}', \RouteController::class . ':get_checkpoints');
-
-$app->post('/change/player/name', \UserController::class . ':change_player_name');
-
-
 $jwtMiddleware = function (Request $request, $handler) use ($secret_key, $app) {
     // Läs av Authorization-header
     $authHeader = $request->getHeaderLine('Authorization');
@@ -315,6 +288,12 @@ $app->group('/api', function (\Slim\Routing\RouteCollectorProxy $group) {
     $group->get('/get/google/key', UserController::class . ':get_google_api_key');
     $group->get('/delete/checkpoint/{id}', RouteController::class . ':delete_checkpoint');
     $group->get('/get/route/info/{id}', RouteController::class . ':get_route_info');
+    $group->get('/search/routes/{keyword}', \RouteController::class . ':search');
+    $group->get('/get/checkpoints/{id}', \RouteController::class . ':get_checkpoints');
+
+    $group->post('/add/routes', \RouteController::class . ':add_new');
+    $group->post('/edit/route', \RouteController::class . ':edit_route');
+    $group->post('/change/player/name', \UserController::class . ':change_player_name');
 })->add($jwtMiddleware);
 
 $app->run();

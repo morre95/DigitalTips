@@ -1,4 +1,4 @@
-import postJson from "@/functions/api/Post";
+import {postJsonWithToken} from "@/functions/api/Post";
 import { QR_codeIcon } from '@/assets/images';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import * as Clipboard from 'expo-clipboard';
@@ -140,11 +140,16 @@ const NextRoutesOverlay: FC<Props> = ({ currentRoutes, onFinish, onClose, alread
 
         let url: string;
         if (alreadyInDb && routeId !== undefined) {
-            url = '/edit/route';
+            url = '/api/edit/route';
         } else {
-            url = '/add/routes';
+            url = '/api/add/routes';
         }
-        const response = await postJson<SendData, ResponseData>(url, result);
+
+        if (!token) {
+            signInApp();
+        }
+
+        const response = await postJsonWithToken<SendData, ResponseData>(url, result, token as string);
 
         if (response.error) {
             Alert.alert('Something went wrong', response.error as string);

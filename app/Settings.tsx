@@ -7,12 +7,14 @@ import updatePlayerName from "@/functions/updatePlayerName";
 import PingApi from "@/components/PingApi";
 import GetNewToken from "@/components/GetNewToken";
 import Loader from "@/components/Loader";
+import {useToken} from '@/components/login/LoginContext'
 
 
 export default function Settings() {
     const router = useRouter();  // Get the router instance
     const [selectPlayerNameVisible, setSelectPlayerNameVisible] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(false);
+    const {token, signInApp} = useToken();
 
 
     const openURL = (url: string) => {
@@ -34,7 +36,11 @@ export default function Settings() {
     const handlePlayerNameSelect = async (playerName: string) => {
         setSelectPlayerNameVisible(false);
         setLoading(true);
-        const error = await updatePlayerName(playerName);
+
+        if (!token) {
+            signInApp();
+        }
+        const error = await updatePlayerName(playerName, token as string);
         if (!error) {
             console.error('player name was not changed')
         }

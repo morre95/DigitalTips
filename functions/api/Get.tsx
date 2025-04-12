@@ -55,7 +55,7 @@ interface SearchResponse {
     endAt?: Date;
 }
 
-async function getSearch(keyword: string): Promise<SearchResponse[]|null> {
+async function getSearch(keyword: string, token: string): Promise<SearchResponse[]|null> {
     interface IResp {
         routes: IRoute[]
         count: number
@@ -77,7 +77,7 @@ async function getSearch(keyword: string): Promise<SearchResponse[]|null> {
         end_at?: Date;
     }
 
-    const response = await getJson<IResp>(`search/routes/${encodeURIComponent(keyword)}`)
+    const response = await getRestricted<IResp>(`api/search/routes/${encodeURIComponent(keyword)}`, token);
 
     if (response.error) return null;
 
@@ -99,9 +99,9 @@ async function getSearch(keyword: string): Promise<SearchResponse[]|null> {
 }
 
 
-async function getCheckpoints<T>(id: number): Promise<T> {
-    const url = `get/checkpoints/${id}`;
-    return await getJson<T>(url);
+async function getCheckpoints<T>(id: number, token: string): Promise<T> {
+    const url = `api/get/checkpoints/${id}`;
+    return await getRestricted<T>(url, token);
 }
 
 type RouteInfo = {

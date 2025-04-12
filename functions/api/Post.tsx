@@ -1,9 +1,13 @@
 import BaseUrl from './BaseUrl';
 
-function prepareHeaders<T>(data: T) {
+function prepareHeaders<T>(data: T, token?: string) {
     const headers = new Headers();
     headers.set('Content-Type', 'application/json');
-    headers.set('Authorization', 'auth_ThisIsMandatory');
+    if (token) {
+        headers.set('Authorization', `Bearer_${token}`);
+    } else {
+        headers.set('Authorization', 'auth_ThisIsMandatory');
+    }
     return {
         method: 'POST',
         headers: headers,
@@ -32,9 +36,18 @@ function prepareHeaders<T>(data: T) {
 */
 async function postJson<T, TReturn>(url: string, data: T, baseUrl: BaseUrl = BaseUrl.remote): Promise<TReturn> {
     const requestOptions = prepareHeaders(data);
-
     url = url.startsWith('/') ? `${baseUrl}${url.substring(1)}` : `${baseUrl}${url}`
+    return post<TReturn>(url, requestOptions);
+}
 
+async function postJsonWithToken<T, TReturn>(url: string, data: T, token: string, baseUrl: BaseUrl = BaseUrl.remote): Promise<TReturn> {
+    const requestOptions = prepareHeaders(data, token);
+    url = url.startsWith('/') ? `${baseUrl}${url.substring(1)}` : `${baseUrl}${url}`
+    return post<TReturn>(url, requestOptions);
+}
+
+
+async function post<TReturn>(url: string, requestOptions: any): Promise<TReturn> {
     try {
         const response = await fetch(url, requestOptions);
         if (!response.ok) {
@@ -45,11 +58,6 @@ async function postJson<T, TReturn>(url: string, data: T, baseUrl: BaseUrl = Bas
         console.error('Error: ', error);
         throw error;
     }
-}
-
-interface IError {
-    error: boolean,
-    message: string
 }
 
 async function registerUser<T, TReturn>(data: T): Promise<TReturn> {
@@ -71,7 +79,5 @@ async function registerUser<T, TReturn>(data: T): Promise<TReturn> {
     }
 }
 
-
-
 export default postJson;
-export { BaseUrl, registerUser};
+export { BaseUrl, registerUser, postJsonWithToken};

@@ -7,6 +7,7 @@ import {getPlayerId} from '@/functions/common';
 import EvilIcons from '@expo/vector-icons/EvilIcons';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import SearchBar from "@/components/SearchBar";
+import {useToken} from "@/components/login/LoginContext";
 
 
 interface IAutocompleteProps {
@@ -20,6 +21,7 @@ const Autocomplete: React.FC<IAutocompleteProps> = ({ onSelect, onSubmit, onFoku
     const [filteredData, setFilteredData] = useState<SearchResponse[]>([]);
     const [isFocused, setIsFocused] = useState(true);
     const [appUserId, setAppUserId] = useState<number | null>(null);
+    const {token, signInApp} = useToken();
 
     useEffect(() => {
         (async () => {
@@ -30,7 +32,10 @@ const Autocomplete: React.FC<IAutocompleteProps> = ({ onSelect, onSubmit, onFoku
     const handleInputChange = async (text: string) => {
         setQuery(text);
         if (text.length > 2) {
-            const filtered = await getSearch(text)
+            if (!token) {
+                signInApp();
+            }
+            const filtered = await getSearch(text, token as string);
             if (filtered) {
                 setFilteredData(filtered.filter(route => !route.isPrivate));
             }

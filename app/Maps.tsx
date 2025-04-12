@@ -16,7 +16,7 @@ export default function Maps() {
     const [appState, setAppState] = useState<AppStateStatus>(AppState.currentState);
     const [showSelectPlayerName, setShowSelectPlayerName] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(false);
-    const {isAppRegisteredAsync} = useToken();
+    const {token, signInApp, isAppRegisteredAsync} = useToken();
 
     useEffect(() => {
         (async () => {
@@ -52,7 +52,12 @@ export default function Maps() {
     const handlePlayerNameSelect = async (playerName: string) => {
         setShowSelectPlayerName(false);
         setLoading(true);
-        const error = await updatePlayerName(playerName);
+
+        if (!token) {
+            signInApp();
+        }
+
+        const error = await updatePlayerName(playerName, token as string);
         if (!error) {
             let userId = await getPlayerId();
             let regResult = false;

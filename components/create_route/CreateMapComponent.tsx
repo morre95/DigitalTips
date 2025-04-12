@@ -57,7 +57,9 @@ export function CreateMapComponent() {
                     checkpoints: Checkpoint[];
                 }
 
-                const markers = await getCheckpoints<Markers>(id)
+                if (!token) signInApp();
+
+                const markers = await getCheckpoints<Markers>(id, token as string);
 
                 const checkpoints = markers.checkpoints.map(checkpoint => {
                     checkpoint.question.answers = [...checkpoint.question.answers].sort(() => Math.random() - 0.5);

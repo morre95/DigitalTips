@@ -14,6 +14,7 @@ import Menu, {MenuTextItem} from "@/components/maps/Menu";
 import {useLocalSearchParams, useRouter} from 'expo-router';
 import {getPlayerId} from "@/functions/common";
 import {increaseProgress, setProgress, getProgress} from "@/functions/progress";
+import {useToken} from "@/components/login/LoginContext";
 
 const {width, height} = Dimensions.get('window');
 const ASPECT_RATIO = width / height;
@@ -45,6 +46,7 @@ const MapsComponent = () => {
     const [showNextCheckpoint, setShowNextCheckpoint] = useState(false);
     const [currentPos, setCurrentPos] = useState<{longitude: number, latitude: number}>({longitude: 0, latitude: 0});
     const {routeId} = useLocalSearchParams();
+    const {token, signInApp} = useToken();
 
     useEffect(() => {
         const id = Number(routeId);
@@ -53,7 +55,10 @@ const MapsComponent = () => {
                 type Markers = {
                     checkpoints: Checkpoint[];
                 }
-                const markers = await getCheckpoints<Markers>(id)
+                if (!token) {
+                    signInApp();
+                }
+                const markers = await getCheckpoints<Markers>(id, token as string);
 
                 dispatch(() => markers.checkpoints);
             })();
@@ -78,7 +83,12 @@ const MapsComponent = () => {
             type Markers = {
                 checkpoints: Checkpoint[];
             }
-            const markers = await getCheckpoints<Markers>(routeId)
+
+            if (!token) {
+                signInApp();
+            }
+
+            const markers = await getCheckpoints<Markers>(routeId, token as string)
 
             const progress = await getProgress(markers.checkpoints[0].route_id);
             if (progress) {
