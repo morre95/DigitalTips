@@ -54,7 +54,7 @@ export default function Maps() {
         setLoading(true);
 
         if (!token) {
-            signInApp();
+            await signInApp();
         }
 
         const error = await updatePlayerName(playerName, token as string);

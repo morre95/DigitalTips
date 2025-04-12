@@ -45,7 +45,11 @@ export function CreateMapComponent() {
     const {token, signInApp} = useToken();
 
     useEffect(() => {
-        if (!token) signInApp();
+        (async () => {
+            if (!token) {
+                await signInApp();
+            }
+        })();
     }, [token]);
 
     useEffect(() => {
@@ -57,7 +61,7 @@ export function CreateMapComponent() {
                     checkpoints: Checkpoint[];
                 }
 
-                if (!token) signInApp();
+                if (!token) await signInApp();
 
                 const markers = await getCheckpoints<Markers>(id, token as string);
 
@@ -124,9 +128,8 @@ export function CreateMapComponent() {
         route.marker.latitude = coordinate.latitude;
         route.marker.longitude = coordinate.longitude;
 
-        const city = await getCity({latitude: coordinate.latitude, longitude: coordinate.longitude})
-        route.marker.city = city ?? 'Unknown'
-        console.log(city, 'är det som gäller nu')
+        const city = await getCity({latitude: coordinate.latitude, longitude: coordinate.longitude});
+        route.marker.city = city ?? 'Unknown';
 
         dispatch({type: 'moveCheckpoint', checkpoint: route});
     }

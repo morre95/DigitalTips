@@ -56,7 +56,7 @@ const MapsComponent = () => {
                     checkpoints: Checkpoint[];
                 }
                 if (!token) {
-                    signInApp();
+                    await signInApp();
                 }
                 const markers = await getCheckpoints<Markers>(id, token as string);
 
@@ -85,7 +85,7 @@ const MapsComponent = () => {
             }
 
             if (!token) {
-                signInApp();
+                await signInApp();
             }
 
             const markers = await getCheckpoints<Markers>(routeId, token as string)

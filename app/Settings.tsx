@@ -38,7 +38,7 @@ export default function Settings() {
         setLoading(true);
 
         if (!token) {
-            signInApp();
+            await signInApp();
         }
         const error = await updatePlayerName(playerName, token as string);
         if (!error) {

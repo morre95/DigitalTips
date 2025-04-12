@@ -5,9 +5,9 @@ import {useToken} from "@/components/login/LoginContext";
 const GetNewToken = () => {
     const {token, signInApp, signOutApp} = useToken();
 
-    const handelNewToken = () => {
+    const handelNewToken = async () => {
         signOutApp();
-        signInApp();
+        await signInApp();
     }
 
     return (

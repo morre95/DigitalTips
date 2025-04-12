@@ -21,13 +21,13 @@ type ResponseProp = {
 }
 
 const AuthContext = createContext<{
-    signInApp: () => void;
+    signInApp: () => Promise<void>;
     signOutApp: () => void;
     isAppRegisteredAsync: () => Promise<boolean>;
     token?: string | null;
     isLoading: boolean;
 }>({
-    signInApp: () => null,
+    signInApp: async () => {},
     signOutApp: () => null,
     isAppRegisteredAsync: async () => true,
     token: null,

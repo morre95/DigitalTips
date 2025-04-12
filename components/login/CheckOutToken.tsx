@@ -12,10 +12,12 @@ const CheckOutToken = () => {
     }
 
     useEffect(() => {
-        if (!token) {
-            signInApp();
-            router.replace('/Maps');
-        }
+        (async () => {
+            if (!token) {
+                await signInApp();
+                router.replace('/Maps');
+            }
+        })()
     }, [token]);
 
     return (

@@ -33,7 +33,7 @@ const Autocomplete: React.FC<IAutocompleteProps> = ({ onSelect, onSubmit, onFoku
         setQuery(text);
         if (text.length > 2) {
             if (!token) {
-                signInApp();
+                await signInApp();
             }
             const filtered = await getSearch(text, token as string);
             if (filtered) {

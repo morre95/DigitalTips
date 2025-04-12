@@ -75,7 +75,7 @@ const Details = ({}: IProps) => {
         if (text.length > 2) {
 
             if (!token) {
-                signInApp();
+                await signInApp();
             }
 
             const filtered = await getSearch(text, token as string);

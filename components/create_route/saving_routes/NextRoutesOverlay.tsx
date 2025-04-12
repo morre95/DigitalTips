@@ -69,7 +69,7 @@ const NextRoutesOverlay: FC<Props> = ({ currentRoutes, onFinish, onClose, alread
         (async () => {
             if (alreadyInDb && routeId !== undefined) {
                 if (!token) {
-                    signInApp();
+                    await signInApp();
                 }
 
                 const result = await getRoute(routeId, token as string);
@@ -146,7 +146,7 @@ const NextRoutesOverlay: FC<Props> = ({ currentRoutes, onFinish, onClose, alread
         }
 
         if (!token) {
-            signInApp();
+            await signInApp();
         }
 
         const response = await postJsonWithToken<SendData, ResponseData>(url, result, token as string);
