@@ -22,7 +22,7 @@ interface IRefreshTokenEverXMinutes {
 }
 
 const RefreshTokenEverXMinutes = ({minutes}: IRefreshTokenEverXMinutes) => {
-    const {signOutApp, signInApp} = useToken();
+    const {token, signOutApp, signInApp} = useToken();
     useEffect(() => {
         (async () => {
             const time = await getTime();
@@ -41,6 +41,14 @@ const RefreshTokenEverXMinutes = ({minutes}: IRefreshTokenEverXMinutes) => {
             }
         })();
     }, [minutes]);
+
+    useEffect(() => {
+        if (token) {
+            (async () => {
+                await setTime();
+            })();
+        }
+    }, [token]);
 
     return (
         <></>
