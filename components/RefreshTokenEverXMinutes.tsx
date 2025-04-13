@@ -3,14 +3,14 @@ import {useToken} from "@/components/login/LoginContext";
 import * as SecureStore from "expo-secure-store";
 
 
-const secretKey = "a25e069128262ba27d1a0ef8bf64bece";
+const thisKeyIsHardToGuess = "a25e069128262ba27d1a0ef8bf64bece";
 
 async function setTime(): Promise<void> {
-    await SecureStore.setItemAsync(secretKey, new Date().getTime().toString());
+    await SecureStore.setItemAsync(thisKeyIsHardToGuess, new Date().getTime().toString());
 }
 
 async function getTime(): Promise<number | null> {
-    const result = await SecureStore.getItemAsync(secretKey);
+    const result = await SecureStore.getItemAsync(thisKeyIsHardToGuess);
     if (!result) {
         return null;
     }
