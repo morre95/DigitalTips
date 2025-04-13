@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {View, FlatList, Text, TouchableOpacity, StyleSheet} from 'react-native';
+import {View, FlatList, Text, TouchableOpacity, StyleSheet, Dimensions} from 'react-native';
 import {getSearch, SearchResponse} from '@/functions/api/Get'
 
 import Tooltip, {Position} from "@/components/Tooltip";
@@ -8,6 +8,8 @@ import EvilIcons from '@expo/vector-icons/EvilIcons';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import SearchBar from "@/components/SearchBar";
 import {useToken} from "@/components/login/LoginContext";
+
+const {height} = Dimensions.get('window');
 
 
 interface IAutocompleteProps {
@@ -78,7 +80,7 @@ const Autocomplete: React.FC<IAutocompleteProps> = ({ onSelect, onSubmit, onFoku
                 <Text style={styles.date}>{item.date.toLocaleString()}</Text>
                 <Text style={styles.city}>{item.city}</Text>
                 {isAdmin && <AntDesign
-                    style={{position: 'absolute', top: 0, right: 0, }}
+                    style={{position: 'absolute', top: 0, right: 5, }}
                     name="edit"
                     size={14}
                     color="black"
@@ -86,6 +88,18 @@ const Autocomplete: React.FC<IAutocompleteProps> = ({ onSelect, onSubmit, onFoku
                 />}
             </TouchableOpacity>
         )
+    }
+
+    const getListHeight = () : number => {
+        const itemHeight = 44.36;
+        const maxItemNum = 10;
+        const maxTotalHeight = itemHeight * maxItemNum;
+
+        if (maxTotalHeight > (height - 150)) {
+            return itemHeight * 5;
+        } else {
+            return maxTotalHeight;
+        }
     }
 
     return (
@@ -115,6 +129,7 @@ const Autocomplete: React.FC<IAutocompleteProps> = ({ onSelect, onSubmit, onFoku
                         startAt={item.startAt}
                     />
                 )}
+                style={{maxHeight: getListHeight()}}
             />
         </View>
     );
