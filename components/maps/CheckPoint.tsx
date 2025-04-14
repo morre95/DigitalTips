@@ -158,6 +158,7 @@ const CheckPoint: React.FC<ICheckPoint> = (
             image={showNextCheckpoint ? undefined : {uri: MarkerImages}}
             onPress={handelOnPress}
             triggerShake={showNextCheckpoint}
+            direction={'vertical'}
         >
             {showNextCheckpoint ? <Text style={styles.markerText}>{checkpoint.checkpoint_order}</Text> : null}
         </MarkerShaker>
