@@ -88,7 +88,7 @@ const MapsComponent = () => {
                 await signInApp();
             }
 
-            const markers = await getCheckpoints<Markers>(routeId, token as string)
+            const markers = await getCheckpoints<Markers>(routeId, token as string);
 
             const progress = await getProgress(markers.checkpoints[0].route_id);
             if (progress) {
@@ -126,6 +126,14 @@ const MapsComponent = () => {
                 await setProgress(null);
                 dispatch(() => markers.checkpoints);
             }
+
+            if (markers.checkpoints.length > 0) {
+                const region = {
+                    latitude: Number(markers.checkpoints[0].latitude),
+                    longitude: Number(markers.checkpoints[0].longitude)
+                };
+                moveToRegion(region);
+            }
         }
 
         setShowSearchButton(true)
@@ -151,6 +159,18 @@ const MapsComponent = () => {
         } else {
             await DispatchCheckpoints(item.routeId);
         }
+    }
+
+    const [newRegion, setNewRegion] = useState<Region|undefined>();
+    const moveToRegion = (latLon : {latitude: number, longitude: number})  => {
+        const newRegion: Region = {
+            latitude: latLon.latitude,
+            longitude: latLon.longitude,
+            latitudeDelta: LATITUDE_DELTA,
+            longitudeDelta: LONGITUDE_DELTA,
+        };
+
+        setNewRegion(newRegion);
     }
 
     const handleAutoOnSubmit = (item: string) => {
@@ -255,6 +275,13 @@ const MapsComponent = () => {
         dispatch(() => []);
     }
 
+    const handleOnRegionChange = (currentRegion: Region) => {
+        if (newRegion !== undefined) {
+            setNewRegion(undefined);
+        }
+        setCurrentRegion(currentRegion);
+    }
+
     return (
         <View style={styles.container}>
             <FlashMessage ref={flashMessageRef} />
@@ -263,8 +290,9 @@ const MapsComponent = () => {
                 provider={PROVIDER_GOOGLE}
                 style={styles.map}
                 initialRegion={currentRegion}
+                region={newRegion}
                 onPress={handleMapPress}
-                onRegionChange={setCurrentRegion}
+                onRegionChange={handleOnRegionChange}
                 showsUserLocation={true}
                 showsMyLocationButton={false}
                 toolbarEnabled={false}
@@ -327,6 +355,7 @@ const MapsComponent = () => {
                 <MenuTextItem text={'Remove game'} onPress={handleRemoveGame} />
                 <MenuTextItem text={'Qr Code Reader'} onPress={handleQrReader} />
             </Menu>
+
         </View>
     )
 }
