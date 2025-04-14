@@ -1,5 +1,5 @@
-import React, {useEffect, useState} from 'react';
-import {View, FlatList, Text, TouchableOpacity, StyleSheet, Dimensions} from 'react-native';
+import React, {useEffect, useState, useRef} from 'react';
+import {View, FlatList, Text, TouchableOpacity, StyleSheet, Dimensions, Animated} from 'react-native';
 import {getSearch, SearchResponse} from '@/functions/api/Get'
 
 import Tooltip, {Position} from "@/components/Tooltip";
@@ -8,6 +8,7 @@ import EvilIcons from '@expo/vector-icons/EvilIcons';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import SearchBar from "@/components/SearchBar";
 import {useToken} from "@/components/login/LoginContext";
+import useKeyboardOffsetHeight from "@/hooks/useKeyboardOffsetHeight";
 
 const {height} = Dimensions.get('window');
 
@@ -24,6 +25,17 @@ const Autocomplete: React.FC<IAutocompleteProps> = ({ onSelect, onSubmit, onFoku
     const [isFocused, setIsFocused] = useState(true);
     const [appUserId, setAppUserId] = useState<number | null>(null);
     const {token, signInApp} = useToken();
+    const keyboardOffsetHeight = useKeyboardOffsetHeight();
+    const animatedValue = useRef(new Animated.Value(0)).current;
+
+    useEffect(() => {
+        Animated.timing(animatedValue, {
+            /*toValue: keyboardOffsetHeight ? -keyboardOffsetHeight * 0.5 : 0,*/
+            toValue: 1,
+            duration: 500,
+            useNativeDriver: true,
+        }).start();
+    }, [keyboardOffsetHeight]);
 
     useEffect(() => {
         (async () => {
@@ -102,6 +114,11 @@ const Autocomplete: React.FC<IAutocompleteProps> = ({ onSelect, onSubmit, onFoku
         }
     }
 
+    let maxHeight = animatedValue.interpolate({
+        inputRange: [0, 1],
+        outputRange: [0, -keyboardOffsetHeight * 0.5],
+    });
+
     return (
         <View style={styles.container}>
             <SearchBar
@@ -129,7 +146,7 @@ const Autocomplete: React.FC<IAutocompleteProps> = ({ onSelect, onSubmit, onFoku
                         startAt={item.startAt}
                     />
                 )}
-                style={{maxHeight: getListHeight()}}
+                style={{maxHeight: getListHeight() - Number(maxHeight)}}
             />
         </View>
     );
