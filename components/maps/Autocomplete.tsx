@@ -27,6 +27,7 @@ const Autocomplete: React.FC<IAutocompleteProps> = ({ onSelect, onSubmit, onFoku
     const animatedValue = useRef(new Animated.Value(0)).current;
 
     useEffect(() => {
+        console.log('keyboard Offset Height:', keyboardOffsetHeight)
         Animated.timing(animatedValue, {
             /*toValue: keyboardOffsetHeight ? -keyboardOffsetHeight * 0.5 : 0,*/
             toValue: 1,
@@ -120,6 +121,7 @@ const Autocomplete: React.FC<IAutocompleteProps> = ({ onSelect, onSubmit, onFoku
                 onFokusChange={handelFokusChange}
                 onSubmit={handleOnSubmit}
             />
+            <Text style={{backgroundColor: '#ff0000', color: '#fff', fontSize: 20}}>{keyboardOffsetHeight}</Text>
             <RouteSearchSettings />
             <Animated.FlatList
                 data={filteredData}
@@ -141,6 +143,7 @@ const Autocomplete: React.FC<IAutocompleteProps> = ({ onSelect, onSubmit, onFoku
                 )}
                 style={{maxHeight: maxHeight}}
             />
+
         </View>
     );
 };
