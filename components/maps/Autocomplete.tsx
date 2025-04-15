@@ -31,7 +31,7 @@ const Autocomplete: React.FC<IAutocompleteProps> = ({ onSelect, onSubmit, onFoku
             /*toValue: keyboardOffsetHeight ? -keyboardOffsetHeight * 0.5 : 0,*/
             toValue: 1,
             duration: 500,
-            useNativeDriver: true,
+            useNativeDriver: false,
         }).start();
     }, [keyboardOffsetHeight]);
 
@@ -102,7 +102,7 @@ const Autocomplete: React.FC<IAutocompleteProps> = ({ onSelect, onSubmit, onFoku
 
     const getListHeight = () : number => {
         const itemHeight = 44.36;
-        const maxItemNum = 5;
+        const maxItemNum = 10;
         return itemHeight * maxItemNum;
     }
 
@@ -110,10 +110,6 @@ const Autocomplete: React.FC<IAutocompleteProps> = ({ onSelect, onSubmit, onFoku
         inputRange: [0, 1],
         outputRange: [getListHeight(), getListHeight() - (keyboardOffsetHeight * 0.5)],
     });
-
-    useEffect(() => {
-        console.log('maxHeight', maxHeight)
-    }, [maxHeight]);
 
     return (
         <View style={styles.container}>
@@ -125,7 +121,7 @@ const Autocomplete: React.FC<IAutocompleteProps> = ({ onSelect, onSubmit, onFoku
                 onSubmit={handleOnSubmit}
             />
             <RouteSearchSettings />
-            <FlatList
+            <Animated.FlatList
                 data={filteredData}
                 keyExtractor={(item) => item.routeId.toString()}
                 renderItem={({ item }) => (
