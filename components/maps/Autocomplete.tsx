@@ -1,5 +1,5 @@
-import React, {useEffect, useState, useRef} from 'react';
-import {View, FlatList, Text, TouchableOpacity, StyleSheet, Dimensions, Animated} from 'react-native';
+import React, {useEffect, useRef, useState} from 'react';
+import {Animated, FlatList, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {getSearch, SearchResponse} from '@/functions/api/Get'
 
 import Tooltip, {Position} from "@/components/Tooltip";
@@ -9,9 +9,7 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 import SearchBar from "@/components/SearchBar";
 import {useToken} from "@/components/login/LoginContext";
 import useKeyboardOffsetHeight from "@/hooks/useKeyboardOffsetHeight";
-
-const {height} = Dimensions.get('window');
-
+import RouteSearchSettings from "@/components/maps/RouteSearchSettings";
 
 interface IAutocompleteProps {
     onSelect: (item: SearchResponse) => void;
@@ -104,20 +102,18 @@ const Autocomplete: React.FC<IAutocompleteProps> = ({ onSelect, onSubmit, onFoku
 
     const getListHeight = () : number => {
         const itemHeight = 44.36;
-        const maxItemNum = 10;
-        const maxTotalHeight = itemHeight * maxItemNum;
-
-        if (maxTotalHeight > (height - 150)) {
-            return itemHeight * 5;
-        } else {
-            return maxTotalHeight;
-        }
+        const maxItemNum = 5;
+        return itemHeight * maxItemNum;
     }
 
     let maxHeight = animatedValue.interpolate({
         inputRange: [0, 1],
-        outputRange: [0, -keyboardOffsetHeight * 0.5],
+        outputRange: [getListHeight(), getListHeight() - (keyboardOffsetHeight * 0.5)],
     });
+
+    useEffect(() => {
+        console.log('maxHeight', maxHeight)
+    }, [maxHeight]);
 
     return (
         <View style={styles.container}>
@@ -128,6 +124,7 @@ const Autocomplete: React.FC<IAutocompleteProps> = ({ onSelect, onSubmit, onFoku
                 onFokusChange={handelFokusChange}
                 onSubmit={handleOnSubmit}
             />
+            <RouteSearchSettings />
             <FlatList
                 data={filteredData}
                 keyExtractor={(item) => item.routeId.toString()}
@@ -146,7 +143,7 @@ const Autocomplete: React.FC<IAutocompleteProps> = ({ onSelect, onSubmit, onFoku
                         startAt={item.startAt}
                     />
                 )}
-                style={{maxHeight: getListHeight() - Number(maxHeight)}}
+                style={{maxHeight: maxHeight}}
             />
         </View>
     );
@@ -154,11 +151,11 @@ const Autocomplete: React.FC<IAutocompleteProps> = ({ onSelect, onSubmit, onFoku
 
 const styles = StyleSheet.create({
     container: {
-        position: 'absolute',
+        /*position: 'absolute',
         top: 2,
         left: 0,
         width: '95%',
-        zIndex: 1100
+        zIndex: 1100*/
     },
     item: {
         flex: 1,

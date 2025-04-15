@@ -416,11 +416,13 @@ const MapsComponent = () => {
                         onPress={handleSearchPress} />
                 </View>
             ) : (
-                <Autocomplete
-                    onSelect={handleAutoOnSelect}
-                    onSubmit={handleAutoOnSubmit}
-                    onFokusChanged={isFokus => setShowSearchButton(!isFokus)}
-                />
+                <View style={styles.autoCompleteContainer}>
+                    <Autocomplete
+                        onSelect={handleAutoOnSelect}
+                        onSubmit={handleAutoOnSubmit}
+                        onFokusChanged={isFokus => setShowSearchButton(!isFokus)}
+                    />
+                </View>
             ) }
 
             {question && <AnswerQuestionComponent
@@ -455,6 +457,13 @@ const styles = StyleSheet.create({
         left: 0,
         width: 65,
         height: 50,
+    },
+    autoCompleteContainer: {
+        position: 'absolute',
+        top: 2,
+        left: 0,
+        width: '95%',
+        zIndex: 1100
     },
 })
 
