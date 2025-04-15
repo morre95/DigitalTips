@@ -48,129 +48,6 @@ $app->addBodyParsingMiddleware();
 
 $secret_key = $settings['jwt']['secret_key'];
 
-$app->post('/login', function (Request $request, Response $response) use ($secret_key, $app) {
-    $params = $request->getParsedBody();
-    $username = $params['username'] ?? '';
-    $password = $params['password'] ?? '';
-
-    // 1. Verifiera användare (t.ex. kolla i DB om password + username stämmer)
-    $db = new Db();
-    $conn = $db->connect();
-
-    $sql = "SELECT * FROM users WHERE username = :username LIMIT 1";
-
-    $stmt = $conn->prepare($sql);
-    $stmt->execute([':username' => $username]);
-    $user = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    if ($user && password_verify($password, $user['password'])) {
-        // 2. Skapa JWT-payload
-        $payload = [
-            'iss' => 'http://tipsdigitial.mygamesonline.org', // issuer
-            'aud' => 'http://tipsdigitial.mygamesonline.org', // audience
-            'iat' => time(),               // issued at
-            'nbf' => time(),               // token kan inte användas före denna tid
-            'exp' => time() + (60 * 60),   // när den slutar gälla (ex: 1 timme)
-            'data' => [
-                //'user_id' => 12345,
-                'user_id' => $user['id'],
-                'roles'   => ['app']
-            ]
-        ];
-
-        // 3. Generera JWT
-        $jwt = JWT::encode($payload, $secret_key, 'HS256');
-
-        // 4. Returnera JSON-svar med token
-        $responseData = [
-            'error' => false,
-            'token' => $jwt,
-            'user' => $user['id'],
-            'playerName' => $user['player_name'],
-            'message' => 'Login succeeded'
-        ];
-
-        $response->getBody()->write(json_encode($responseData));
-
-        return $response->withHeader('Content-Type', 'application/json')
-            ->withStatus(200);
-    } else {
-        $responseData = [
-            'error' => true,
-            'token' => null,
-            'user' => null,
-            'message' => 'Login failed, wrong password or username'
-        ];
-
-        $response->getBody()->write(json_encode($responseData));
-
-        return $response->withHeader('Content-Type', 'application/json')
-            ->withStatus(200);
-    }
-});
-
-$app->post('/register', function (Request $request, Response $response) use ($secret_key, $app) {
-    $params = $request->getParsedBody();
-    $username = $params['username'] ?? '';
-    $password = $params['password'] ?? '';
-
-    $logger = get_logger($app->getContainer());
-    if (empty($username) || empty($password)) {
-        $logger->error("Username or password is empty. username: $username, password: $password");
-
-        $response->getBody()->write(json_encode(['error' => 'Username or password is empty']));
-        return $response->withHeader('Content-Type', 'application/json')
-            ->withStatus(401);
-    }
-
-    $db = new Db();
-    $pdo = $db->connect();
-
-    $sql = "SELECT COUNT(*) AS num FROM users WHERE username = :username";
-
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute([':username' => $username]);
-    $user = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    if ($user['num'] > 0) {
-        $logger->error("Username '$username' already exists");
-        $response->getBody()->write(json_encode(['error' => 'Username already exists']));
-        return $response->withHeader('Content-Type', 'application/json')
-            ->withStatus(409);
-    }
-
-    $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-
-    $sql = "INSERT INTO users (username, password, player_name) VALUES (:username, :password, :player_name)";
-    $stmt = $pdo->prepare($sql);
-
-    try {
-        $stmt->execute([
-            ':username' => $username,
-            ':password' => $hashedPassword,
-            ':player_name' => 'Player 1'
-        ]);
-
-        $last_insert_id = $pdo->lastInsertId();
-
-        $responseData = [
-            'error' => false,
-            'message' => 'Register succeeded',
-            'userId' => $last_insert_id
-        ];
-        $response->getBody()->write(json_encode($responseData));
-
-        return $response->withHeader('Content-Type', 'application/json')
-            ->withStatus(200);
-    } catch (PDOException $e) {
-        $logger->error("Can not register: " . $e->getMessage());
-        //$logger->error("Can not register. username: $username, password: $password, hashedPassword: $hashedPassword");
-        $response->getBody()->write(json_encode(['error' => 'Can not register']));
-        return $response->withHeader('Content-Type', 'application/json')
-            ->withStatus(401);
-    }
-});
-
 // TBD: om alla api calls behöver JWT token bör denna göras om till $jwtMiddleware
 $beforeMiddleware = function (Request $request, RequestHandler $handler) use ($app) {
     // Example: Check for a specific header before proceeding
@@ -212,20 +89,6 @@ if (count($pieces) >= 2 && $pieces[count($pieces) - 2] === 'slimPhp4Test_Slask')
     $app->setBasePath('/myProjects/slimPhp4Test_Slask');
 }
 
-
-/**
- * Add Error Middleware
- *
- * @param bool                  $displayErrorDetails -> Should be set to false in production
- * @param bool                  $logErrors -> Parameter is passed to the default ErrorHandler
- * @param bool                  $logErrorDetails -> Display error details in error log
- * @param LoggerInterface|null  $logger -> Optional PSR-3 Logger
- *
- * Note: This middleware should be added last. It will not handle any exceptions/errors
- * for middleware added after it.
- */
-$errorMiddleware = $app->addErrorMiddleware(true, true, true, get_logger($app->getContainer()));
-
 $app->get('/', function (Request $request, Response $response, $args) {
     $response->getBody()->write("You are not authorised to be here!!!");
     return $response;
@@ -241,6 +104,9 @@ $app->get('/ping', function (Request $request, Response $response, $args) {
     return $response->withHeader('Content-Type', 'application/json')
         ->withStatus(200);
 });
+
+$app->post('/login', UserController::class . ':login');
+$app->post('/register', UserController::class . ':register');
 
 $jwtMiddleware = function (Request $request, $handler) use ($secret_key, $app) {
     // Läs av Authorization-header
@@ -285,7 +151,6 @@ $jwtMiddleware = function (Request $request, $handler) use ($secret_key, $app) {
 };
 // Alla API calls som behöver skyddas behöver ligga under den här gruppen
 $app->group('/api', function (\Slim\Routing\RouteCollectorProxy $group) {
-    $group->get('/get/google/key', UserController::class . ':get_google_api_key');
     $group->get('/delete/checkpoint/{id}', RouteController::class . ':delete_checkpoint');
     $group->get('/get/route/info/{id}', RouteController::class . ':get_route_info');
     $group->get('/search/routes/{keyword}', \RouteController::class . ':search');
@@ -295,5 +160,19 @@ $app->group('/api', function (\Slim\Routing\RouteCollectorProxy $group) {
     $group->post('/edit/route', \RouteController::class . ':edit_route');
     $group->post('/change/player/name', \UserController::class . ':change_player_name');
 })->add($jwtMiddleware);
+
+
+/**
+ * Add Error Middleware
+ *
+ * @param bool                  $displayErrorDetails -> Should be set to false in production
+ * @param bool                  $logErrors -> Parameter is passed to the default ErrorHandler
+ * @param bool                  $logErrorDetails -> Display error details in error log
+ * @param LoggerInterface|null  $logger -> Optional PSR-3 Logger
+ *
+ * Note: This middleware should be added last. It will not handle any exceptions/errors
+ * for middleware added after it.
+ */
+$errorMiddleware = $app->addErrorMiddleware(true, true, true, get_logger($app->getContainer()));
 
 $app->run();

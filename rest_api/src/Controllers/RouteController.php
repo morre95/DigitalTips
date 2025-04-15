@@ -37,7 +37,7 @@ class RouteController
         $this->logger = $logger;
     }
 
-    public function add_new(ServerRequestInterface $request, ResponseInterface $response, $args) {
+    public function add_new(ServerRequestInterface $request, ResponseInterface $response, $args): ResponseInterface {
         $json = $request->getParsedBody();
 
         $this->logger->info("Add routes: " . var_export($json,true));
@@ -129,7 +129,7 @@ class RouteController
         }
     }
 
-    public function edit_route(ServerRequestInterface $request, ResponseInterface $response, $args) {
+    public function edit_route(ServerRequestInterface $request, ResponseInterface $response, $args): ResponseInterface {
         $json = $request->getParsedBody();
 
         $sql = "UPDATE routes SET 
@@ -233,7 +233,7 @@ class RouteController
         }
     }
 
-    public function search(ServerRequestInterface $request, ResponseInterface $response, $args) {
+    public function search(ServerRequestInterface $request, ResponseInterface $response, $args): ResponseInterface {
 
         $sql = "SELECT 
                     `route_id`, 
@@ -309,7 +309,7 @@ class RouteController
 
     }
 
-    public function get_route_info(ServerRequestInterface $request, ResponseInterface $response, $args) {
+    public function get_route_info(ServerRequestInterface $request, ResponseInterface $response, $args): ResponseInterface {
         $sql = "SELECT * FROM `routes` WHERE `route_id` = :route_id";
 
         try {
@@ -351,7 +351,7 @@ class RouteController
         }
     }
 
-    public function get_checkpoints(ServerRequestInterface $request, ResponseInterface $response, $args) {
+    public function get_checkpoints(ServerRequestInterface $request, ResponseInterface $response, $args): ResponseInterface {
 
         try {
             $db = new Db();
@@ -426,7 +426,7 @@ class RouteController
         }
     }
 
-    public function delete_checkpoint(ServerRequestInterface $request, ResponseInterface $response, $args) {
+    public function delete_checkpoint(ServerRequestInterface $request, ResponseInterface $response, $args): ResponseInterface {
         $route_id = (int)$args['id'];
 
         try {
