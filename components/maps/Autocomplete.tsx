@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {Animated, FlatList, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {Animated, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {getSearch, SearchResponse} from '@/functions/api/Get'
 
 import Tooltip, {Position} from "@/components/Tooltip";
@@ -23,18 +23,16 @@ const Autocomplete: React.FC<IAutocompleteProps> = ({ onSelect, onSubmit, onFoku
     const [isFocused, setIsFocused] = useState(true);
     const [appUserId, setAppUserId] = useState<number | null>(null);
     const {token, signInApp} = useToken();
-    const keyboardOffsetHeight = useKeyboardOffsetHeight();
+    const [keyboardIsOpen] = useKeyboardOffsetHeight();
     const animatedValue = useRef(new Animated.Value(0)).current;
 
     useEffect(() => {
-        console.log('keyboard Offset Height:', keyboardOffsetHeight)
         Animated.timing(animatedValue, {
-            /*toValue: keyboardOffsetHeight ? -keyboardOffsetHeight * 0.5 : 0,*/
-            toValue: 1,
+            toValue: keyboardIsOpen ? 1 : 0,
             duration: 500,
             useNativeDriver: false,
         }).start();
-    }, [keyboardOffsetHeight]);
+    }, [keyboardIsOpen]);
 
     useEffect(() => {
         (async () => {
@@ -109,7 +107,7 @@ const Autocomplete: React.FC<IAutocompleteProps> = ({ onSelect, onSubmit, onFoku
 
     let maxHeight = animatedValue.interpolate({
         inputRange: [0, 1],
-        outputRange: [getListHeight(), getListHeight() - (keyboardOffsetHeight * 0.5)],
+        outputRange: [getListHeight(), (getListHeight() * 0.5)],
     });
 
     return (
@@ -121,7 +119,6 @@ const Autocomplete: React.FC<IAutocompleteProps> = ({ onSelect, onSubmit, onFoku
                 onFokusChange={handelFokusChange}
                 onSubmit={handleOnSubmit}
             />
-            <Text style={{backgroundColor: '#ff0000', color: '#fff', fontSize: 20}}>{keyboardOffsetHeight}</Text>
             <RouteSearchSettings />
             <Animated.FlatList
                 data={filteredData}

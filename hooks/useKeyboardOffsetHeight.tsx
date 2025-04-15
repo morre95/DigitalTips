@@ -3,6 +3,7 @@ import { Keyboard } from 'react-native';
 
 export default function useKeyboardOffsetHeight() {
     const [keyboardOffsetHeight, setKeyboardOffsetHeight] = useState(0);
+    const [keyboardIsOpen, setKeyboardIsOpen] = useState(false);
 
     useEffect(() => {
         const showListener = Keyboard.addListener('keyboardWillShow', (e) => {
@@ -27,5 +28,20 @@ export default function useKeyboardOffsetHeight() {
         };
     }, []);
 
-    return keyboardOffsetHeight;
+    useEffect(() => {
+        const showSubscription = Keyboard.addListener('keyboardDidShow', () => {
+            setKeyboardIsOpen(true);
+        });
+        const hideSubscription = Keyboard.addListener('keyboardDidHide', () => {
+            setKeyboardIsOpen(false);
+        });
+
+        return () => {
+            showSubscription.remove();
+            hideSubscription.remove();
+        };
+    }, []);
+
+
+    return [keyboardOffsetHeight, keyboardIsOpen];
 }
