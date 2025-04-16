@@ -48,7 +48,7 @@ const Autocomplete: React.FC<IAutocompleteProps> = ({ onSelect, onSubmit, onFoku
             }
             const filtered = await getSearch(text, token as string);
             if (filtered) {
-                setFilteredData(filtered.filter(route => !route.isPrivate));
+                setFilteredData(filtered);
             }
         } else {
             setFilteredData([]);
@@ -67,15 +67,17 @@ const Autocomplete: React.FC<IAutocompleteProps> = ({ onSelect, onSubmit, onFoku
     };
 
     const handelFokusChange = (isFocus: boolean) => {
-        setIsFocused(isFocus)
+        setIsFocused(isFocus);
 
-        if (onFokusChanged) onFokusChanged(isFocus)
-    }
+        if (onFokusChanged) onFokusChanged(isFocus);
+    };
 
     const Item = (item: SearchResponse) => {
-        if (item.isPrivate) return null;
+        const isAdmin = Number(item.owner) === appUserId;
 
-        const isAdmin = Number(item.owner) === appUserId
+        if (item.isPrivate && !isAdmin) {
+            return null;
+        }
         return (
             <TouchableOpacity key={item.routeId} onPress={() => handleSelect(item)}>
                 <View style={[styles.item, styles.row]}>
@@ -96,14 +98,14 @@ const Autocomplete: React.FC<IAutocompleteProps> = ({ onSelect, onSubmit, onFoku
                     onPress={() => console.log('Edit not implemented yet')}
                 />}
             </TouchableOpacity>
-        )
-    }
+        );
+    };
 
     const getListHeight = () : number => {
         const itemHeight = 44.36;
         const maxItemNum = 10;
         return itemHeight * maxItemNum;
-    }
+    };
 
     let maxHeight = animatedValue.interpolate({
         inputRange: [0, 1],
