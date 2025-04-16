@@ -282,6 +282,15 @@ const MapsComponent = () => {
         setCurrentRegion(currentRegion);
     }
 
+    const handleOnQuestion = (question: Question, checkpointId: number, isAnswered: boolean | undefined) => {
+        if (!isAnswered) {
+            Vibration.vibrate([1000, 1000, 1000]) // vibrerar 1 sek tre gånger
+            setQuestion({question: question, checkPointId: checkpointId});
+        } else {
+            console.log(question.text, 'is already answered');
+        }
+    }
+
     return (
         <View style={styles.container}>
             <FlashMessage ref={flashMessageRef} />
@@ -301,23 +310,19 @@ const MapsComponent = () => {
                     <CheckPoint
                         key={checkpoint.checkpoint_id}
                         checkpoint={checkpoint}
-                        onQuestion={(question: Question, id) => {
-                            console.log('onQuestion:', checkpoint, 'id', id);
-                            if (!checkpoint.isAnswered) {
-                                Vibration.vibrate([1000, 1000, 1000]) // vibrerar 1 sek tre gånger
-                                setQuestion({question: question, checkPointId: checkpoint.checkpoint_id});
-                            }
-                        }}
+                        onQuestion={handleOnQuestion}
                         onChange={(distance: number) => {
                             flashMessageRef.current?.flash(`Distance changed, you are ${distance} meters from the checkpoint #${checkpoint.checkpoint_order}`, 10000);
                         }}
                         activeCheckpoint={currentCheckpointIndex === index}
                         showNextCheckpoint={currentCheckpointIndex === index && showNextCheckpoint}
                         onLeave={() => {
-                            console.log('onLeave()', 'id:', checkpoint.checkpoint_id)
-                            setQuestion(null)
+                            console.log('onLeave()', 'id:', checkpoint.checkpoint_id);
+                            setQuestion(null);
                         }}
-                        onEnter={() => console.log('onEnter()', 'id:', checkpoint.checkpoint_id)}
+                        onEnter={() => {
+                            console.log('onEnter()', 'id:', checkpoint.checkpoint_id);
+                        }}
 
                         // TBD: Bara för testning
                         currentPosition={currentPos}
