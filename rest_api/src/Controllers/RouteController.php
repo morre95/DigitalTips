@@ -280,7 +280,7 @@ class RouteController
 
             $db = null;
 
-            $this->logger->info("Search routes: " . var_export($routes,true));
+            $this->logger->info("Keyword: $keyword, Result: " . var_export($routes,true));
 
             $result = (object) [
                 "routes" => $routes,
