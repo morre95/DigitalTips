@@ -8,6 +8,7 @@ import {useRouter} from 'expo-router';
 import Spacer from "@/components/Spacer";
 import {Checkpoint} from '@/interfaces/common';
 import {getCheckpoints} from "@/functions/api/Get";
+import {useToken} from "@/components/login/LoginContext";
 
 interface IResult {
     numberOfCheckpoints: number;
@@ -21,6 +22,7 @@ export default function QrCodeReader() {
     const [resultInfo, setResultInfo] = useState<IResult | null>(null);
     const [permission, requestPermission] = useCameraPermissions();
     const [cameraIsVisible, setCameraIsVisible] = useState<boolean>(false);
+    const {token, signInApp} = useToken();
 
     useEffect(() => {
         (async () => {
@@ -29,7 +31,8 @@ export default function QrCodeReader() {
                 type Markers = {
                     checkpoints: Checkpoint[];
                 }
-                const markers = await getCheckpoints<Markers>(jsonObj.routeId);
+                if (!token) await signInApp();
+                const markers = await getCheckpoints<Markers>(jsonObj.routeId, token as string);
 
                 const result: IResult = {
                     numberOfCheckpoints: jsonObj.numberOfCheckpoints,

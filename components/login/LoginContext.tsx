@@ -1,5 +1,5 @@
 import React, {createContext, useContext, useEffect, useState} from 'react';
-import {useStorageState} from './useStorageState';
+import {useStorageState} from '../../hooks/useStorageState';
 import * as SecureStore from "expo-secure-store";
 import postJson from "@/functions/api/Post";
 import {setPlayerId, setPlayerName} from "@/functions/common";
