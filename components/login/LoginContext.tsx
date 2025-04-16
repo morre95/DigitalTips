@@ -29,7 +29,7 @@ const AuthContext = createContext<{
 }>({
     signInApp: async () => {},
     signOutApp: () => null,
-    isAppRegisteredAsync: async () => true,
+    isAppRegisteredAsync: async () => false,
     token: null,
     isLoading: false,
 });
@@ -84,7 +84,6 @@ export function TokenProvider({ children }: { children: React.ReactNode }) {
                 await setPlayerName(response.playerName || null);
                 setToken(response.token);
             } else if (response.error && !response.token && !response.user) {
-                console.log(response.message)
                 setToken(null);
                 await resetAppUser();
                 setIsAppRegistered(!isAppRegistered);
