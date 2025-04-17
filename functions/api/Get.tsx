@@ -55,32 +55,35 @@ interface SearchResponse {
     endAt?: Date;
 }
 
+interface IRestrictedRoute {
+    route_id: number;
+    name: string;
+    description: string;
+    created_at: Date;
+    updated_at: Date;
+    city: string;
+    marker_count: number;
+    is_private: boolean;
+    in_order: boolean;
+    owner: number;
+    start_at?: Date;
+    end_at?: Date;
+}
+
+interface ISearchResultResp {
+    routes: IRestrictedRoute[]
+    count: number
+    error: boolean
+}
+
 async function getSearch(keyword: string, token: string): Promise<SearchResponse[]|null> {
-    interface IResp {
-        routes: IRoute[]
-        count: number
-        error: boolean
-    }
-
-    interface IRoute {
-        route_id: number;
-        name: string;
-        description: string;
-        created_at: Date;
-        updated_at: Date;
-        city: string;
-        marker_count: number;
-        is_private: boolean;
-        in_order: boolean;
-        owner: number;
-        start_at?: Date;
-        end_at?: Date;
-    }
-
-    const response = await getRestricted<IResp>(`api/search/routes/${encodeURIComponent(keyword)}`, token);
-
+    const response = await getRestricted<ISearchResultResp>(`api/search/routes/${encodeURIComponent(keyword)}`, token);
     if (response.error) return null;
 
+    return mapSearchResult(response);
+}
+
+function mapSearchResult(response: ISearchResultResp): SearchResponse[] {
     return response.routes.map(r => (
         {
             count: r.marker_count,
@@ -95,7 +98,7 @@ async function getSearch(keyword: string, token: string): Promise<SearchResponse
             startAt: r.start_at,
             endAt: r.end_at,
         }
-    ))
+    ));
 }
 
 
@@ -138,5 +141,13 @@ async function pingServer<T>() {
     return await getJson<T>(url);
 }
 
+async function getMyRoutes(appId: number, token: string): Promise<SearchResponse[]|null> {
+    const response = await getRestricted<ISearchResultResp>(`api/get/my/routes/${encodeURIComponent(appId)}`, token);
+
+    if (response.error) return null;
+
+    return mapSearchResult(response);
+}
+
 export default getJson;
-export { BaseUrl, getRestricted, getSearch, SearchResponse, getCheckpoints, deleteCheckpoint, getRoute, pingServer };
+export { BaseUrl, getRestricted, getSearch, SearchResponse, getCheckpoints, deleteCheckpoint, getRoute, pingServer, getMyRoutes };

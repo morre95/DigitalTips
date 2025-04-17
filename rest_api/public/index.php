@@ -149,12 +149,14 @@ $jwtMiddleware = function (Request $request, $handler) use ($secret_key, $app) {
     // Allt gick bra -> fortsätt
     return $handler->handle($request);
 };
+
 // Alla API calls som behöver skyddas behöver ligga under den här gruppen
 $app->group('/api', function (\Slim\Routing\RouteCollectorProxy $group) {
     $group->get('/delete/checkpoint/{id}', RouteController::class . ':delete_checkpoint');
     $group->get('/get/route/info/{id}', RouteController::class . ':get_route_info');
     $group->get('/search/routes/{keyword}', \RouteController::class . ':search');
     $group->get('/get/checkpoints/{id}', \RouteController::class . ':get_checkpoints');
+    $group->get('/get/my/routes/{owner}', \RouteController::class . ':get_my_routes');
 
     $group->post('/add/routes', \RouteController::class . ':add_new');
     $group->post('/edit/route', \RouteController::class . ':edit_route');

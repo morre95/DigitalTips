@@ -57,6 +57,11 @@ export default function AppLayout() {
                 }/>
                 <Tabs.Screen name="sign-in-app" options={{href: null}}/>
                 <Tabs.Screen name="QrCodeReader" options={{href: null}}/>
+                <Tabs.Screen name="search/MyRoutes" options={{
+                    href: null,
+                    title: "My Routes",
+                    headerShown: false,
+                }}/>
             </Tabs>
         </TokenProvider>
     );

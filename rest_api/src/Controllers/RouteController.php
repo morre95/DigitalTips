@@ -309,6 +309,67 @@ class RouteController
 
     }
 
+    public function get_my_routes(ServerRequestInterface $request, ResponseInterface $response, $args): ResponseInterface {
+
+        $sql = "SELECT  * FROM `routes` WHERE `owner` = :owner";
+
+        try {
+            $db = new Db();
+            $conn = $db->connect();
+            $stmt = $conn->prepare($sql);
+
+            $owner = (int) $args["owner"];
+            $stmt->bindValue(":owner", $owner, PDO::PARAM_INT);
+            $stmt->execute();
+            $routes = $stmt->fetchAll(PDO::FETCH_OBJ);
+
+            for($i = 0; $i < count($routes); $i++) {
+                $route = $routes[$i];
+
+                $route->route_id = (int)$route->route_id;
+
+                $sql = "SELECT COUNT(*) as num FROM `checkpoints` WHERE `route_id` = :route_id";
+                $stmt = $conn->prepare($sql);
+                $stmt->bindValue(":route_id", $route->route_id, PDO::PARAM_INT);
+                $stmt->execute();
+
+                $marker_count = $stmt->fetch(PDO::FETCH_OBJ);
+                $routes[$i]->marker_count = $marker_count->num;
+
+                // Konvertera från sträng till boolean
+                $routes[$i]->is_private = $routes[$i]->is_private === '1';
+                $routes[$i]->in_order = $routes[$i]->in_order === '1';
+            }
+
+            $db = null;
+
+            $result = (object) [
+                "routes" => $routes,
+                "count" => count($routes),
+                "error" => false
+            ];
+
+            $response->getBody()->write(json_encode($result));
+            return $response
+                ->withHeader('content-type', 'application/json')
+                ->withStatus(200);
+        } catch (PDOException $e) {
+            $error = array(
+                "error" => true,
+                "message" => $e->getMessage()
+            );
+
+            $this->logger->error($error["message"]);
+
+            $response->getBody()->write(json_encode($error));
+            return $response
+                ->withHeader('content-type', 'application/json')
+                ->withHeader('x-error-message', $e->getMessage())
+                ->withStatus(500);
+        }
+
+    }
+
     public function get_route_info(ServerRequestInterface $request, ResponseInterface $response, $args): ResponseInterface {
         $sql = "SELECT * FROM `routes` WHERE `route_id` = :route_id";
 
