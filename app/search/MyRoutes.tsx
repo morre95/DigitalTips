@@ -63,7 +63,7 @@ const MyRoutes = () => {
 const ListHeader = () => {
     return (
         <View style={styles.header}>
-            <Text>Header</Text>
+            <Text>The routes you created</Text>
         </View>
     )
 }
