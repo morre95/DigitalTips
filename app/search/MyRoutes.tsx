@@ -55,6 +55,7 @@ const MyRoutes = () => {
                 }
                 ListEmptyComponent={() => <EmptyComponent />}
                 ListHeaderComponent={() => <ListHeader />}
+                ListFooterComponent={() => <ListFooter />}
             />
         </View>
     )
@@ -63,7 +64,15 @@ const MyRoutes = () => {
 const ListHeader = () => {
     return (
         <View style={styles.header}>
-            <Text>The routes you created</Text>
+            <Text style={styles.headerText}>The routes you created</Text>
+        </View>
+    )
+}
+
+const ListFooter = () => {
+    return (
+        <View style={styles.footer}>
+            <Text style={styles.footerText}>There is no more routes for you here</Text>
         </View>
     )
 }
@@ -114,7 +123,14 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     header: {
-        backgroundColor: '#a3fbd1',
+        backgroundColor: '#000b5c',
+        marginVertical: 20,
+        borderRadius: 10,
+        padding: 10,
+    },
+    headerText: {
+        fontSize: 18,
+        color: '#ffffff',
     },
     details: {
         fontWeight: 'bold',
@@ -129,6 +145,16 @@ const styles = StyleSheet.create({
     },
     name: {
         fontSize: 32,
+    },
+    footer: {
+        backgroundColor: '#53686e',
+        borderRadius: 8,
+        padding: 10,
+        marginVertical: 10,
+    },
+    footerText: {
+        fontSize: 8,
+        color: '#ffffff',
     },
 });
 
