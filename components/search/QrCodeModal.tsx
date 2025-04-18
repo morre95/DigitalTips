@@ -23,13 +23,15 @@ const QrCodeModal = ({name, routeId, visible, close, open}: QRCodeModalProps)  =
             >
                 <View style={styles.centeredView}>
                     <View style={styles.modalView}>
+                        <Text style={styles.qrCodeText}>{name}</Text>
                         <QRCode
                             value={JSON.stringify({name: name, routeId: routeId})}
-                            size={180}
+                            size={220}
                             logo={{uri: QR_codeIcon}}
                             logoSize={40}
                             logoBackgroundColor='transparent'
                             logoBorderRadius={5}
+                            enableLinearGradient={true}
                         />
                         <Spacer size={20}/>
                         <TouchableOpacity
@@ -59,7 +61,7 @@ const styles = StyleSheet.create({
         margin: 20,
         backgroundColor: 'white',
         borderRadius: 20,
-        padding: 35,
+        padding: 15,
         alignItems: 'center',
         shadowColor: '#000',
         shadowOffset: {
@@ -86,6 +88,13 @@ const styles = StyleSheet.create({
         color: 'white',
         fontWeight: 'bold',
         textAlign: 'center',
+    },
+    qrCodeText: {
+        marginBottom: 10,
+        fontSize: 18,
+        fontStyle: 'italic',
+        borderBottomWidth: 1,
+        borderColor: '#000000',
     },
 });
 
