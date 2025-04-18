@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {View, Text, StyleSheet, FlatList} from 'react-native';
+import {View, Text, StyleSheet, FlatList, TouchableOpacity} from 'react-native';
 import {getPlayerId} from "@/functions/common";
 import {useToken} from "@/components/login/LoginContext";
 import {getMyRoutes, SearchResponse} from "@/functions/api/Get";
@@ -97,22 +97,30 @@ interface ItemProps {
 const Item = ({routeId, name, city, description, date, startAt, endAt}: ItemProps) => {
     const [showQrCode, setShowQrCode] = useState<boolean>(false);
 
+    const handelPressRoute = () => {
+        console.log(`play this is not implemented yet for: '${name}' with id ${routeId}`)
+    }
+
     return (
-        <View style={styles.item}>
-            <Text style={styles.name}>{name}</Text>
-            <Text>{description}</Text>
-            <Text>{city}</Text>
-            <Text>Starts: {startAt?.toLocaleString()}</Text>
-            <Text>Ends: {endAt?.toLocaleString()}</Text>
-            <Text>Created at: {date.toLocaleString()}</Text>
-            <QrCodeModal
-                routeId={routeId}
-                name={name}
-                visible={showQrCode}
-                close={() => setShowQrCode(false)}
-                open={() => setShowQrCode(true)}
-            />
-        </View>
+        <TouchableOpacity onPress={handelPressRoute}>
+            <View style={styles.item}>
+                <TouchableOpacity onPress={() => console.log(`you pressed the title of: '${name}'`)}>
+                    <Text style={styles.name}>{name}</Text>
+                </TouchableOpacity>
+                <Text>{description}</Text>
+                <Text>{city}</Text>
+                <Text>Starts: {startAt?.toLocaleString()}</Text>
+                <Text>Ends: {endAt?.toLocaleString()}</Text>
+                <Text>Created at: {date.toLocaleString()}</Text>
+                <QrCodeModal
+                    routeId={routeId}
+                    name={name}
+                    visible={showQrCode}
+                    close={() => setShowQrCode(false)}
+                    open={() => setShowQrCode(true)}
+                />
+            </View>
+        </TouchableOpacity>
     );
 }
 
