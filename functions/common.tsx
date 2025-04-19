@@ -45,12 +45,13 @@ export const migrateDbIfNeeded = async (db: SQLiteDatabase) => {
     if (currentDbVersion === 0) {
         await db.execAsync(`
             PRAGMA journal_mode = 'wal';
-            CREATE TABLE IF NOT EXISTS notes (
-                id INTEGER PRIMARY KEY NOT NULL, 
-                title TEXT, 
-                note TEXT NOT NULL, 
-                sound_url TEXT,
-                is_sound TEXT CHECK (is_sound IN ('Yes', 'No'))
+            CREATE TABLE IF NOT EXISTS route_progress (
+                progress_id   INTEGER PRIMARY KEY AUTOINCREMENT,
+                route_id      INTEGER NOT NULL,
+                user_id       INTEGER NOT NULL,
+                question_id   INTEGER NOT NULL,
+                answer_id     INTEGER NOT NULL,
+                answered_at   DATETIME NOT NULL DEFAULT (DATETIME('now', 'localtime'))
             );
         `);
     }
