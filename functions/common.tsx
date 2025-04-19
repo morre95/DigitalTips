@@ -1,4 +1,5 @@
 import * as SecureStore from 'expo-secure-store';
+import type {SQLiteDatabase} from "expo-sqlite";
 
 export async function sleep(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
@@ -24,4 +25,35 @@ export async function getPlayerId(): Promise<number> {
 export async function setPlayerId(playerId: number): Promise<void> {
     if (playerId > 0) await SecureStore.setItemAsync('playerId', playerId.toString());
     else await SecureStore.deleteItemAsync('playerId');
+}
+
+export const migrateDbIfNeeded = async (db: SQLiteDatabase) => {
+    const DATABASE_VERSION = 1;
+    const current = await db.getFirstAsync<{ user_version: number }>(
+        'PRAGMA user_version'
+    );
+    let currentDbVersion = -1;
+
+    if (current) {
+        currentDbVersion = current.user_version;
+    }
+
+    if (currentDbVersion >= DATABASE_VERSION) {
+        return;
+    }
+
+    if (currentDbVersion === 0) {
+        await db.execAsync(`
+            PRAGMA journal_mode = 'wal';
+            CREATE TABLE IF NOT EXISTS notes (
+                id INTEGER PRIMARY KEY NOT NULL, 
+                title TEXT, 
+                note TEXT NOT NULL, 
+                sound_url TEXT,
+                is_sound TEXT CHECK (is_sound IN ('Yes', 'No'))
+            );
+        `);
+    }
+
+    await db.execAsync(`PRAGMA user_version = ${DATABASE_VERSION}`);
 }

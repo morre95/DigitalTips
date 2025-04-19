@@ -4,12 +4,12 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+
 use DI\ContainerBuilder;
 use Slim\Factory\AppFactory;
 use Slim\Psr7\Response;
-
-use Firebase\JWT\JWT;
-use Firebase\JWT\Key;
+use Psr\Http\Message\ResponseFactoryInterface;
+use Nyholm\Psr7\Factory\Psr17Factory;
 
 use Modules\DB;
 
@@ -18,6 +18,7 @@ require __DIR__ . '/../vendor/autoload.php';
 require __DIR__ . '/../src/Controllers/UserController.php';
 require __DIR__ . '/../src/Controllers/RouteController.php';
 require __DIR__ . '/../src/Middlewares/RateLimitMiddleware.php';
+require __DIR__ . '/../src/Middlewares/JwtBearerMiddleware.php';
 
 $settings = include __DIR__ . '/../config/settings.php';
 
@@ -31,8 +32,11 @@ function get_logger(ContainerInterface $c): \Monolog\Logger
 
 $containerBuilder = new ContainerBuilder();
 $containerBuilder->addDefinitions([
-    LoggerInterface::class => function (ContainerInterface $c) {
-        return get_logger($c);
+    LoggerInterface::class => function (ContainerInterface $container) {
+        return get_logger($container);
+    },
+    ResponseFactoryInterface::class => function (ContainerInterface $container) {
+        return $container->get(Psr17Factory::class);
     },
 ]);
 
@@ -108,48 +112,6 @@ $app->get('/ping', function (Request $request, Response $response, $args) {
 $app->post('/login', UserController::class . ':login');
 $app->post('/register', UserController::class . ':register');
 
-$jwtMiddleware = function (Request $request, $handler) use ($secret_key, $app) {
-    // Läs av Authorization-header
-    $authHeader = $request->getHeaderLine('Authorization');
-
-    $logger = get_logger($app->getContainer());
-    if (!$authHeader) {
-        // Ingen header => 401
-        $logger->error("No token provided");
-        $response = $app->getResponseFactory()->createResponse();
-        $response->getBody()->write(json_encode(['error' => 'No token provided']));
-        return $response->withStatus(401);
-    }
-
-    // Förväntat format: "Bearer_<token>"
-    if (preg_match('/^Bearer_(\S+)/', $authHeader, $matches)) {
-        $jwt = $matches[1];
-    } else {
-        $logger->error("Token format is invalid: $authHeader");
-
-        $response = $app->getResponseFactory()->createResponse();
-        $response->getBody()->write(json_encode(['error' => 'Token format is invalid']));
-        return $response->withStatus(401);
-    }
-
-    try {
-        // Dekodning och validering av token
-        $decoded = JWT::decode($jwt, new Key($secret_key, 'HS256'));
-        // Token är giltig -> skriv till request attribut ifall man vill komma åt i routen
-        $request = $request->withAttribute('decoded_token', $decoded);
-    } catch (\Exception $e) {
-        // Token invalid / utgången
-        $logger->error("Token is invalid or expired: " . $e->getMessage());
-
-        $response = $app->getResponseFactory()->createResponse();
-        $response->getBody()->write(json_encode(['error' => 'Token is invalid or expired']));
-        return $response->withStatus(401);
-    }
-
-    // Allt gick bra -> fortsätt
-    return $handler->handle($request);
-};
-
 // Alla API calls som behöver skyddas behöver ligga under den här gruppen
 $app->group('/api', function (\Slim\Routing\RouteCollectorProxy $group) {
     $group->get('/delete/checkpoint/{id}', RouteController::class . ':delete_checkpoint');
@@ -161,7 +123,7 @@ $app->group('/api', function (\Slim\Routing\RouteCollectorProxy $group) {
     $group->post('/add/routes', \RouteController::class . ':add_new');
     $group->post('/edit/route', \RouteController::class . ':edit_route');
     $group->post('/change/player/name', \UserController::class . ':change_player_name');
-})->add($jwtMiddleware);
+})->add(JwtBearerMiddleware::class)/*->add($jwtMiddleware)*/;
 
 
 /**

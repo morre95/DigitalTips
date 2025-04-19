@@ -54,7 +54,8 @@
     "react-native-webview": "13.12.5",
     "expo-camera": "~16.0.18",
     "@react-native-community/datetimepicker": "8.2.0",
-    "@react-native-community/slider": "4.5.5"
+    "@react-native-community/slider": "4.5.5",
+    "expo-sqlite": "~15.1.4"
   },
   "devDependencies": {
     "@babel/core": "^7.26.9",
