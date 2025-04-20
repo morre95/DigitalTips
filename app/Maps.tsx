@@ -1,14 +1,16 @@
 import React, {useEffect, useState} from 'react';
 import {AppState, AppStateStatus, StyleSheet, View} from 'react-native';
-import {MapsProvider} from "@/components/maps/MapsContext";
+import { MapsProvider } from "@/components/maps/MapsContext";
 import MapsComponent from "@/components/maps/MapsComponent";
-import {getPlayerId, getPlayerName, sleep} from "@/functions/common";
+import { getPlayerId, getPlayerName, sleep } from "@/functions/common";
 import PlayerNameSelect from "@/components/PlayerNameSelect";
 import updatePlayerName from "@/functions/updatePlayerName";
-import {useToken} from "@/components/login/LoginContext";
+import { useToken } from "@/components/login/LoginContext";
 import { Redirect } from 'expo-router';
 import register from "@/functions/register";
 import Loader from "@/components/Loader";
+import { SQLiteProvider, useSQLiteContext } from 'expo-sqlite';
+import { migrateDbIfNeeded } from '@/functions/common';
 
 let updatePlayerTries = 0;
 
@@ -81,9 +83,11 @@ export default function Maps() {
 
     return (
         <View style={styles.container}>
+                <SQLiteProvider databaseName={'localDataStore.db'} onInit={migrateDbIfNeeded}>
             <MapsProvider>
-                <MapsComponent />
+                    <MapsComponent />
             </MapsProvider>
+                </SQLiteProvider>
             <PlayerNameSelect
                 visible={showSelectPlayerName}
                 onSelect={handlePlayerNameSelect}

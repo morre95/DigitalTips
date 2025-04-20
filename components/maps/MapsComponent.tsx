@@ -13,8 +13,8 @@ import Feather from "@expo/vector-icons/Feather";
 import Menu, {MenuTextItem} from "@/components/maps/Menu";
 import {useLocalSearchParams, useRouter} from 'expo-router';
 import {getPlayerId} from "@/functions/common";
-import {increaseProgress, setProgress, getProgress} from "@/functions/progress";
 import {useToken} from "@/components/login/LoginContext";
+import {useSQLiteContext} from "expo-sqlite";
 
 const {width, height} = Dimensions.get('window');
 const ASPECT_RATIO = width / height;
@@ -31,6 +31,7 @@ const initialRegion: Region = {
 type QuestionType = {
     question: Question;
     checkPointId: number;
+    questionId: number;
 };
 
 const MapsComponent = () => {
@@ -47,6 +48,8 @@ const MapsComponent = () => {
     const [currentPos, setCurrentPos] = useState<{longitude: number, latitude: number}>({longitude: 0, latitude: 0});
     const {routeId} = useLocalSearchParams();
     const {token, signInApp} = useToken();
+
+    const db = useSQLiteContext();
 
     useEffect(() => {
         const id = Number(routeId);
@@ -90,8 +93,15 @@ const MapsComponent = () => {
 
             const markers = await getCheckpoints<Markers>(routeId, token as string);
 
-            const progress = await getProgress(markers.checkpoints[0].route_id);
-            if (progress) {
+            type RouteProgress = {
+                checkpoint_id: number;
+                question_id: number;
+                answered_correctly: boolean;
+            }
+            const progress = await db.getAllAsync<RouteProgress>(
+                'SELECT * FROM route_progress WHERE route_id = ?', markers.checkpoints[0].route_id
+            );
+            if (progress.length > 0) {
                 Alert.alert(
                     'You have been here before',
                     'Do you want to continue where you left off?',
@@ -99,31 +109,31 @@ const MapsComponent = () => {
                         {
                             text: 'Yes',
                             onPress: () => {
-                                // Om currentCheckpoint har ett värde, då är routen inOrder
-                                if (progress.currentCheckpoint) {
-                                    dispatch(() => markers.checkpoints.map(checkpoint => {
-                                        if (checkpoint.checkpoint_order < Number(progress.currentCheckpoint)) {
+                                //dispatch(() => []);
+                                const newCheckpoints = markers.checkpoints.map(checkpoint => {
+                                    for (let i = 0; i < progress.length; i++) {
+                                        if (checkpoint.question_id == progress[i].question_id) {
                                             checkpoint.isAnswered = true;
-                                            return checkpoint;
+                                            setCurrentCheckpointIndex(prevIndex => prevIndex + 1);
                                         }
-                                        return checkpoint;
-                                    }));
-                                } else {
-                                    // TODO: när en route inte är inOrder då finns det inget sätt att veta vilka checkpoints som är kvar att svara på så som det är nu.
-                                }
+                                    }
+
+                                    return checkpoint;
+                                });
+                                dispatch(() => newCheckpoints);
                             }
                         }, {
                             text: 'Go to start',
                             onPress: async () => {
                                 dispatch(() => markers.checkpoints);
-                                await setProgress(null);
+                                await db.execAsync('DELETE FROM route_progress;');
                             },
                             style: 'cancel'
                         }
                     ]
                 )
             } else {
-                await setProgress(null);
+                await db.execAsync('DELETE FROM route_progress;');
                 dispatch(() => markers.checkpoints);
             }
 
@@ -179,7 +189,8 @@ const MapsComponent = () => {
         router.setParams({ details: item })
     }
 
-    const handleAnswerSelected = (isCorrect: boolean, id: number) => {
+    const handleAnswerSelected = (isCorrect: boolean, questionId: number, checkpointId: number) => {
+        // TODO: behöver få ut questionId och answerId här också
         if (isCorrect) {
             setScore(prevScore => prevScore + 1);
 
@@ -192,7 +203,7 @@ const MapsComponent = () => {
         setCurrentCheckpointIndex(prevIndex => prevIndex + 1);
 
         const nextCheckpoints = state.checkpoints.map(checkpoint => {
-            if (checkpoint.checkpoint_id === id) {
+            if (checkpoint.checkpoint_id === checkpointId) {
                 return {
                     ...checkpoint,
                     isAnswered: true,
@@ -206,23 +217,32 @@ const MapsComponent = () => {
 
         if (isFinished) {
             (async () => {
-                await setProgress(null);
+                //await setProgress(null);
+                await db.execAsync('DELETE FROM route_progress;');
             })();
 
         } else {
             (async () => {
-                const progress = await increaseProgress(id);
                 const routeId = nextCheckpoints[0].route_id;
-                if (!progress) {
-                    await setProgress({
-                        routeId: routeId,
-                        numberOfCheckpoints: 1,
-                        currentCheckpoint: nextCheckpoints[0].in_order ? 1 : undefined
-                    });
-                } else if (progress.currentCheckpoint) {
-                    progress.currentCheckpoint++;
-                    await setProgress(progress);
+
+                const statement = await db.prepareAsync(
+                    `INSERT INTO route_progress(route_id, checkpoint_id, question_id, answered_correctly) 
+                                    VALUES ($route_id, $checkpoint_id, $question_id, $answered_correctly)`);
+
+                try {
+                    await statement.executeAsync(
+                        {
+                            $route_id: routeId,
+                            $checkpoint_id: checkpointId,
+                            $question_id: questionId,
+                            $answered_correctly: isCorrect ? 1 : 0
+                        });
+                } catch (e) {
+                    console.error((e as Error).message);
+                } finally {
+                    await statement.finalizeAsync();
                 }
+
             })()
         }
 
@@ -282,10 +302,10 @@ const MapsComponent = () => {
         setCurrentRegion(currentRegion);
     }
 
-    const handleOnQuestion = (question: Question, checkpointId: number, isAnswered: boolean | undefined) => {
+    const handleOnQuestion = (question: Question, checkpointId: number, questionId: number, isAnswered: boolean | undefined) => {
         if (!isAnswered) {
             Vibration.vibrate([1000, 1000, 1000]) // vibrerar 1 sek tre gånger
-            setQuestion({question: question, checkPointId: checkpointId});
+            setQuestion({question: question, checkPointId: checkpointId, questionId: questionId});
         } else {
             console.log(question.text, 'is already answered');
         }
@@ -350,7 +370,7 @@ const MapsComponent = () => {
 
             {question && <AnswerQuestionComponent
                 question={question.question}
-                onAnswerSelected={(isCorrect) => handleAnswerSelected(isCorrect, question.checkPointId)}
+                onAnswerSelected={(isCorrect) => handleAnswerSelected(isCorrect, question.questionId, question.checkPointId)}
             />}
 
             {score > 0 && <Text>{score}</Text>}
@@ -362,6 +382,7 @@ const MapsComponent = () => {
                 <MenuTextItem text={'Remove game'} onPress={handleRemoveGame} />
                 <MenuTextItem text={'Qr Code Reader'} onPress={handleQrReader} />
             </Menu>
+
 
         </View>
     )

@@ -43,14 +43,18 @@ export const migrateDbIfNeeded = async (db: SQLiteDatabase) => {
     }
 
     if (currentDbVersion === 0) {
+        /*await db.execAsync(`
+            DROP TABLE route_progress;
+        `);
+        console.log('route_progress is dropped')*/
         await db.execAsync(`
             PRAGMA journal_mode = 'wal';
             CREATE TABLE IF NOT EXISTS route_progress (
-                progress_id   INTEGER PRIMARY KEY AUTOINCREMENT,
-                route_id      INTEGER NOT NULL,
-                user_id       INTEGER NOT NULL,
-                question_id   INTEGER NOT NULL,
-                answer_id     INTEGER NOT NULL,
+                progress_id        INTEGER PRIMARY KEY AUTOINCREMENT,
+                route_id           INTEGER NOT NULL,
+                checkpoint_id      INTEGER NOT NULL,
+                question_id        INTEGER NOT NULL,
+                answered_correctly INTEGER CHECK (answered_correctly IN (0, 1)) ,
                 answered_at   DATETIME NOT NULL DEFAULT (DATETIME('now', 'localtime'))
             );
         `);
