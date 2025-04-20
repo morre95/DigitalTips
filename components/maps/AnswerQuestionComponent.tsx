@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
 import {Question} from '@/interfaces/common';
@@ -6,13 +6,10 @@ import {Question} from '@/interfaces/common';
 
 interface Props {
     question: Question;
-    onAnswerSelected: (isCorrect: boolean) => void;
+    onAnswerSelected: (isCorrect: boolean, questionId: number) => Promise<void>;
 }
 
 const AnswerQuestionComponent: React.FC<Props> = ({ question, onAnswerSelected }) => {
-    useEffect(() => {
-        console.log('Japp jag är i AnswerQuestionComponent()', question.answers)
-    }, [question]);
     return (
         <View style={styles.container}>
             <Text style={styles.questionText}>{question.text}</Text>
@@ -20,7 +17,7 @@ const AnswerQuestionComponent: React.FC<Props> = ({ question, onAnswerSelected }
                 <TouchableOpacity
                     key={index}
                     style={styles.answerButton}
-                    onPress={() => onAnswerSelected(answer.isCorrect)}
+                    onPress={() => onAnswerSelected(answer.isCorrect, question.questionId)}
                 >
                     <Text style={styles.answerText}>{answer.isCorrect ? `*${answer.text}` : answer.text}</Text>
                 </TouchableOpacity>

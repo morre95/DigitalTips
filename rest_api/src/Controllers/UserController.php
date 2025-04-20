@@ -1,14 +1,11 @@
 <?php
 
-//namespace Controllers;
-
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Modules\DB;
 use Psr\Log\LoggerInterface;
 
 use Firebase\JWT\JWT;
-use Firebase\JWT\Key;
 
 require __DIR__ . '/../../src/Models/DB.php';
 

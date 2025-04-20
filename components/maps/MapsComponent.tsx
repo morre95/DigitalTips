@@ -46,6 +46,7 @@ const MapsComponent = () => {
     const [showSearchButton, setShowSearchButton] = useState(true);
     const [showNextCheckpoint, setShowNextCheckpoint] = useState(false);
     const [currentPos, setCurrentPos] = useState<{longitude: number, latitude: number}>({longitude: 0, latitude: 0});
+    const [newRegion, setNewRegion] = useState<Region|undefined>();
     const {routeId} = useLocalSearchParams();
     const {token, signInApp} = useToken();
 
@@ -178,7 +179,7 @@ const MapsComponent = () => {
         }
     }
 
-    const [newRegion, setNewRegion] = useState<Region|undefined>();
+
     const moveToRegion = (latLon : {latitude: number, longitude: number})  => {
         const newRegion: Region = {
             latitude: latLon.latitude,
@@ -305,10 +306,10 @@ const MapsComponent = () => {
         setCurrentRegion(currentRegion);
     }
 
-    const handleOnQuestion = (question: Question, checkpointId: number, questionId: number, isAnswered: boolean | undefined) => {
+    const handleOnQuestion = (question: Question, checkpointId: number, isAnswered: boolean | undefined) => {
         if (!isAnswered) {
             Vibration.vibrate([1000, 1000, 1000]) // vibrerar 1 sek tre gånger
-            setQuestion({question: question, checkPointId: checkpointId, questionId: questionId});
+            setQuestion({question: question, checkPointId: checkpointId, questionId: question.questionId});
         } else {
             console.log(question.text, 'is already answered');
         }
@@ -373,7 +374,10 @@ const MapsComponent = () => {
 
             {question && <AnswerQuestionComponent
                 question={question.question}
-                onAnswerSelected={(isCorrect) => handleAnswerSelected(isCorrect, question.questionId, question.checkPointId)}
+                onAnswerSelected={async (isCorrect, questionId) => {
+                    console.log(questionId)
+                    await handleAnswerSelected(isCorrect, questionId, question.checkPointId)
+                }}
             />}
 
             {score > 0 && <Text>{score}/{state.checkpoints.filter(obj => obj.isAnswered).length}</Text>}

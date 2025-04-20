@@ -429,12 +429,13 @@ class RouteController
             $result = ["checkpoints" => []];
             foreach ($checkpoints as $checkpoint) {
                 $sql = "SELECT
+                    q.question_id,
                     q.question_text,
                     a.answer_id,
                     a.answer_text,
                     a.is_correct
-                    FROM questions q
-                    JOIN answers a ON q.question_id = a.question_id
+                FROM questions q
+                JOIN answers a ON q.question_id = a.question_id
                 WHERE q.question_id = :question_id
                 ORDER BY q.question_id";
                 $stmt = $conn->prepare($sql);
@@ -456,6 +457,7 @@ class RouteController
                     $checkpoint->question = new stdClass();
                     $checkpoint->question->text = $questions[0]->question_text;
                     $checkpoint->question->answers = $answers;
+                    $checkpoint->question->questionId = $questions[0]->question_id;
                     $result["checkpoints"][] = $checkpoint;
                 } else {
                     // TBD: Hit ska inte skritet komma eftersom alla checkpoints ska ha frågor. Men om det är något fel i appen så finns det ett meddelande i alla fall

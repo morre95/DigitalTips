@@ -9,7 +9,7 @@ import MarkerShaker from "@/components/maps/MarkerShaker";
 
 interface ICheckPoint {
     checkpoint: Checkpoint;
-    onQuestion: (question: Question, checkpointId: number, questionId: number, isAnswered: boolean | undefined) => void;
+    onQuestion: (question: Question, checkpointId: number, isAnswered: boolean | undefined) => void;
     activeCheckpoint: boolean;
     onEnter: () => void;
     onLeave: () => void;
@@ -71,7 +71,7 @@ const CheckPoint: React.FC<ICheckPoint> = (
 
     useEffect(() => {
         if (activeCheckpoint && inActiveRegion) {
-            onQuestion(checkpoint.question, checkpoint.checkpoint_id, checkpoint.question_id, checkpoint.isAnswered)
+            onQuestion(checkpoint.question, checkpoint.checkpoint_id, checkpoint.isAnswered)
             if (onEnter) {
                 onEnter();
             }
