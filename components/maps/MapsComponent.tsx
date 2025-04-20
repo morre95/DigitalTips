@@ -109,7 +109,6 @@ const MapsComponent = () => {
                         {
                             text: 'Yes',
                             onPress: () => {
-                                //dispatch(() => []);
                                 const newCheckpoints = markers.checkpoints.map(checkpoint => {
                                     for (let i = 0; i < progress.length; i++) {
                                         if (checkpoint.question_id == progress[i].question_id) {
@@ -131,6 +130,8 @@ const MapsComponent = () => {
                             onPress: async () => {
                                 dispatch(() => markers.checkpoints);
                                 await db.execAsync('DELETE FROM route_progress;');
+                                setScore(0);
+                                setCurrentCheckpointIndex(0);
                             },
                             style: 'cancel'
                         }
@@ -139,6 +140,8 @@ const MapsComponent = () => {
             } else {
                 await db.execAsync('DELETE FROM route_progress;');
                 dispatch(() => markers.checkpoints);
+                setScore(0);
+                setCurrentCheckpointIndex(0);
             }
 
             if (markers.checkpoints.length > 0) {
@@ -259,6 +262,9 @@ const MapsComponent = () => {
                 return checkpoint
             });
             dispatch(() => checkpoints);
+
+            setScore(0);
+            setCurrentCheckpointIndex(0);
         }
 
         Alert.alert(
