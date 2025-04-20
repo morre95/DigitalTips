@@ -115,6 +115,10 @@ const MapsComponent = () => {
                                         if (checkpoint.question_id == progress[i].question_id) {
                                             checkpoint.isAnswered = true;
                                             setCurrentCheckpointIndex(prevIndex => prevIndex + 1);
+
+                                            if (progress[i].answered_correctly) {
+                                                setScore(prevScore => prevScore + 1);
+                                            }
                                         }
                                     }
 
@@ -366,7 +370,7 @@ const MapsComponent = () => {
                 onAnswerSelected={(isCorrect) => handleAnswerSelected(isCorrect, question.questionId, question.checkPointId)}
             />}
 
-            {score > 0 && <Text>{score}</Text>}
+            {score > 0 && <Text>{score}/{state.checkpoints.filter(obj => obj.isAnswered).length}</Text>}
 
             <Menu trigger={<Feather name="menu" size={44} color="black" />} bottomRight>
                 <MenuTextItem text={showNextCheckpoint ? 'Show Checkpoints Flags only':'Next Checkpoint'} onPress={handleNextCheckpoint} />
