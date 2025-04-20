@@ -189,7 +189,7 @@ const MapsComponent = () => {
         router.setParams({ details: item })
     }
 
-    const handleAnswerSelected = (isCorrect: boolean, questionId: number, checkpointId: number) => {
+    const handleAnswerSelected = async (isCorrect: boolean, questionId: number, checkpointId: number) => {
         if (isCorrect) {
             setScore(prevScore => prevScore + 1);
 
@@ -215,34 +215,28 @@ const MapsComponent = () => {
             nextCheckpoints.filter(checkpoint => checkpoint.isAnswered).length === state.checkpoints.length;
 
         if (isFinished) {
-            (async () => {
-                //await setProgress(null);
-                await db.execAsync('DELETE FROM route_progress;');
-            })();
+            await db.execAsync('DELETE FROM route_progress;');
 
         } else {
-            (async () => {
-                const routeId = nextCheckpoints[0].route_id;
+            const routeId = nextCheckpoints[0].route_id;
 
-                const statement = await db.prepareAsync(
-                    `INSERT INTO route_progress(route_id, checkpoint_id, question_id, answered_correctly) 
+            const statement = await db.prepareAsync(
+                `INSERT INTO route_progress(route_id, checkpoint_id, question_id, answered_correctly) 
                                     VALUES ($route_id, $checkpoint_id, $question_id, $answered_correctly)`);
 
-                try {
-                    await statement.executeAsync(
-                        {
-                            $route_id: routeId,
-                            $checkpoint_id: checkpointId,
-                            $question_id: questionId,
-                            $answered_correctly: isCorrect ? 1 : 0
-                        });
-                } catch (e) {
-                    console.error((e as Error).message);
-                } finally {
-                    await statement.finalizeAsync();
-                }
-
-            })()
+            try {
+                await statement.executeAsync(
+                    {
+                        $route_id: routeId,
+                        $checkpoint_id: checkpointId,
+                        $question_id: questionId,
+                        $answered_correctly: isCorrect ? 1 : 0
+                    });
+            } catch (e) {
+                console.error((e as Error).message);
+            } finally {
+                await statement.finalizeAsync();
+            }
         }
 
         dispatch(() => nextCheckpoints);
