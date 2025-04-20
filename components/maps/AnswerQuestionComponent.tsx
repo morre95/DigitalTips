@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
 import {Question} from '@/interfaces/common';
@@ -10,6 +10,9 @@ interface Props {
 }
 
 const AnswerQuestionComponent: React.FC<Props> = ({ question, onAnswerSelected }) => {
+    useEffect(() => {
+        console.log('Japp jag är i AnswerQuestionComponent()', question.answers)
+    }, [question]);
     return (
         <View style={styles.container}>
             <Text style={styles.questionText}>{question.text}</Text>

@@ -88,7 +88,7 @@ class RouteController
                     $statement->execute([
                         ':question_id' => $question_id,
                         ':answer_text' => $answer['text'],
-                        ':is_correct' => $answer['isRight']
+                        ':is_correct' => $answer['isCorrect']
                     ]);
                 }
                 $sql = "INSERT INTO checkpoints (route_id, latitude, longitude, city, question_id, checkpoint_order)
@@ -186,7 +186,7 @@ class RouteController
                     $statement = $pdo->prepare($answer_sql);
                     $statement->execute([
                         ':answer_text' => $answer['text'],
-                        ':is_correct' => $answer['isRight'],
+                        ':is_correct' => $answer['isCorrect'],
                         ':answer_id' => $answer['id']
                     ]);
                 }
