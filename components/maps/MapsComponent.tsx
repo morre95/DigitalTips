@@ -190,7 +190,6 @@ const MapsComponent = () => {
     }
 
     const handleAnswerSelected = (isCorrect: boolean, questionId: number, checkpointId: number) => {
-        // TODO: behöver få ut questionId och answerId här också
         if (isCorrect) {
             setScore(prevScore => prevScore + 1);
 
