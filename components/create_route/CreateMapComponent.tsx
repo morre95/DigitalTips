@@ -1,6 +1,6 @@
 import MapView, {Marker, PROVIDER_GOOGLE, Region} from 'react-native-maps';
 import React, {useEffect, useRef, useState} from "react";
-import {Alert, StyleSheet, Text, View, Dimensions} from "react-native";
+import {Alert, StyleSheet, View, Dimensions} from "react-native";
 import {useLocalSearchParams, useRouter} from 'expo-router';
 import {Answer, Checkpoint, MarkerData, RouteData} from "@/interfaces/common";
 import {getCity} from "@/functions/request";
@@ -15,7 +15,7 @@ import HelpPopup from "@/components/create_route/HelpPopup";
 import Loader from "@/components/Loader";
 import {deleteCheckpoint, getCheckpoints} from "@/functions/api/Get";
 import Feather from "@expo/vector-icons/Feather";
-import Menu, {MenuItemWithChildren, MenuTextItem} from "@/components/maps/Menu";
+import Menu, {MenuTextItem} from "@/components/maps/Menu";
 import {useToken} from '@/components/login/LoginContext'
 
 const {width, height} = Dimensions.get('window');
@@ -307,20 +307,6 @@ export function CreateMapComponent() {
             <Menu trigger={<Feather name="menu" size={44} color="black" />} bottomRight>
                 <MenuTextItem text={'Help'} onPress={handleHelp} />
                 <MenuTextItem text={'Generate random Checkpoints'} onPress={generateRandomCheckpoints} />
-                <MenuItemWithChildren onPress={() => console.log('Meny item med text länk')}>
-                    <Text style={{fontSize: 24, fontWeight: 900, fontStyle: 'italic', borderBottomWidth: 1, }}>En text länk</Text>
-                </MenuItemWithChildren>
-                <MenuItemWithChildren onPress={() => console.log('Meny med barn')}>
-                    <View style={{ alignItems: 'center',
-                        padding: 10,
-                        marginVertical: 5,
-                        borderRadius: 15,
-                        borderWidth: 5,
-                        backgroundColor: '#c105ff',
-                        borderColor: '#ff8000', }}>
-                        <Text style={{color: '#000', fontSize: 24, fontWeight: 900, fontStyle: 'italic'}}>Test med barn</Text>
-                    </View>
-                </MenuItemWithChildren>
             </Menu>
 
             <AddQuestion
