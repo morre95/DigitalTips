@@ -9,7 +9,7 @@ import { useToken } from "@/components/login/LoginContext";
 import { Redirect } from 'expo-router';
 import register from "@/functions/register";
 import Loader from "@/components/Loader";
-import { SQLiteProvider, useSQLiteContext } from 'expo-sqlite';
+import { SQLiteProvider } from 'expo-sqlite';
 import { migrateDbIfNeeded } from '@/functions/common';
 
 let updatePlayerTries = 0;
@@ -83,11 +83,11 @@ export default function Maps() {
 
     return (
         <View style={styles.container}>
-                <SQLiteProvider databaseName={'localDataStore.db'} onInit={migrateDbIfNeeded}>
             <MapsProvider>
+                <SQLiteProvider databaseName={'localDataStore.db'} onInit={migrateDbIfNeeded}>
                     <MapsComponent />
-            </MapsProvider>
                 </SQLiteProvider>
+            </MapsProvider>
             <PlayerNameSelect
                 visible={showSelectPlayerName}
                 onSelect={handlePlayerNameSelect}

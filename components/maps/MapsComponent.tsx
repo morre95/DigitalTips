@@ -375,7 +375,6 @@ const MapsComponent = () => {
             {question && <AnswerQuestionComponent
                 question={question.question}
                 onAnswerSelected={async (isCorrect, questionId) => {
-                    console.log(questionId)
                     await handleAnswerSelected(isCorrect, questionId, question.checkPointId)
                 }}
             />}
