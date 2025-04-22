@@ -15,6 +15,8 @@ import {useLocalSearchParams, useRouter} from 'expo-router';
 import {getPlayerId} from "@/functions/common";
 import {useToken} from "@/components/login/LoginContext";
 import {useSQLiteContext} from "expo-sqlite";
+import RefPopup from "@/components/popup/RefPopup";
+import FinishPopup from "@/components/popup/FinishPopup";
 
 const {width, height} = Dimensions.get('window');
 const ASPECT_RATIO = width / height;
@@ -226,19 +228,31 @@ const MapsComponent = () => {
             await db.execAsync('DELETE FROM route_progress;');
             let myScore;
             setScore(prevScore => myScore = prevScore);
-            Alert.alert(
+
+            FinishPopup.show(
+                'Finished...',
+                `Congratulations!!! You have finished the route with score: ${myScore}/${state.checkpoints.length}`
+            );
+
+            dispatch(()=>[]);
+            setScore(0);
+            setCurrentCheckpointIndex(0);
+
+            /*Alert.alert(
                 'Finished...',
                 `Congratulations!!! You have finished the route with score: ${myScore}/${state.checkpoints.length}`,
                 [
                     {
-                        text: 'Ok',
+                        text: 'OK',
                         onPress: () => {
                             dispatch(() => []);
                             setScore(0);
                             setCurrentCheckpointIndex(0);
-                        },
-                    }
-                ]);
+                        }
+                    },
+                ]
+            );*/
+
             return
         } else {
             const routeId = nextCheckpoints[0].route_id;
@@ -298,7 +312,7 @@ const MapsComponent = () => {
                         reset()
                 },
             ]
-        )
+        );
 
     }
 
@@ -404,6 +418,11 @@ const MapsComponent = () => {
                 <MenuTextItem text={'Qr Code Reader'} onPress={handleQrReader} />
             </Menu>
 
+            <RefPopup
+                onClose={() => {
+                    FinishPopup.hide();
+                }}
+            />
 
         </View>
     )
