@@ -224,7 +224,22 @@ const MapsComponent = () => {
 
         if (isFinished) {
             await db.execAsync('DELETE FROM route_progress;');
-
+            let myScore;
+            setScore(prevScore => myScore = prevScore);
+            Alert.alert(
+                'Finished...',
+                `Congratulations!!! You have finished the route with score: ${myScore}/${state.checkpoints.length}`,
+                [
+                    {
+                        text: 'Ok',
+                        onPress: () => {
+                            dispatch(() => []);
+                            setScore(0);
+                            setCurrentCheckpointIndex(0);
+                        },
+                    }
+                ]);
+            return
         } else {
             const routeId = nextCheckpoints[0].route_id;
 
