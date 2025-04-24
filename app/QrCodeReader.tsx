@@ -35,12 +35,13 @@ export default function QrCodeReader() {
                 const markers = await getCheckpoints<Markers>(jsonObj.routeId, token as string);
 
                 const result: IResult = {
-                    numberOfCheckpoints: jsonObj.numberOfCheckpoints,
+                    numberOfCheckpoints: markers.checkpoints.length,
                     name: jsonObj.name,
                 };
 
                 if (result.numberOfCheckpoints > 0) {
                     result.createdAt =  markers.checkpoints[0].created_at;
+                    console.log(result.numberOfCheckpoints, markers.checkpoints[0].created_at);
                 }
                 setResultInfo(result);
             }
@@ -73,7 +74,7 @@ export default function QrCodeReader() {
     const handleScanResult = (scanResult: BarcodeScanningResult) => {
         const { data } = scanResult;
         setQrResult(data);
-        Vibration.vibrate([1000]);
+        Vibration.vibrate([100, 1000]);
         handleToggleCamera();
     }
 
@@ -114,7 +115,9 @@ export default function QrCodeReader() {
                         <View>
                             <Text>{resultInfo.name}</Text>
                             <Text>Number of checkpoints: {resultInfo.numberOfCheckpoints}</Text>
-                            <Text>Created at: {resultInfo.createdAt?.toLocaleString() && ''}</Text>
+                            {resultInfo.createdAt && (
+                                <Text>Created at: {resultInfo.createdAt.toString()}</Text>
+                            )}
                             <TouchableOpacity style={styles.touchableButton} onPress={backToMaps}>
                                 <Text style={styles.touchableText}>Start Game</Text>
                             </TouchableOpacity>
