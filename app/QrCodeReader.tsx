@@ -41,7 +41,6 @@ export default function QrCodeReader() {
 
                 if (result.numberOfCheckpoints > 0) {
                     result.createdAt =  markers.checkpoints[0].created_at;
-                    console.log(result.numberOfCheckpoints, markers.checkpoints[0].created_at);
                 }
                 setResultInfo(result);
             }
@@ -81,9 +80,11 @@ export default function QrCodeReader() {
     const backToMaps = () => {
         if (qrResult) {
             const jsonObj = JSON.parse(qrResult);
-            router.replace({ pathname: './maps', params: { routeId: jsonObj.id } });
+            console.log('backToMaps...', jsonObj)
+            router.replace({ pathname: './maps', params: { routeId: jsonObj.routeId } });
             return;
         }
+
         router.replace({ pathname: './maps' });
     }
 

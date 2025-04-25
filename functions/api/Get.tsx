@@ -19,8 +19,11 @@ async function getJson<T>(url: string, headers: any = null, baseUrl: BaseUrl = B
 
         if (response.headers.has('X-RateLimit-Remaining')) {
             const timestamp = Number(response.headers.get('X-RateLimit-Reset')) * 1000
-            const date = new Date(timestamp)
-            console.log('Rate limit remaining', response.headers.get('X-RateLimit-Remaining'), 'it will be restored', date);
+            const date = new Date(timestamp);
+            const remaining = Number(response.headers.get('X-RateLimit-Remaining'));
+            if (remaining <= 0) {
+                console.error('Remaining:', remaining, 'It will be restored', date);
+            }
         }
 
         if (!response.ok) {

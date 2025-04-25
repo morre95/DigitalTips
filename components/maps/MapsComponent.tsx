@@ -49,13 +49,14 @@ const MapsComponent = () => {
     const [showNextCheckpoint, setShowNextCheckpoint] = useState(false);
     const [currentPos, setCurrentPos] = useState<{longitude: number, latitude: number}>({longitude: 0, latitude: 0});
     const [newRegion, setNewRegion] = useState<Region|undefined>();
-    const {routeId} = useLocalSearchParams();
+    const {routeId} = useLocalSearchParams<{ routeId: string }>();
     const {token, signInApp} = useToken();
 
     const db = useSQLiteContext();
 
     useEffect(() => {
         const id = Number(routeId);
+        console.log('routeId:', routeId, id);
         if (id > 0) {
             (async () => {
                 type Markers = {
@@ -74,7 +75,7 @@ const MapsComponent = () => {
 
     const handleMapPress = (event: any) => {
         const { coordinate } = event.nativeEvent;
-        console.log(coordinate);
+        //console.log(coordinate);
         setCurrentPos(coordinate);
 
         setShowSearchButton(true);

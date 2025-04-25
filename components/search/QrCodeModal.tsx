@@ -1,8 +1,13 @@
-import {Modal, Text, View, TouchableOpacity, StyleSheet} from "react-native";
-import React from "react";
+import {Modal, Text, View, TouchableOpacity, StyleSheet, Alert} from "react-native";
+import React, {useCallback, useEffect, useRef, useState} from "react";
+import * as Sharing from 'expo-sharing';
+import * as FileSystem from 'expo-file-system';
+import RNFS from "react-native-fs"
 import {QR_codeIcon} from "@/assets/images";
 import QRCode from "react-native-qrcode-svg";
 import Spacer from "@/components/Spacer";
+import {getPlayerName} from "@/functions/common";
+import Svg from 'react-native-svg';
 
 
 interface QRCodeModalProps {
@@ -13,7 +18,57 @@ interface QRCodeModalProps {
     open: () => void;
 }
 
+const checkSharingAvailability = async (): Promise<boolean> => {
+    const isAvailable = await Sharing.isAvailableAsync();
+    if (!isAvailable) {
+        Alert.alert('Sharing Not Available', 'Sharing is not supported on this device.');
+    }
+    return isAvailable;
+};
+
 const QrCodeModal = ({name, routeId, visible, close, open}: QRCodeModalProps)  => {
+    const qrRef = useRef<Svg | null>(null);
+    const [shareUri, setShareUri] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (shareUri) {
+            console.log('share uri: ', shareUri);
+            (async () => {
+                await Sharing.shareAsync(
+                    shareUri,
+                    {
+                        dialogTitle: 'Share ' + name,
+                        mimeType: 'image/png',
+                    });
+                setShareUri(null);
+            })();
+        }
+    }, [shareUri]);
+
+    const handleShareOnPress = async () => {
+        if (await checkSharingAvailability() && qrRef) {
+            const fileUri = FileSystem.cacheDirectory + name.replace(/[/\\?%*:|"<>\s]/g, '-') + '.png';
+            const playerName = await getPlayerName();
+
+            //const content = JSON.stringify({playerName: playerName, name: name, routeId: routeId});
+            qrRef.current?.toDataURL(async (base64: string) => {
+                /*try {
+                    await FileSystem.writeAsStringAsync(fileUri, base64, {
+                        encoding: FileSystem.EncodingType.Base64,
+                    });
+                    setShareUri(fileUri);
+                } catch (error) {
+                    console.error('Error writing to file:', error);
+                }*/
+            });
+
+            close();
+        } else {
+            console.error('Maybe svg ref is corrupt:', qrRef);
+        }
+    };
+
+
     return (
         <View>
             <Modal
@@ -32,19 +87,30 @@ const QrCodeModal = ({name, routeId, visible, close, open}: QRCodeModalProps)  =
                             logoBackgroundColor='transparent'
                             logoBorderRadius={5}
                             enableLinearGradient={true}
+                            getRef={c => qrRef.current = c}
                         />
                         <Spacer size={20}/>
                         <TouchableOpacity
                             style={[styles.button, styles.buttonClose]}
-                            onPress={() => close()}>
+                            onPress={() => close()}
+                        >
                             <Text style={styles.textStyle}>Hide</Text>
                         </TouchableOpacity>
+                        <Spacer size={20}/>
+                        <TouchableOpacity
+                            style={[styles.button, styles.buttonClose]}
+                            onPress={handleShareOnPress}
+                        >
+                            <Text style={styles.textStyle}>Share</Text>
+                        </TouchableOpacity>
+
                     </View>
                 </View>
             </Modal>
             <TouchableOpacity
                 style={[styles.button, styles.buttonOpen]}
-                onPress={() => open()}>
+                onPress={() => open()}
+            >
                 <Text style={styles.textStyle}>Show QR code</Text>
             </TouchableOpacity>
         </View>
