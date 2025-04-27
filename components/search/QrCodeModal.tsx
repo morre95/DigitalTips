@@ -1,12 +1,10 @@
 import {Modal, Text, View, TouchableOpacity, StyleSheet, Alert} from "react-native";
-import React, {useCallback, useEffect, useRef, useState} from "react";
+import React, {useRef} from "react";
 import * as Sharing from 'expo-sharing';
-import * as FileSystem from 'expo-file-system';
-import RNFS from "react-native-fs"
+import ViewShot, { captureRef } from "react-native-view-shot";
 import {QR_codeIcon} from "@/assets/images";
 import QRCode from "react-native-qrcode-svg";
 import Spacer from "@/components/Spacer";
-import {getPlayerName} from "@/functions/common";
 import Svg from 'react-native-svg';
 
 
@@ -28,39 +26,21 @@ const checkSharingAvailability = async (): Promise<boolean> => {
 
 const QrCodeModal = ({name, routeId, visible, close, open}: QRCodeModalProps)  => {
     const qrRef = useRef<Svg | null>(null);
-    const [shareUri, setShareUri] = useState<string | null>(null);
-
-    useEffect(() => {
-        if (shareUri) {
-            console.log('share uri: ', shareUri);
-            (async () => {
-                await Sharing.shareAsync(
-                    shareUri,
-                    {
-                        dialogTitle: 'Share ' + name,
-                        mimeType: 'image/png',
-                    });
-                setShareUri(null);
-            })();
-        }
-    }, [shareUri]);
 
     const handleShareOnPress = async () => {
         if (await checkSharingAvailability() && qrRef) {
-            const fileUri = FileSystem.cacheDirectory + name.replace(/[/\\?%*:|"<>\s]/g, '-') + '.png';
-            const playerName = await getPlayerName();
+            if (!qrRef.current) return;
 
-            //const content = JSON.stringify({playerName: playerName, name: name, routeId: routeId});
-            qrRef.current?.toDataURL(async (base64: string) => {
-                /*try {
-                    await FileSystem.writeAsStringAsync(fileUri, base64, {
-                        encoding: FileSystem.EncodingType.Base64,
-                    });
-                    setShareUri(fileUri);
-                } catch (error) {
-                    console.error('Error writing to file:', error);
-                }*/
+            const fileUri = await captureRef(qrRef.current, {
+                format: 'png',
+                quality: 1,
             });
+            await Sharing.shareAsync(
+                fileUri,
+                {
+                    dialogTitle: 'Share ' + name,
+                    mimeType: 'image/png',
+                });
 
             close();
         } else {
@@ -79,16 +59,17 @@ const QrCodeModal = ({name, routeId, visible, close, open}: QRCodeModalProps)  =
                 <View style={styles.centeredView}>
                     <View style={styles.modalView}>
                         <Text style={styles.qrCodeText}>{name}</Text>
-                        <QRCode
-                            value={JSON.stringify({name: name, routeId: routeId})}
-                            size={220}
-                            logo={{uri: QR_codeIcon}}
-                            logoSize={40}
-                            logoBackgroundColor='transparent'
-                            logoBorderRadius={5}
-                            enableLinearGradient={true}
-                            getRef={c => qrRef.current = c}
-                        />
+                        <ViewShot ref={qrRef}>
+                            <QRCode
+                                value={JSON.stringify({name: name, routeId: routeId})}
+                                size={220}
+                                logo={{uri: QR_codeIcon}}
+                                logoSize={40}
+                                logoBackgroundColor='transparent'
+                                logoBorderRadius={5}
+                                enableLinearGradient={true}
+                            />
+                        </ViewShot>
                         <Spacer size={20}/>
                         <TouchableOpacity
                             style={[styles.button, styles.buttonClose]}
