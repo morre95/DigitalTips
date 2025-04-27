@@ -56,7 +56,10 @@ const QrCodeModal = ({name, routeId, visible, close, open}: QRCodeModalProps)  =
                 transparent={true}
                 visible={visible}
             >
-                <View style={styles.centeredView}>
+                <TouchableOpacity
+                    style={styles.centeredView}
+                    onPress={() => close()}
+                >
                     <View style={styles.modalView}>
                         <Text style={styles.qrCodeText}>{name}</Text>
                         <ViewShot ref={qrRef}>
@@ -73,20 +76,13 @@ const QrCodeModal = ({name, routeId, visible, close, open}: QRCodeModalProps)  =
                         <Spacer size={20}/>
                         <TouchableOpacity
                             style={[styles.button, styles.buttonClose]}
-                            onPress={() => close()}
-                        >
-                            <Text style={styles.textStyle}>Hide</Text>
-                        </TouchableOpacity>
-                        <Spacer size={20}/>
-                        <TouchableOpacity
-                            style={[styles.button, styles.buttonClose]}
                             onPress={handleShareOnPress}
                         >
                             <Text style={styles.textStyle}>Share</Text>
                         </TouchableOpacity>
 
                     </View>
-                </View>
+                </TouchableOpacity>
             </Modal>
             <TouchableOpacity
                 style={[styles.button, styles.buttonOpen]}
