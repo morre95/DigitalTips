@@ -120,6 +120,10 @@ const Autocomplete: React.FC<IAutocompleteProps> = ({ onSelect, onSubmit, onFoku
                 onSearchPhraseChange={handleInputChange}
                 onFokusChange={handelFokusChange}
                 onSubmit={handleOnSubmit}
+
+                /*This is needed because otherwise the autocomplete will only close on select.
+                With this it will close keyboard on the first press and select item on second press*/
+                doNothingOnBlur={true}
             />
             <RouteSearchSettings />
             <Animated.FlatList

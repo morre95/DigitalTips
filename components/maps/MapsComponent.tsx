@@ -49,23 +49,26 @@ const MapsComponent = () => {
     const [showNextCheckpoint, setShowNextCheckpoint] = useState(false);
     const [currentPos, setCurrentPos] = useState<{longitude: number, latitude: number}>({longitude: 0, latitude: 0});
     const [newRegion, setNewRegion] = useState<Region|undefined>();
-    const {routeId} = useLocalSearchParams<{ routeId: string }>();
+    const [gameName, setGameName] = useState<string | null>(null);
+    const {routeId} = useLocalSearchParams<{routeId: string}>();
     const {token, signInApp} = useToken();
 
     const db = useSQLiteContext();
 
     useEffect(() => {
         const id = Number(routeId);
-        console.log('routeId:', routeId, id);
         if (id > 0) {
             (async () => {
                 type Markers = {
                     checkpoints: Checkpoint[];
+                    gameName?: string;
                 }
                 if (!token) {
                     await signInApp();
                 }
                 const markers = await getCheckpoints<Markers>(id, token as string);
+
+                if (markers.gameName) setGameName(markers.gameName);
 
                 dispatch(() => markers.checkpoints);
             })();
@@ -82,84 +85,90 @@ const MapsComponent = () => {
     }
 
     const handleSearchPress = () => {
-        setShowSearchButton(!showSearchButton);
+        //setShowSearchButton(!showSearchButton);
+        setShowSearchButton(false);
+    }
+
+    const DispatchCheckpoints = async (routeId: number) => {
+        type Markers = {
+            checkpoints: Checkpoint[];
+            gameName?: string;
+        }
+
+        if (!token) {
+            await signInApp();
+        }
+
+        const markers = await getCheckpoints<Markers>(routeId, token as string);
+
+        if (markers.gameName) setGameName(markers.gameName);
+
+        type RouteProgress = {
+            checkpoint_id: number;
+            question_id: number;
+            answered_correctly: boolean;
+        }
+        const progress = await db.getAllAsync<RouteProgress>(
+            'SELECT * FROM route_progress WHERE route_id = ?', markers.checkpoints[0].route_id
+        );
+        if (progress.length > 0) {
+            Alert.alert(
+                'You have been here before',
+                'Do you want to continue where you left off?',
+                [
+                    {
+                        text: 'Yes',
+                        onPress: () => {
+                            const newCheckpoints = markers.checkpoints.map(checkpoint => {
+                                for (let i = 0; i < progress.length; i++) {
+                                    if (checkpoint.question_id == progress[i].question_id) {
+                                        checkpoint.isAnswered = true;
+                                        setCurrentCheckpointIndex(prevIndex => prevIndex + 1);
+
+                                        if (progress[i].answered_correctly) {
+                                            setScore(prevScore => prevScore + 1);
+                                        }
+                                    }
+                                }
+
+                                return checkpoint;
+                            });
+                            dispatch(() => newCheckpoints);
+                        }
+                    }, {
+                    text: 'Go to start',
+                    onPress: async () => {
+                        dispatch(() => markers.checkpoints);
+                        await db.execAsync('DELETE FROM route_progress;');
+                        setScore(0);
+                        setCurrentCheckpointIndex(0);
+                    },
+                    style: 'cancel'
+                }
+                ]
+            )
+        } else {
+            await db.execAsync('DELETE FROM route_progress;');
+            dispatch(() => markers.checkpoints);
+            setScore(0);
+            setCurrentCheckpointIndex(0);
+        }
+
+        if (markers.checkpoints.length > 0) {
+            const region = {
+                latitude: Number(markers.checkpoints[0].latitude),
+                longitude: Number(markers.checkpoints[0].longitude)
+            };
+            moveToRegion(region);
+        }
     }
 
     const handleAutoOnSelect = async (item: SearchResponse) => {
-        const DispatchCheckpoints = async (routeId: number) => {
-            type Markers = {
-                checkpoints: Checkpoint[];
-            }
+        setShowSearchButton(true);
 
-            if (!token) {
-                await signInApp();
-            }
-
-            const markers = await getCheckpoints<Markers>(routeId, token as string);
-
-            type RouteProgress = {
-                checkpoint_id: number;
-                question_id: number;
-                answered_correctly: boolean;
-            }
-            const progress = await db.getAllAsync<RouteProgress>(
-                'SELECT * FROM route_progress WHERE route_id = ?', markers.checkpoints[0].route_id
-            );
-            if (progress.length > 0) {
-                Alert.alert(
-                    'You have been here before',
-                    'Do you want to continue where you left off?',
-                    [
-                        {
-                            text: 'Yes',
-                            onPress: () => {
-                                const newCheckpoints = markers.checkpoints.map(checkpoint => {
-                                    for (let i = 0; i < progress.length; i++) {
-                                        if (checkpoint.question_id == progress[i].question_id) {
-                                            checkpoint.isAnswered = true;
-                                            setCurrentCheckpointIndex(prevIndex => prevIndex + 1);
-
-                                            if (progress[i].answered_correctly) {
-                                                setScore(prevScore => prevScore + 1);
-                                            }
-                                        }
-                                    }
-
-                                    return checkpoint;
-                                });
-                                dispatch(() => newCheckpoints);
-                            }
-                        }, {
-                            text: 'Go to start',
-                            onPress: async () => {
-                                dispatch(() => markers.checkpoints);
-                                await db.execAsync('DELETE FROM route_progress;');
-                                setScore(0);
-                                setCurrentCheckpointIndex(0);
-                            },
-                            style: 'cancel'
-                        }
-                    ]
-                )
-            } else {
-                await db.execAsync('DELETE FROM route_progress;');
-                dispatch(() => markers.checkpoints);
-                setScore(0);
-                setCurrentCheckpointIndex(0);
-            }
-
-            if (markers.checkpoints.length > 0) {
-                const region = {
-                    latitude: Number(markers.checkpoints[0].latitude),
-                    longitude: Number(markers.checkpoints[0].longitude)
-                };
-                moveToRegion(region);
-            }
-        }
-
-        setShowSearchButton(true)
-        const playerId = await getPlayerId()
-        const isAdmin = Number(item.owner) === playerId
+        const playerId = await getPlayerId();
+        const isAdmin = Number(item.owner) === playerId;
+        console.log(item, isAdmin, playerId);
         if (isAdmin) {
             Alert.alert(
                 'You are admin',
@@ -345,6 +354,11 @@ const MapsComponent = () => {
         }
     }
 
+    const handleOnFocusChange = (isFokus: boolean) => {
+        setShowSearchButton(!isFokus);
+    }
+
+
     return (
         <View style={styles.container}>
             <FlashMessage ref={flashMessageRef} />
@@ -397,7 +411,7 @@ const MapsComponent = () => {
                     <Autocomplete
                         onSelect={handleAutoOnSelect}
                         onSubmit={handleAutoOnSubmit}
-                        onFokusChanged={isFokus => setShowSearchButton(!isFokus)}
+                        onFokusChanged={handleOnFocusChange}
                     />
                 </View>
             ) }
@@ -410,6 +424,9 @@ const MapsComponent = () => {
             />}
 
             {score > 0 && <Text>{score}/{state.checkpoints.filter(obj => obj.isAnswered).length}</Text>}
+            {state.checkpoints.length > 0 && (
+                <Text>"{gameName}" is running</Text>
+            )}
 
             <Menu trigger={<Feather name="menu" size={44} color="black" />} bottomRight>
                 <MenuTextItem text={showNextCheckpoint ? 'Show Checkpoints Flags only':'Next Checkpoint'} onPress={handleNextCheckpoint} />

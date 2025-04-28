@@ -4,7 +4,7 @@ import {Button, StyleSheet, Text, TouchableOpacity, View, Vibration} from 'react
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import Loader from "@/components/Loader";
 import Feather from "@expo/vector-icons/Feather";
-import {useRouter} from 'expo-router';
+import {useRouter, Link} from 'expo-router';
 import Spacer from "@/components/Spacer";
 import {Checkpoint} from '@/interfaces/common';
 import {getCheckpoints} from "@/functions/api/Get";
@@ -81,7 +81,8 @@ export default function QrCodeReader() {
         if (qrResult) {
             const jsonObj = JSON.parse(qrResult);
             console.log('backToMaps...', jsonObj)
-            router.replace({ pathname: './maps', params: { routeId: jsonObj.routeId } });
+            router.navigate({ pathname: './maps', params: { routeId: jsonObj.routeId.toString() } });
+            //router.setParams({ routeId: jsonObj.routeId  })
             return;
         }
 
@@ -119,9 +120,17 @@ export default function QrCodeReader() {
                             {resultInfo.createdAt && (
                                 <Text>Created at: {resultInfo.createdAt.toString()}</Text>
                             )}
-                            <TouchableOpacity style={styles.touchableButton} onPress={backToMaps}>
+                            {/*<TouchableOpacity style={styles.touchableButton} onPress={backToMaps}>
                                 <Text style={styles.touchableText}>Start Game</Text>
-                            </TouchableOpacity>
+                            </TouchableOpacity>*/}
+                            {qrResult && <Link
+                                style={styles.startGameLink}
+                                href={{
+                                    pathname: '/Maps',
+                                    params: {routeId: JSON.parse(qrResult).routeId.toString()}
+                                }}>
+                                Start Game
+                            </Link>}
                         </View>
                     }
 
@@ -180,4 +189,21 @@ const styles = StyleSheet.create({
         fontWeight: '600',
         color: '#fff',
     },
+
+    startGameLink: {
+        alignItems: 'center',
+        padding: 10,
+        marginVertical: 5,
+        borderRadius: 15,
+        borderWidth: 1,
+        backgroundColor: '#0569FF',
+        borderColor: '#0569FF',
+        width: 180,
+
+        textAlign: 'center',
+        fontSize: 17,
+        lineHeight: 24,
+        fontWeight: '600',
+        color: '#fff',
+    }
 });

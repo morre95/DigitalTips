@@ -8,12 +8,13 @@ interface IProps {
     searchPhrase: string;
     onSearchPhraseChange: (searchPhrase: string) => void;
     onFokusChange: (inFokus: boolean) => void;
+    doNothingOnBlur?: boolean;
     onSubmit?: (text: string) => void;
     placeholder?: string;
     inputMode?: InputModeOptions;
 }
 
-const SearchBar = ({inFokus, searchPhrase, onSearchPhraseChange, onFokusChange, onSubmit, placeholder, inputMode}: IProps) => {
+const SearchBar = ({inFokus, searchPhrase, onSearchPhraseChange, onFokusChange, doNothingOnBlur, onSubmit, placeholder, inputMode}: IProps) => {
     const textInputRef = useRef<TextInput>(null);
 
     useEffect(() => {
@@ -53,7 +54,9 @@ const SearchBar = ({inFokus, searchPhrase, onSearchPhraseChange, onFokusChange, 
                         onFokusChange(true);
                     }}
                     onBlur={() => {
-                        onFokusChange(false);
+                        if (!doNothingOnBlur) {
+                            onFokusChange(false);
+                        }
                     }}
                     onSubmitEditing={handleOnSubmit}
                     inputMode={inputMode ? inputMode : 'text'}
@@ -65,8 +68,9 @@ const SearchBar = ({inFokus, searchPhrase, onSearchPhraseChange, onFokusChange, 
                         color="black"
                         style={styles.deleteIcon}
                         onPress={() => {
-                        onSearchPhraseChange("")
-                    }}/>
+                            onSearchPhraseChange("")
+                        }}
+                    />
                 )}
             </View>
             {inFokus && (

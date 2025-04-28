@@ -426,7 +426,17 @@ class RouteController
 
             $checkpoints = $stmt->fetchAll(PDO::FETCH_OBJ);
 
-            $result = ["checkpoints" => []];
+            $sql = "SELECT name FROM routes WHERE route_id = :route_id";
+            $stmt = $conn->prepare($sql);
+            $stmt->bindParam(":route_id", $id);
+            $stmt->execute();
+
+            $name = $stmt->fetch(PDO::FETCH_OBJ)->name;
+
+            $result = [
+                "checkpoints" => [],
+                "gameName" => $name
+            ];
             foreach ($checkpoints as $checkpoint) {
                 $sql = "SELECT
                     q.question_id,
