@@ -4,7 +4,7 @@ import {Button, StyleSheet, Text, TouchableOpacity, View, Vibration} from 'react
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import Loader from "@/components/Loader";
 import Feather from "@expo/vector-icons/Feather";
-import {useRouter, Link} from 'expo-router';
+import {Link} from 'expo-router';
 import Spacer from "@/components/Spacer";
 import {Checkpoint} from '@/interfaces/common';
 import {getCheckpoints} from "@/functions/api/Get";
@@ -16,7 +16,6 @@ interface IResult {
     createdAt?: Date;
 }
 export default function QrCodeReader() {
-    const router = useRouter();
     const [facing, setFacing] = useState<CameraType>('back');
     const [qrResult, setQrResult] = useState<string | null>(null);
     const [resultInfo, setResultInfo] = useState<IResult | null>(null);
@@ -77,18 +76,6 @@ export default function QrCodeReader() {
         handleToggleCamera();
     }
 
-    const backToMaps = () => {
-        if (qrResult) {
-            const jsonObj = JSON.parse(qrResult);
-            console.log('backToMaps...', jsonObj)
-            router.navigate({ pathname: './maps', params: { routeId: jsonObj.routeId.toString() } });
-            //router.setParams({ routeId: jsonObj.routeId  })
-            return;
-        }
-
-        router.replace({ pathname: './maps' });
-    }
-
     const handleToggleCamera = () => {
         setCameraIsVisible(!cameraIsVisible);
     }
@@ -120,9 +107,6 @@ export default function QrCodeReader() {
                             {resultInfo.createdAt && (
                                 <Text>Created at: {resultInfo.createdAt.toString()}</Text>
                             )}
-                            {/*<TouchableOpacity style={styles.touchableButton} onPress={backToMaps}>
-                                <Text style={styles.touchableText}>Start Game</Text>
-                            </TouchableOpacity>*/}
                             {qrResult && <Link
                                 style={styles.startGameLink}
                                 href={{
