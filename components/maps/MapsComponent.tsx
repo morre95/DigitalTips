@@ -78,7 +78,6 @@ const MapsComponent = () => {
 
     const handleMapPress = (event: any) => {
         const { coordinate } = event.nativeEvent;
-        //console.log(coordinate);
         setCurrentPos(coordinate);
 
         setShowSearchButton(true);

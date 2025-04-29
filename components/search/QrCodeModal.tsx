@@ -40,7 +40,8 @@ const QrCodeModal = ({name, routeId, visible, close, open}: QRCodeModalProps)  =
                 {
                     dialogTitle: 'Share ' + name,
                     mimeType: 'image/png',
-                });
+                }
+            );
 
             close();
         } else {
