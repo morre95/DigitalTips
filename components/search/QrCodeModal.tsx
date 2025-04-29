@@ -28,9 +28,7 @@ const QrCodeModal = ({name, routeId, visible, close, open}: QRCodeModalProps)  =
     const qrRef = useRef<Svg | null>(null);
 
     const handleShareOnPress = async () => {
-        if (await checkSharingAvailability() && qrRef) {
-            if (!qrRef.current) return;
-
+        if (await checkSharingAvailability() && qrRef.current) {
             const fileUri = await captureRef(qrRef.current, {
                 format: 'png',
                 quality: 1,
