@@ -10,7 +10,7 @@ import Autocomplete from "./Autocomplete";
 import {getCheckpoints, SearchResponse} from "@/functions/api/Get";
 import AnswerQuestionComponent from "@/components/maps/AnswerQuestionComponent";
 import Feather from "@expo/vector-icons/Feather";
-import Menu, {MenuTextItem} from "@/components/maps/Menu";
+import Menu, {MenuItemLink, MenuTextItem} from "@/components/maps/Menu";
 import {useLocalSearchParams, useRouter} from 'expo-router';
 import {getPlayerId} from "@/functions/common";
 import {useToken} from "@/components/login/LoginContext";
@@ -50,6 +50,7 @@ const MapsComponent = () => {
     const [currentPos, setCurrentPos] = useState<{longitude: number, latitude: number}>({longitude: 0, latitude: 0});
     const [newRegion, setNewRegion] = useState<Region|undefined>();
     const [gameName, setGameName] = useState<string | null>(null);
+    const [isAdmin, setIsAdmin] = useState<{isAdmin: boolean, routeId: number}>({isAdmin: false, routeId: -1});
     const {routeId} = useLocalSearchParams<{routeId: string}>();
     const {token, signInApp} = useToken();
 
@@ -62,6 +63,7 @@ const MapsComponent = () => {
                 type Markers = {
                     checkpoints: Checkpoint[];
                     gameName?: string;
+                    owner?: number;
                 }
                 if (!token) {
                     await signInApp();
@@ -69,6 +71,15 @@ const MapsComponent = () => {
                 const markers = await getCheckpoints<Markers>(id, token as string);
 
                 if (markers.gameName) setGameName(markers.gameName);
+
+                const playerId = await getPlayerId();
+                const isAdmin = Number(markers.owner) === playerId;
+                if (isAdmin && markers.checkpoints.length > 0) {
+                    const routeId = markers.checkpoints[0].route_id;
+                    setIsAdmin({isAdmin: true, routeId: routeId});
+                } else {
+                    setIsAdmin({isAdmin: false, routeId: -1});
+                }
 
                 dispatch(() => markers.checkpoints);
             })();
@@ -167,27 +178,12 @@ const MapsComponent = () => {
 
         const playerId = await getPlayerId();
         const isAdmin = Number(item.owner) === playerId;
-        console.log(item, isAdmin, playerId);
         if (isAdmin) {
-            Alert.alert(
-                'You are admin',
-                'Do you want to start or edit', [
-                {
-                    text: 'Start Game',
-                    onPress: async () => await DispatchCheckpoints(item.routeId),
-                },
-                {
-                    text: 'Cancel',
-                    //onPress: () => { isEdit = true; },
-                    style: 'cancel',
-                },
-                {text: 'Edit', onPress: () => {
-                        router.replace({pathname: './CreateRoutes', params: {routeId: item.routeId}})
-                    }},
-            ])
+            setIsAdmin({isAdmin: true, routeId: item.routeId});
         } else {
-            await DispatchCheckpoints(item.routeId);
+            setIsAdmin({isAdmin: false, routeId: -1});
         }
+        await DispatchCheckpoints(item.routeId);
     }
 
 
@@ -424,7 +420,7 @@ const MapsComponent = () => {
 
             {score > 0 && <Text>{score}/{state.checkpoints.filter(obj => obj.isAnswered).length}</Text>}
             {state.checkpoints.length > 0 && (
-                <Text>"{gameName}" is running</Text>
+                <Text>"{gameName}" is running. {isAdmin.isAdmin && 'Check menu to edit'}</Text>
             )}
 
             <Menu trigger={<Feather name="menu" size={44} color="black" />} bottomRight>
@@ -433,6 +429,13 @@ const MapsComponent = () => {
                 <MenuTextItem text={'Restart the game'} onPress={handleRestartGame} />
                 <MenuTextItem text={'Remove game'} onPress={handleRemoveGame} />
                 <MenuTextItem text={'Qr Code Reader'} onPress={handleQrReader} />
+                {isAdmin.isAdmin && <MenuItemLink
+                    href={{
+                        pathname: '/CreateRoutes',
+                        params: {routeId: isAdmin.routeId.toString()}
+                    }}
+                    text={'Edit Route'}
+                />}
             </Menu>
 
             <RefPopup
@@ -465,6 +468,29 @@ const styles = StyleSheet.create({
         left: 0,
         width: '95%',
         zIndex: 1100
+    },
+    linkButton: {
+        alignItems: 'center',
+        padding: 10,
+        marginVertical: 5,
+        borderRadius: 15,
+        borderWidth: 1,
+        backgroundColor: '#0569FF',
+        borderColor: '#0569FF',
+
+        /*Shadow*/
+        shadowColor: 'rgba(0,0,0, .4)', // IOS
+        shadowOffset: { height: 2, width: 1 }, // IOS
+        shadowOpacity: 2, // IOS
+        shadowRadius: 2, //IOS
+        elevation: 4, // Android
+
+        textAlign: 'center',
+        fontSize: 17,
+        lineHeight: 24,
+        fontWeight: '600',
+        fontStyle: 'italic',
+        color: '#fff',
     },
 })
 

@@ -5,8 +5,6 @@ import ViewShot, { captureRef } from "react-native-view-shot";
 import {QR_codeIcon} from "@/assets/images";
 import QRCode from "react-native-qrcode-svg";
 import Spacer from "@/components/Spacer";
-import Svg from 'react-native-svg';
-
 
 interface QRCodeModalProps {
     name: string;
@@ -25,7 +23,7 @@ const checkSharingAvailability = async (): Promise<boolean> => {
 };
 
 const QrCodeModal = ({name, routeId, visible, close, open}: QRCodeModalProps)  => {
-    const qrRef = useRef<Svg | null>(null);
+    const qrRef = useRef<ViewShot | null>(null);
 
     const handleShareOnPress = async () => {
         if (await checkSharingAvailability() && qrRef.current) {

@@ -8,6 +8,7 @@ import {
     Modal,
     Dimensions,
 } from "react-native";
+import {Link, Href} from "expo-router";
 
 const { width: layoutWidth, height: layoutHeight } = Dimensions.get("window");
 
@@ -156,7 +157,7 @@ interface IMenuChildrenItemProps {
     children: React.ReactNode;
 }
 
-export const MenuItemWithChildren = ({ onPress, closeModal, children }: IMenuChildrenItemProps) => {
+export const MenuClickableItem = ({ onPress, closeModal, children }: IMenuChildrenItemProps) => {
     const handleOnPress = () => {
         onPress();
         if (closeModal) closeModal();
@@ -167,6 +168,28 @@ export const MenuItemWithChildren = ({ onPress, closeModal, children }: IMenuChi
             {children}
         </TouchableOpacity>
     );
+}
+
+interface IMenuItemLinkProps {
+    href: Href;
+    text: string;
+    closeModal?: () => void;
+    children?: React.ReactNode;
+}
+
+export const MenuItemLink = ({href, text, closeModal, children}: IMenuItemLinkProps) => {
+    const handleOnPress = () => {
+        if (closeModal) closeModal();
+    };
+    return (
+        <Link
+            onPress={handleOnPress}
+            style={styles.touchableButton}
+            href={href}>
+            <Text style={styles.touchableText}>{text}</Text>
+            {children}
+        </Link>
+    )
 }
 
 const styles = StyleSheet.create({
@@ -209,6 +232,7 @@ const styles = StyleSheet.create({
         lineHeight: 24,
         fontWeight: '600',
         color: '#fff',
+        textAlign: 'center',
     },
 });
 

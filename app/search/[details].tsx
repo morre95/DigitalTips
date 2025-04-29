@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {View, Text, StyleSheet, FlatList} from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
+import {Link,  useLocalSearchParams } from 'expo-router';
 import SearchBar from "@/components/SearchBar";
 import {getSearch, SearchResponse} from "@/functions/api/Get";
 import {getPlayerId} from "@/functions/common";
@@ -144,7 +144,13 @@ const Item = ({routeId, name, city, description, date, isAdmin, startAt, endAt}:
 
     return (
         <View style={styles.item}>
-            <Text style={styles.name}>{name}</Text>
+            <Link
+                style={styles.name}
+                href={{
+                    pathname: '/Maps',
+                    params: {routeId: routeId}
+                }}
+            >{name}</Link>
             <Text>Creator: {isAdmin ? 'Yes' : 'No'}</Text>
             <Text>{description}</Text>
             <Text>{city}</Text>
