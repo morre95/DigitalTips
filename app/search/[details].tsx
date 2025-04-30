@@ -124,7 +124,34 @@ const Details = ({}: IProps) => {
                         endAt={item.endAt}
                     />}
                 keyExtractor={item => item.routeId.toString()}
+                ListEmptyComponent={() => <EmptyComponent />}
+                ListHeaderComponent={() => <ListHeader />}
+                ListFooterComponent={() => <ListFooter />}
             />
+        </View>
+    )
+}
+
+const EmptyComponent = () => {
+    return (
+        <View style={styles.item}>
+            <Text>You have no routes yet</Text>
+        </View>
+    )
+}
+
+const ListHeader = () => {
+    return (
+        <View style={styles.header}>
+            <Text style={styles.headerText}>The routes you created</Text>
+        </View>
+    )
+}
+
+const ListFooter = () => {
+    return (
+        <View style={styles.footer}>
+            <Text style={styles.footerText}>There is no more routes for you here</Text>
         </View>
     )
 }
@@ -188,6 +215,27 @@ const styles = StyleSheet.create({
     },
     name: {
         fontSize: 32,
+    },
+
+    header: {
+        backgroundColor: '#000b5c',
+        marginVertical: 20,
+        borderRadius: 10,
+        padding: 10,
+    },
+    headerText: {
+        fontSize: 18,
+        color: '#ffffff',
+    },
+    footer: {
+        backgroundColor: '#53686e',
+        borderRadius: 8,
+        padding: 10,
+        marginVertical: 10,
+    },
+    footerText: {
+        fontSize: 8,
+        color: '#ffffff',
     },
 });
 
