@@ -4,6 +4,7 @@ import {getPlayerId} from "@/functions/common";
 import {useToken} from "@/components/login/LoginContext";
 import {getMyRoutes, SearchResponse} from "@/functions/api/Get";
 import QrCodeModal from "@/components/search/QrCodeModal";
+import {Link} from "expo-router";
 
 const MyRoutes = () => {
     const [appUserId, setAppUserId] = useState<number | null>(null);
@@ -104,9 +105,13 @@ const Item = ({routeId, name, city, description, date, startAt, endAt}: ItemProp
     return (
         <TouchableOpacity onPress={handelPressRoute}>
             <View style={styles.item}>
-                <TouchableOpacity onPress={() => console.log(`you pressed the title of: '${name}'`)}>
-                    <Text style={styles.name}>{name}</Text>
-                </TouchableOpacity>
+                <Link
+                    style={styles.name}
+                    href={{
+                        pathname: '/Maps',
+                        params: {routeId: routeId}
+                    }}
+                >{name}</Link>
                 <Text>{description}</Text>
                 <Text>{city}</Text>
                 <Text>Starts: {startAt?.toLocaleString()}</Text>
