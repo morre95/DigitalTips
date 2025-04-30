@@ -143,7 +143,7 @@ const EmptyComponent = () => {
 const ListHeader = () => {
     return (
         <View style={styles.header}>
-            <Text style={styles.headerText}>The search result is down</Text>
+            <Text style={styles.headerText}>The search result</Text>
         </View>
     )
 }
