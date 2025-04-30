@@ -135,7 +135,7 @@ const Details = ({}: IProps) => {
 const EmptyComponent = () => {
     return (
         <View style={styles.item}>
-            <Text>You have no routes yet</Text>
+            <Text>There is no search result yet</Text>
         </View>
     )
 }
@@ -143,7 +143,7 @@ const EmptyComponent = () => {
 const ListHeader = () => {
     return (
         <View style={styles.header}>
-            <Text style={styles.headerText}>The routes you created</Text>
+            <Text style={styles.headerText}>The search result is down</Text>
         </View>
     )
 }
@@ -151,7 +151,7 @@ const ListHeader = () => {
 const ListFooter = () => {
     return (
         <View style={styles.footer}>
-            <Text style={styles.footerText}>There is no more routes for you here</Text>
+            <Text style={styles.footerText}>There is no more reach result</Text>
         </View>
     )
 }
