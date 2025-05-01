@@ -47,10 +47,12 @@ const MapsComponent = () => {
     const [score, setScore] = useState(0);
     const [showSearchButton, setShowSearchButton] = useState(true);
     const [showNextCheckpoint, setShowNextCheckpoint] = useState(false);
-    const [currentPos, setCurrentPos] = useState<{longitude: number, latitude: number}>({longitude: 0, latitude: 0});
+    const [currentPos, setCurrentPos] =
+        useState<{longitude: number, latitude: number}>({longitude: 0, latitude: 0});
     const [newRegion, setNewRegion] = useState<Region|undefined>();
     const [gameName, setGameName] = useState<string | null>(null);
-    const [isAdmin, setIsAdmin] = useState<{isAdmin: boolean, routeId: number}>({isAdmin: false, routeId: -1});
+    const [currentRouteAdmin, setCurrentRouteAdmin] =
+        useState<{isAdmin: boolean, routeId: number}>({isAdmin: false, routeId: -1});
     const {routeId} = useLocalSearchParams<{routeId: string}>();
     const {token, signInApp} = useToken();
 
@@ -76,9 +78,9 @@ const MapsComponent = () => {
                 const isAdmin = Number(markers.owner) === playerId;
                 if (isAdmin && markers.checkpoints.length > 0) {
                     const routeId = markers.checkpoints[0].route_id;
-                    setIsAdmin({isAdmin: true, routeId: routeId});
+                    setCurrentRouteAdmin({isAdmin: true, routeId: routeId});
                 } else {
-                    setIsAdmin({isAdmin: false, routeId: -1});
+                    setCurrentRouteAdmin({isAdmin: false, routeId: -1});
                 }
 
                 dispatch(() => markers.checkpoints);
@@ -179,9 +181,9 @@ const MapsComponent = () => {
         const playerId = await getPlayerId();
         const isAdmin = Number(item.owner) === playerId;
         if (isAdmin) {
-            setIsAdmin({isAdmin: true, routeId: item.routeId});
+            setCurrentRouteAdmin({isAdmin: true, routeId: item.routeId});
         } else {
-            setIsAdmin({isAdmin: false, routeId: -1});
+            setCurrentRouteAdmin({isAdmin: false, routeId: -1});
         }
         await DispatchCheckpoints(item.routeId);
     }
@@ -420,7 +422,7 @@ const MapsComponent = () => {
 
             {score > 0 && <Text>{score}/{state.checkpoints.filter(obj => obj.isAnswered).length}</Text>}
             {state.checkpoints.length > 0 && (
-                <Text>"{gameName}" is running. {isAdmin.isAdmin && 'Check menu to edit'}</Text>
+                <Text>"{gameName}" is running. {currentRouteAdmin.isAdmin && 'Check menu to edit'}</Text>
             )}
 
             <Menu trigger={<Feather name="menu" size={44} color="black" />} bottomRight>
@@ -429,10 +431,10 @@ const MapsComponent = () => {
                 <MenuTextItem text={'Restart the game'} onPress={handleRestartGame} />
                 <MenuTextItem text={'Remove game'} onPress={handleRemoveGame} />
                 <MenuTextItem text={'Qr Code Reader'} onPress={handleQrReader} />
-                {isAdmin.isAdmin && <MenuItemLink
+                {currentRouteAdmin.isAdmin && <MenuItemLink
                     href={{
                         pathname: '/CreateRoutes',
-                        params: {routeId: isAdmin.routeId.toString()}
+                        params: {routeId: currentRouteAdmin.routeId.toString()}
                     }}
                     text={'Edit Route'}
                 />}
