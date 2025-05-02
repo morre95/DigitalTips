@@ -32,7 +32,6 @@ const GoToCoordsComponent = ({onCoordsFound}: IProps) => {
     const handleOnSubmit = async () => {
         if (text.length > 2) {
             const result = await getCoordinatesFromAddress(text);
-            console.log(result);
             if (result?.length === 1) {
                 onCoordsFound({longitude: result[0].longitude, latitude: result[0].latitude});
             } else if (result && result.length > 1) {
