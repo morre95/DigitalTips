@@ -1,39 +1,6 @@
 import {Coordinate} from '@/interfaces/common'
 import * as Location from 'expo-location';
 
-interface Geocode {
-    place_id: number
-    licence: string
-    osm_type: string
-    osm_id: number
-    lat: string
-    lon: string
-    display_name: string
-    address: Address
-    boundingbox: string[]
-}
-
-interface Address {
-    road: string
-    isolated_dwelling: string
-    town?: string
-    municipality?: string
-    county: string
-    "ISO3166-2-lvl4": string
-    postcode: string
-    country: string
-    country_code: string
-}
-
-async function fetchJson(url: string): Promise<Geocode> {
-    const response = await fetch(url);
-    if (!response.ok) {
-        throw new Error(`Something went wrong: ${response.statusText}`);
-    }
-    return await response.json();
-}
-
-
 const getCityFromAddress = (address: string): string | null => {
     const match = address.match(/\d{3}\s?\d{2}\s([^\d,]+)/);
     if (match) {
