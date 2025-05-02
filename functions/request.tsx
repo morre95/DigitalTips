@@ -37,7 +37,7 @@ export async function getCity(coordinate: Coordinate): Promise<string | null> {
     }
 }
 
-export async function getCoordinatesFromAddress(address: string): Promise<Location.LocationGeocodedLocation | null> {
+export async function getCoordinatesFromAddress(address: string): Promise<Location.LocationGeocodedLocation[] | null> {
     try {
         const { status } = await Location.requestForegroundPermissionsAsync();
         if (status !== 'granted') {
@@ -46,7 +46,7 @@ export async function getCoordinatesFromAddress(address: string): Promise<Locati
         }
         const result = await Location.geocodeAsync(address);
         if (result.length > 0) {
-            return result[0];
+            return result;
         } else {
             console.warn('No location information found');
             return null;

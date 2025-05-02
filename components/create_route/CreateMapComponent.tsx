@@ -21,7 +21,7 @@ import GoToCoordsComponent from "@/components/create_route/GoToCoordsComponent";
 
 const {width, height} = Dimensions.get('window');
 const ASPECT_RATIO = width / height;
-const LATITUDE_DELTA = 0.0550;
+const LATITUDE_DELTA = 0.0750;
 const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
 
 const initialRegion: Region = {
@@ -288,6 +288,7 @@ export function CreateMapComponent() {
                 region={newRegion}
                 showsMyLocationButton={false}
                 toolbarEnabled={false}
+                showsUserLocation={false}
             >
                 {state.checkpoints.map(
                     (route, index) => (
