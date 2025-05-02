@@ -1,4 +1,6 @@
 import {Coordinate} from '@/interfaces/common'
+import * as Location from 'expo-location';
+
 interface Geocode {
     place_id: number
     licence: string
@@ -32,19 +34,38 @@ async function fetchJson(url: string): Promise<Geocode> {
 }
 
 
+const getCityFromAddress = (address: string): string | null => {
+    const match = address.match(/\d{3}\s?\d{2}\s([^\d,]+)/);
+    if (match) {
+        return match[1].trim();
+    }
+    return null;
+}
 
 export async function getCity(coordinate: Coordinate): Promise<string | null> {
-    const key = process.env["EXPO_PUBLIC_GEOCODE_API_KEY"];
-    const url = `https://geocode.maps.co/reverse?lat=${coordinate.latitude}&lon=${coordinate.longitude}&api_key=${key}`
+    try {
+        const { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== 'granted') {
+            console.error('Platsbehörighet nekad');
+            return null;
+        }
 
-    const result = await fetchJson(url);
-    if (!result) {
-        return null
-    } else if (result.address.town) {
-        return result.address.town
-    } else if (result.address.municipality) {
-        return result.address.municipality
+        const result = await Location.reverseGeocodeAsync(coordinate);
+
+        if (result.length > 0) {
+            const location = result[0];
+
+            if (location.city === null && location.formattedAddress !== null) {
+                return getCityFromAddress(location.formattedAddress);
+            }
+
+            return location.city;
+        } else {
+            console.warn('No location information found');
+            return null;
+        }
+    } catch (error) {
+        console.error('Reverse geocoding error:', error);
+        return null;
     }
-
-    return null
 }
