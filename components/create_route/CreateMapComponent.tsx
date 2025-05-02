@@ -15,8 +15,9 @@ import HelpPopup from "@/components/create_route/HelpPopup";
 import Loader from "@/components/Loader";
 import {deleteCheckpoint, getCheckpoints} from "@/functions/api/Get";
 import Feather from "@expo/vector-icons/Feather";
-import Menu, {MenuTextItem} from "@/components/maps/Menu";
+import Menu, {MenuClickableItem, MenuTextItem} from "@/components/maps/Menu";
 import {useToken} from '@/components/login/LoginContext'
+import GoToCoordsComponent from "@/components/create_route/GoToCoordsComponent";
 
 const {width, height} = Dimensions.get('window');
 const ASPECT_RATIO = width / height;
@@ -40,6 +41,7 @@ export function CreateMapComponent() {
     const [currentRegion, setCurrentRegion] = useState<Region>(initialRegion);
     const [showHelpPopup, setShowHelpPopup] = useState<boolean>(false);
     const [loading, setLoading] = useState(false);
+    const [newRegion, setNewRegion] = useState<Region|undefined>();
     const {routeId} = useLocalSearchParams()
     const router = useRouter();
     const {token, signInApp} = useToken();
@@ -276,12 +278,14 @@ export function CreateMapComponent() {
                 onContinue={handleContinue}
                 onCancel={handleNextCancel}
             />: null}
+
             <MapView
                 provider={PROVIDER_GOOGLE}
-                region={initialRegion}
+                initialRegion={initialRegion}
                 style={styles.map}
                 onPress={handleMapPress}
                 onRegionChange={setCurrentRegion}
+                region={newRegion}
                 showsMyLocationButton={false}
                 toolbarEnabled={false}
             >
@@ -307,6 +311,19 @@ export function CreateMapComponent() {
             <Menu trigger={<Feather name="menu" size={44} color="black" />} bottomRight>
                 <MenuTextItem text={'Help'} onPress={handleHelp} />
                 <MenuTextItem text={'Generate random Checkpoints'} onPress={generateRandomCheckpoints} />
+                <MenuClickableItem onPress={() => null} >
+                    <GoToCoordsComponent
+                        onCoordsFound={(coords) => {
+                            const region: Region = {
+                                latitude: coords.latitude,
+                                longitude: coords.longitude,
+                                latitudeDelta: LATITUDE_DELTA,
+                                longitudeDelta: LONGITUDE_DELTA
+                            }
+                            setNewRegion(region);
+                        }}
+                    />
+                </MenuClickableItem>
             </Menu>
 
             <AddQuestion

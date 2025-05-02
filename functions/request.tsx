@@ -13,7 +13,7 @@ export async function getCity(coordinate: Coordinate): Promise<string | null> {
     try {
         const { status } = await Location.requestForegroundPermissionsAsync();
         if (status !== 'granted') {
-            console.error('Platsbehörighet nekad');
+            console.error('Location authorization denied');
             return null;
         }
 
@@ -27,6 +27,26 @@ export async function getCity(coordinate: Coordinate): Promise<string | null> {
             }
 
             return location.city;
+        } else {
+            console.warn('No location information found');
+            return null;
+        }
+    } catch (error) {
+        console.error('Reverse geocoding error:', error);
+        return null;
+    }
+}
+
+export async function getCoordinatesFromAddress(address: string): Promise<Location.LocationGeocodedLocation | null> {
+    try {
+        const { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== 'granted') {
+            console.error('Location authorization denied');
+            return null;
+        }
+        const result = await Location.geocodeAsync(address);
+        if (result.length > 0) {
+            return result[0];
         } else {
             console.warn('No location information found');
             return null;
