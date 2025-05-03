@@ -18,6 +18,7 @@ import {useSQLiteContext} from "expo-sqlite";
 import RefPopup from "@/components/popup/RefPopup";
 import FinishPopup from "@/components/popup/FinishPopup";
 import {LocationProvider} from "@/hooks/LocationProvider";
+import ScoreComponent from "@/components/maps/ScoreComponent";
 
 const {width, height} = Dimensions.get('window');
 const ASPECT_RATIO = width / height;
@@ -48,8 +49,6 @@ const MapsComponent = () => {
     const [score, setScore] = useState(0);
     const [showSearchButton, setShowSearchButton] = useState(true);
     const [showNextCheckpoint, setShowNextCheckpoint] = useState(false);
-    /*const [currentPos, setCurrentPos] =
-        useState<{longitude: number, latitude: number}>({longitude: 0, latitude: 0});*/
     const [newRegion, setNewRegion] = useState<Region|undefined>();
     const initRouteInfo = {gameName: '', isAdmin: false, routeId: -1, inOrder: false, isPrivate: false}
     const currentRouteInfoRef =
@@ -423,7 +422,13 @@ const MapsComponent = () => {
                     }}
                 />}
 
-                {score > 0 && <Text>{score}/{state.checkpoints.filter(obj => obj.isAnswered).length}</Text>}
+                <ScoreComponent
+                    visible={score > 0}
+                    score={score}
+                    questionAnswered={state.checkpoints.filter(obj => obj.isAnswered).length}
+                    totalQuestions={state.checkpoints.length}
+                />
+
                 {state.checkpoints.length > 0 && (
                     <Text>"{currentRouteInfoRef.current.gameName}" is running. {currentRouteInfoRef.current.isAdmin && 'Click menu to edit'}</Text>
                 )}
