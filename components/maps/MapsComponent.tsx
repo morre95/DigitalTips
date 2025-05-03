@@ -17,6 +17,7 @@ import {useToken} from "@/components/login/LoginContext";
 import {useSQLiteContext} from "expo-sqlite";
 import RefPopup from "@/components/popup/RefPopup";
 import FinishPopup from "@/components/popup/FinishPopup";
+import {LocationProvider} from "@/hooks/LocationProvider";
 
 const {width, height} = Dimensions.get('window');
 const ASPECT_RATIO = width / height;
@@ -47,8 +48,8 @@ const MapsComponent = () => {
     const [score, setScore] = useState(0);
     const [showSearchButton, setShowSearchButton] = useState(true);
     const [showNextCheckpoint, setShowNextCheckpoint] = useState(false);
-    const [currentPos, setCurrentPos] =
-        useState<{longitude: number, latitude: number}>({longitude: 0, latitude: 0});
+    /*const [currentPos, setCurrentPos] =
+        useState<{longitude: number, latitude: number}>({longitude: 0, latitude: 0});*/
     const [newRegion, setNewRegion] = useState<Region|undefined>();
     const initRouteInfo = {gameName: '', isAdmin: false, routeId: -1, inOrder: false, isPrivate: false}
     const currentRouteInfoRef =
@@ -91,9 +92,9 @@ const MapsComponent = () => {
     }, [routeId]);
 
 
-    const handleMapPress = (event: any) => {
-        const { coordinate } = event.nativeEvent;
-        setCurrentPos(coordinate);
+    const handleMapPress = (/*event: any*/) => {
+        //const { coordinate } = event.nativeEvent;
+        //setCurrentPos(coordinate);
 
         setShowSearchButton(true);
     }
@@ -360,97 +361,96 @@ const MapsComponent = () => {
 
 
     return (
-        <View style={styles.container}>
-            <FlashMessage ref={flashMessageRef} />
+        <LocationProvider>
+            <View style={styles.container}>
+                <FlashMessage ref={flashMessageRef} />
 
-            <MapView
-                provider={PROVIDER_GOOGLE}
-                style={styles.map}
-                initialRegion={currentRegion}
-                region={newRegion}
-                onPress={handleMapPress}
-                onRegionChange={handleOnRegionChange}
-                showsUserLocation={true}
-                showsMyLocationButton={false}
-                toolbarEnabled={false}
-            >
-                {state.checkpoints.map((checkpoint, index) => (
-                    <CheckPoint
-                        key={checkpoint.checkpoint_id}
-                        checkpoint={checkpoint}
-                        onQuestion={handleOnQuestion}
-                        onChange={(distance: number) => {
-                            flashMessageRef.current?.flash(`Distance changed, you are ${distance} meters from the checkpoint #${checkpoint.checkpoint_order}`, 10000);
-                        }}
-                        activeCheckpoint={currentCheckpointIndex === index}
-                        showNextCheckpoint={currentCheckpointIndex === index && showNextCheckpoint}
-                        onLeave={() => {
-                            console.log('onLeave()', 'id:', checkpoint.checkpoint_id);
-                            setQuestion(null);
-                        }}
-                        onEnter={() => {
-                            console.log('onEnter()', 'id:', checkpoint.checkpoint_id);
-                        }}
-                        inOrder={currentRouteInfoRef.current.inOrder}
+                <MapView
+                    provider={PROVIDER_GOOGLE}
+                    style={styles.map}
+                    initialRegion={currentRegion}
+                    region={newRegion}
+                    onPress={handleMapPress}
+                    onRegionChange={handleOnRegionChange}
+                    showsUserLocation={true}
+                    showsMyLocationButton={false}
+                    toolbarEnabled={false}
+                >
+                    {state.checkpoints.map((checkpoint, index) => (
+                        <CheckPoint
+                            key={checkpoint.checkpoint_id}
+                            checkpoint={checkpoint}
+                            onQuestion={handleOnQuestion}
+                            onChange={(distance: number) => {
+                                flashMessageRef.current?.flash(`Distance changed, you are ${distance} meters from the checkpoint #${checkpoint.checkpoint_order}`, 10000);
+                            }}
+                            activeCheckpoint={currentCheckpointIndex === index}
+                            showNextCheckpoint={(currentCheckpointIndex === index || !currentRouteInfoRef.current.inOrder) && showNextCheckpoint}
+                            onLeave={() => {
+                                console.log('onLeave()', 'id:', checkpoint.checkpoint_id);
+                                setQuestion(null);
+                            }}
+                            onEnter={() => {
+                                console.log('onEnter()', 'id:', checkpoint.checkpoint_id);
+                            }}
+                            inOrder={currentRouteInfoRef.current.inOrder}
+                        />
+                    ))}
+                </MapView>
+                {showSearchButton ? (
+                    <View style={styles.search}>
+                        <FontAwesome.Button
+                            name="search"
+                            size={35}
+                            color="black"
+                            backgroundColor="rgba(52, 52, 52, 0)"
+                            onPress={handleSearchPress} />
+                    </View>
+                ) : (
+                    <View style={styles.autoCompleteContainer}>
+                        <Autocomplete
+                            onSelect={handleAutoOnSelect}
+                            onSubmit={handleAutoOnSubmit}
+                            onFokusChanged={handleOnFocusChange}
+                        />
+                    </View>
+                ) }
 
-                        // TBD: Bara för testning
-                        currentPosition={currentPos}
-                    />
-                ))}
-            </MapView>
-            {showSearchButton ? (
-                <View style={styles.search}>
-                    <FontAwesome.Button
-                        name="search"
-                        size={35}
-                        color="black"
-                        backgroundColor="rgba(52, 52, 52, 0)"
-                        onPress={handleSearchPress} />
-                </View>
-            ) : (
-                <View style={styles.autoCompleteContainer}>
-                    <Autocomplete
-                        onSelect={handleAutoOnSelect}
-                        onSubmit={handleAutoOnSubmit}
-                        onFokusChanged={handleOnFocusChange}
-                    />
-                </View>
-            ) }
-
-            {question && <AnswerQuestionComponent
-                question={question.question}
-                onAnswerSelected={async (isCorrect, questionId) => {
-                    await handleAnswerSelected(isCorrect, questionId, question.checkPointId)
-                }}
-            />}
-
-            {score > 0 && <Text>{score}/{state.checkpoints.filter(obj => obj.isAnswered).length}</Text>}
-            {state.checkpoints.length > 0 && (
-                <Text>"{currentRouteInfoRef.current.gameName}" is running. {currentRouteInfoRef.current.isAdmin && 'Click menu to edit'}</Text>
-            )}
-
-            <Menu trigger={<Feather name="menu" size={44} color="black" />} bottomRight={true}>
-                <MenuTextItem text={showNextCheckpoint ? 'Show Checkpoints Flags only':'Next Checkpoint'} onPress={handleNextCheckpoint} />
-                <MenuTextItem text={'Reset the game'} onPress={handleResetGame} />
-                <MenuTextItem text={'Restart the game'} onPress={handleRestartGame} />
-                <MenuTextItem text={'Remove game'} onPress={handleRemoveGame} />
-                <MenuTextItem text={'Qr Code Reader'} onPress={handleQrReader} />
-                {currentRouteInfoRef.current.isAdmin && <MenuItemLink
-                    href={{
-                        pathname: '/CreateRoutes',
-                        params: {routeId: currentRouteInfoRef.current.routeId.toString()}
+                {question && <AnswerQuestionComponent
+                    question={question.question}
+                    onAnswerSelected={async (isCorrect, questionId) => {
+                        await handleAnswerSelected(isCorrect, questionId, question.checkPointId)
                     }}
-                    text={'Edit Route'}
                 />}
-            </Menu>
 
-            <RefPopup
-                onClose={() => {
-                    FinishPopup.hide();
-                }}
-            />
+                {score > 0 && <Text>{score}/{state.checkpoints.filter(obj => obj.isAnswered).length}</Text>}
+                {state.checkpoints.length > 0 && (
+                    <Text>"{currentRouteInfoRef.current.gameName}" is running. {currentRouteInfoRef.current.isAdmin && 'Click menu to edit'}</Text>
+                )}
 
-        </View>
+                <Menu trigger={<Feather name="menu" size={44} color="black" />} bottomRight={true}>
+                    <MenuTextItem text={showNextCheckpoint ? 'Show Checkpoints Flags only':'Next Checkpoint'} onPress={handleNextCheckpoint} />
+                    <MenuTextItem text={'Reset the game'} onPress={handleResetGame} />
+                    <MenuTextItem text={'Restart the game'} onPress={handleRestartGame} />
+                    <MenuTextItem text={'Remove game'} onPress={handleRemoveGame} />
+                    <MenuTextItem text={'Qr Code Reader'} onPress={handleQrReader} />
+                    {currentRouteInfoRef.current.isAdmin && <MenuItemLink
+                        href={{
+                            pathname: '/CreateRoutes',
+                            params: {routeId: currentRouteInfoRef.current.routeId.toString()}
+                        }}
+                        text={'Edit Route'}
+                    />}
+                </Menu>
+
+                <RefPopup
+                    onClose={() => {
+                        FinishPopup.hide();
+                    }}
+                />
+
+            </View>
+        </LocationProvider>
     )
 }
 

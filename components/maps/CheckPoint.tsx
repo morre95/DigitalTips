@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import {StyleSheet, Text} from 'react-native'
 import { getDistance } from 'geolib';
-import * as Location from 'expo-location';
+//import * as Location from 'expo-location';
 import { MarkerImages } from "@/assets/images";
 import {Checkpoint, Question} from "@/interfaces/common";
 import MarkerShaker from "@/components/maps/MarkerShaker";
+import {useLocation} from "@/hooks/LocationProvider";
 
 
 interface ICheckPoint {
@@ -17,18 +18,18 @@ interface ICheckPoint {
     showNextCheckpoint: boolean;
     inOrder: boolean;
     // TBD: currentPosition har bara laggts till för att användas i debug syfte
-    currentPosition?: Coordinate;
+    /*currentPosition?: Coordinate;*/
 }
 
 // Typdefinition för en koordinat
-interface Coordinate {
+/*interface Coordinate {
     latitude: number;
     longitude: number;
-}
+}*/
 
 const globalThreshold = 20 /*9_000_000;*/ // Tröskelvärde i meter
 
-let foregroundSubscription: Location.LocationSubscription | null = null
+//let foregroundSubscription: Location.LocationSubscription | null = null
 
 const CheckPoint: React.FC<ICheckPoint> = (
     {
@@ -38,112 +39,36 @@ const CheckPoint: React.FC<ICheckPoint> = (
         onChange,
         onLeave,
         onEnter,
-        currentPosition,
         showNextCheckpoint,
         inOrder,
     }) => {
 
-    const [currentCoordinate, setCurrentCoordinate] = useState<Coordinate | null>(null);
     const [inActiveRegion, setInActiveRegion] = useState<boolean>(false);
+    const {userLocation} = useLocation();
 
     useEffect(() => {
-        if (currentPosition) {
-            setCurrentCoordinate(currentPosition);
-        }
-
-        if (currentPosition && (activeCheckpoint || inOrder)) {
-            const distance = getDistance(currentPosition, {
+        if (userLocation) {
+            const distance = getDistance(userLocation.coords, {
                 latitude: Number(checkpoint.latitude),
                 longitude: Number(checkpoint.longitude)
             }) - globalThreshold;
 
             if (distance <= 0) {
-                if (onChange) {
-                    onChange(0);
-                }
+                onChange(0);
             } else {
-                if (onChange) {
-                    onChange(distance);
-                }
+                onChange(distance);
             }
-        }
 
-    }, [currentPosition]);
-
-    useEffect(() => {
-        if (activeCheckpoint && inActiveRegion) {
-            onQuestion(checkpoint.question, checkpoint.checkpoint_id, checkpoint.isAnswered)
-            if (onEnter) {
+            if (distance < globalThreshold && (activeCheckpoint || !inOrder) && !inActiveRegion) {
+                onQuestion(checkpoint.question, checkpoint.checkpoint_id, checkpoint.isAnswered)
                 onEnter();
-            }
-        } else if (onLeave && activeCheckpoint) {
-            onLeave();
-        }
-    }, [inActiveRegion]);
-
-    useEffect(() => {
-        if (currentCoordinate) {
-            const targetCoordinate = { latitude: Number(checkpoint.latitude), longitude: Number(checkpoint.longitude) }
-            const distance = getDistance(currentCoordinate, targetCoordinate);
-
-            if (distance < globalThreshold) {
-                //console.log(`Avståndet är ${distance.toFixed(2)} meter, vilket är kortare än ${globalThreshold} meter.`);
                 setInActiveRegion(true);
-                stopForegroundUpdate();
-            } else if (activeCheckpoint) {
+            } else if (activeCheckpoint && inActiveRegion) {
+                onLeave();
                 setInActiveRegion(false);
             }
         }
-    }, [currentCoordinate]);
-
-    // Request permissions right after starting the app
-    useEffect(() => {
-        (async () => {
-            const foreground = await Location.requestForegroundPermissionsAsync()
-            if (!foreground.granted) {
-                console.error('Location request not granted');
-            }
-            //if (foreground.granted) await Location.requestBackgroundPermissionsAsync()
-
-            // TODO: om inOrder variabeln är sann här så blir det den senaste renderade checkpointen som blir trackad
-            if (activeCheckpoint || inOrder) {
-                await startForegroundUpdate();
-                //console.log('currentCheckpoint id: ', checkpoint.checkpoint_id, 'startForegroundUpdate()')
-            }
-        })();
-    }, [activeCheckpoint, inOrder])
-
-    // Start location tracking in foreground
-    const startForegroundUpdate = async () => {
-        // Check if foreground permission is granted
-        const { granted } = await Location.getForegroundPermissionsAsync();
-        if (!granted) {
-            //console.log("location tracking denied")
-            return
-        }
-
-        // Make sure that foreground location tracking is not running
-        foregroundSubscription?.remove();
-
-        // Start watching position in real-time
-        foregroundSubscription = await Location.watchPositionAsync(
-            {
-                // For better logs, we set the accuracy to the most sensitive option
-                accuracy: Location.Accuracy.BestForNavigation,
-            },
-            location => {
-                setCurrentCoordinate({latitude: location.coords.latitude, longitude: location.coords.longitude})
-            }
-        )
-    }
-
-    // Stop location tracking in foreground
-    const stopForegroundUpdate = () => {
-        foregroundSubscription?.remove();
-        setCurrentCoordinate(null);
-    }
-
-    // TBD: för mer om backgound uppdateringar https://chafikgharbi.com/expo-location-tracking/
+    }, [userLocation]);
 
     const handelOnPress = async () => {
         console.log(`CheckPointOrder: ${checkpoint.checkpoint_order}`, {
@@ -163,7 +88,7 @@ const CheckPoint: React.FC<ICheckPoint> = (
             triggerShake={showNextCheckpoint}
             direction={'vertical'}
         >
-            {showNextCheckpoint ? <Text style={styles.markerText}>{checkpoint.checkpoint_order}</Text> : null}
+            {showNextCheckpoint ? <Text style={styles.markerText}>{inOrder ? checkpoint.checkpoint_order: '#'}</Text> : null}
         </MarkerShaker>
     )
 }
