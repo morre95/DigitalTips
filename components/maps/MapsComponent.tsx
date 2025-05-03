@@ -2,7 +2,7 @@ import React, {useState, useRef, ComponentRef, useEffect} from 'react';
 import {StyleSheet, View, Text, Vibration, Alert, Dimensions} from 'react-native';
 import MapView, {PROVIDER_GOOGLE, Region} from "react-native-maps";
 import CheckPoint from "./CheckPoint";
-import {Checkpoint, Question} from "@/interfaces/common";
+import {MarkersType, Question} from "@/interfaces/common";
 import {useMapDispatch, useMapsState} from "./MapsContext";
 import FlashMessage from "@/components/FlashMessage";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
@@ -50,9 +50,9 @@ const MapsComponent = () => {
     const [currentPos, setCurrentPos] =
         useState<{longitude: number, latitude: number}>({longitude: 0, latitude: 0});
     const [newRegion, setNewRegion] = useState<Region|undefined>();
-    const [gameName, setGameName] = useState<string | null>(null);
-    const [currentRouteAdmin, setCurrentRouteAdmin] =
-        useState<{isAdmin: boolean, routeId: number}>({isAdmin: false, routeId: -1});
+    const initRouteInfo = {gameName: '', isAdmin: false, routeId: -1, inOrder: false, isPrivate: false}
+    const currentRouteInfoRef =
+        useRef<{gameName: string, isAdmin: boolean, routeId: number, inOrder: boolean, isPrivate: boolean}>(initRouteInfo);
     const {routeId} = useLocalSearchParams<{routeId: string}>();
     const {token, signInApp} = useToken();
 
@@ -62,25 +62,27 @@ const MapsComponent = () => {
         const id = Number(routeId);
         if (id > 0) {
             (async () => {
-                type Markers = {
-                    checkpoints: Checkpoint[];
-                    gameName?: string;
-                    owner?: number;
-                }
+
                 if (!token) {
                     await signInApp();
                 }
-                const markers = await getCheckpoints<Markers>(id, token as string);
-
-                if (markers.gameName) setGameName(markers.gameName);
+                const markers = await getCheckpoints<MarkersType>(id, token as string);
 
                 const playerId = await getPlayerId();
-                const isAdmin = Number(markers.owner) === playerId;
-                if (isAdmin && markers.checkpoints.length > 0) {
-                    const routeId = markers.checkpoints[0].route_id;
-                    setCurrentRouteAdmin({isAdmin: true, routeId: routeId});
+                if (markers.checkpoints.length > 0) {
+                    const isAdmin = Number(markers.owner) === playerId;
+                    //const routeId = markers.checkpoints[0].route_id;
+                    //setCurrentRouteAdmin({isAdmin: true, routeId: routeId});
+                    currentRouteInfoRef.current = {
+                        gameName: markers.gameName,
+                        isAdmin: isAdmin,
+                        routeId: markers.routeId,
+                        inOrder: markers.inOrder,
+                        isPrivate: markers.isPrivate,
+                    }
                 } else {
-                    setCurrentRouteAdmin({isAdmin: false, routeId: -1});
+                    //setCurrentRouteAdmin({isAdmin: false, routeId: -1});
+                    currentRouteInfoRef.current = initRouteInfo
                 }
 
                 dispatch(() => markers.checkpoints);
@@ -102,18 +104,26 @@ const MapsComponent = () => {
     }
 
     const DispatchCheckpoints = async (routeId: number) => {
-        type Markers = {
-            checkpoints: Checkpoint[];
-            gameName?: string;
-        }
-
         if (!token) {
             await signInApp();
         }
 
-        const markers = await getCheckpoints<Markers>(routeId, token as string);
+        const markers = await getCheckpoints<MarkersType>(routeId, token as string);
 
-        if (markers.gameName) setGameName(markers.gameName);
+        //if (markers.gameName) setGameName(markers.gameName);
+        if (markers.checkpoints.length > 0) {
+            const playerId = await getPlayerId();
+            const isAdmin = Number(markers.owner) === playerId;
+            currentRouteInfoRef.current = {
+                gameName: markers.gameName,
+                isAdmin: isAdmin,
+                routeId: markers.routeId,
+                inOrder: markers.inOrder,
+                isPrivate: markers.isPrivate,
+            }
+        } else {
+            currentRouteInfoRef.current = initRouteInfo
+        }
 
         type RouteProgress = {
             checkpoint_id: number;
@@ -178,13 +188,6 @@ const MapsComponent = () => {
     const handleAutoOnSelect = async (item: SearchResponse) => {
         setShowSearchButton(true);
 
-        const playerId = await getPlayerId();
-        const isAdmin = Number(item.owner) === playerId;
-        if (isAdmin) {
-            setCurrentRouteAdmin({isAdmin: true, routeId: item.routeId});
-        } else {
-            setCurrentRouteAdmin({isAdmin: false, routeId: -1});
-        }
         await DispatchCheckpoints(item.routeId);
     }
 
@@ -388,6 +391,7 @@ const MapsComponent = () => {
                         onEnter={() => {
                             console.log('onEnter()', 'id:', checkpoint.checkpoint_id);
                         }}
+                        inOrder={currentRouteInfoRef.current.inOrder}
 
                         // TBD: Bara för testning
                         currentPosition={currentPos}
@@ -422,7 +426,7 @@ const MapsComponent = () => {
 
             {score > 0 && <Text>{score}/{state.checkpoints.filter(obj => obj.isAnswered).length}</Text>}
             {state.checkpoints.length > 0 && (
-                <Text>"{gameName}" is running. {currentRouteAdmin.isAdmin && 'Check menu to edit'}</Text>
+                <Text>"{currentRouteInfoRef.current.gameName}" is running. {currentRouteInfoRef.current.isAdmin && 'Click menu to edit'}</Text>
             )}
 
             <Menu trigger={<Feather name="menu" size={44} color="black" />} bottomRight={true}>
@@ -431,10 +435,10 @@ const MapsComponent = () => {
                 <MenuTextItem text={'Restart the game'} onPress={handleRestartGame} />
                 <MenuTextItem text={'Remove game'} onPress={handleRemoveGame} />
                 <MenuTextItem text={'Qr Code Reader'} onPress={handleQrReader} />
-                {currentRouteAdmin.isAdmin && <MenuItemLink
+                {currentRouteInfoRef.current.isAdmin && <MenuItemLink
                     href={{
                         pathname: '/CreateRoutes',
-                        params: {routeId: currentRouteAdmin.routeId.toString()}
+                        params: {routeId: currentRouteInfoRef.current.routeId.toString()}
                     }}
                     text={'Edit Route'}
                 />}

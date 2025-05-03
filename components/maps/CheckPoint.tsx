@@ -15,6 +15,7 @@ interface ICheckPoint {
     onLeave: () => void;
     onChange: (distance: number) => void;
     showNextCheckpoint: boolean;
+    inOrder: boolean;
     // TBD: currentPosition har bara laggts till för att användas i debug syfte
     currentPosition?: Coordinate;
 }
@@ -38,7 +39,8 @@ const CheckPoint: React.FC<ICheckPoint> = (
         onLeave,
         onEnter,
         currentPosition,
-        showNextCheckpoint
+        showNextCheckpoint,
+        inOrder,
     }) => {
 
     const [currentCoordinate, setCurrentCoordinate] = useState<Coordinate | null>(null);
@@ -49,8 +51,7 @@ const CheckPoint: React.FC<ICheckPoint> = (
             setCurrentCoordinate(currentPosition);
         }
 
-        // TBD: ska tas bort när testning är klar och hur game play ska vara är bestämt
-        if (currentPosition && activeCheckpoint) {
+        if (currentPosition && (activeCheckpoint || inOrder)) {
             const distance = getDistance(currentPosition, {
                 latitude: Number(checkpoint.latitude),
                 longitude: Number(checkpoint.longitude)
@@ -103,12 +104,14 @@ const CheckPoint: React.FC<ICheckPoint> = (
                 console.error('Location request not granted');
             }
             //if (foreground.granted) await Location.requestBackgroundPermissionsAsync()
-            if (activeCheckpoint) {
+
+            // TODO: om inOrder variabeln är sann här så blir det den senaste renderade checkpointen som blir trackad
+            if (activeCheckpoint || inOrder) {
                 await startForegroundUpdate();
                 //console.log('currentCheckpoint id: ', checkpoint.checkpoint_id, 'startForegroundUpdate()')
             }
-        })()
-    }, [activeCheckpoint])
+        })();
+    }, [activeCheckpoint, inOrder])
 
     // Start location tracking in foreground
     const startForegroundUpdate = async () => {
@@ -120,7 +123,7 @@ const CheckPoint: React.FC<ICheckPoint> = (
         }
 
         // Make sure that foreground location tracking is not running
-        foregroundSubscription?.remove()
+        foregroundSubscription?.remove();
 
         // Start watching position in real-time
         foregroundSubscription = await Location.watchPositionAsync(
@@ -154,7 +157,7 @@ const CheckPoint: React.FC<ICheckPoint> = (
         <MarkerShaker
             key={checkpoint.checkpoint_id}
             coordinate={{ latitude: Number(checkpoint.latitude), longitude: Number(checkpoint.longitude)  }}
-            title={`Checkpoint: ${checkpoint.checkpoint_order}`}
+            title={`Checkpoint: ${inOrder ? checkpoint.checkpoint_order: '#'}`}
             image={showNextCheckpoint ? undefined : {uri: MarkerImages}}
             onPress={handelOnPress}
             triggerShake={showNextCheckpoint}

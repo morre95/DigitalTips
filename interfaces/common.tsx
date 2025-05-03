@@ -13,6 +13,15 @@ export interface Checkpoint {
     city:             string;
 }
 
+export type MarkersType = {
+    checkpoints: Checkpoint[];
+    routeId: number;
+    gameName: string;
+    owner: number;
+    inOrder: boolean;
+    isPrivate: boolean;
+}
+
 export interface Question {
     questionId: number;
     text:    string;
