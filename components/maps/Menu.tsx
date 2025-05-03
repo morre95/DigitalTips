@@ -25,10 +25,16 @@ interface IMenuProps {
     bottom?: number;
 }
 
+type PressableType = {
+    top: number | null;
+    left: number;
+    bottom: number;
+}
+
 const Menu = ({ trigger, children, topRight, topLeft, bottomRight, bottomLeft } : IMenuProps) => {
     const [modalVisible, setModalVisible] = useState(false);
     const triggerWrapperRef = useRef<View>(null);
-    const [pressablePosition, setPressablePosition] = useState<{top: number, left: number}>({top: 0, left: 0});
+    const pressablePositionRef = useRef<PressableType>({top: 0, left: 0, bottom: 0});
 
     // states to hold the trigger and menu dimensions
     const [triggerDimensions, setTriggerDimensions] = useState({
@@ -81,20 +87,20 @@ const Menu = ({ trigger, children, topRight, topLeft, bottomRight, bottomLeft } 
 
     useEffect(() => {
         if (topLeft) {
-            setPressablePosition({top: 10, left: 10})
+            pressablePositionRef.current = {top: 10, left: 10, bottom: 0};
         } else if (topRight) {
-            setPressablePosition({top: 10, left: layoutWidth - (10 + triggerDimensions.width)})
+            pressablePositionRef.current = {top: 10, left: layoutWidth - (10 + triggerDimensions.width), bottom: 0};
         } else if (bottomLeft) {
-            setPressablePosition({top: layoutHeight - (130 + triggerDimensions.height), left: 10})
+            pressablePositionRef.current = {top: null, left: 10, bottom: 10};
         } else if (bottomRight) {
-            setPressablePosition({top: layoutHeight - (130 + triggerDimensions.height), left: layoutWidth - (10 + triggerDimensions.width)})
+            pressablePositionRef.current = {top: null, left: layoutWidth - (10 + triggerDimensions.width), bottom: 10};
         }
     }, [topRight, topLeft, bottomRight, bottomLeft, triggerDimensions.width, triggerDimensions.height]);
 
     return (
         <>
             <View
-                style={[{position: 'absolute', zIndex:1}, pressablePosition]}
+                style={[{position: 'absolute', zIndex:1}, pressablePositionRef.current]}
                 onLayout={calculateTriggerDimensions}
             >
                 <Pressable

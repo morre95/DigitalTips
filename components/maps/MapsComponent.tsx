@@ -425,7 +425,7 @@ const MapsComponent = () => {
                 <Text>"{gameName}" is running. {currentRouteAdmin.isAdmin && 'Check menu to edit'}</Text>
             )}
 
-            <Menu trigger={<Feather name="menu" size={44} color="black" />} bottomRight>
+            <Menu trigger={<Feather name="menu" size={44} color="black" />} bottomRight={true}>
                 <MenuTextItem text={showNextCheckpoint ? 'Show Checkpoints Flags only':'Next Checkpoint'} onPress={handleNextCheckpoint} />
                 <MenuTextItem text={'Reset the game'} onPress={handleResetGame} />
                 <MenuTextItem text={'Restart the game'} onPress={handleRestartGame} />
