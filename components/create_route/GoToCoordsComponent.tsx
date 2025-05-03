@@ -35,7 +35,7 @@ const GoToCoordsComponent = ({onCoordsFound}: IProps) => {
             if (result?.length === 1) {
                 onCoordsFound({longitude: result[0].longitude, latitude: result[0].latitude});
             } else if (result && result.length > 1) {
-                const citys = []
+                const citys = [];
                 for (let i = 0; i < result.length; i++) {
                     const city = await getCity({latitude: result[i].latitude, longitude: result[i].longitude});
                     if (city) {
