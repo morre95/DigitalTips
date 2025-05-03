@@ -1,6 +1,6 @@
 import React, {useState, useRef, ComponentRef, useEffect} from 'react';
 import {StyleSheet, View, Text, Vibration, Alert, Dimensions} from 'react-native';
-import MapView, {PROVIDER_GOOGLE, Region} from "react-native-maps";
+import MapView, {PROVIDER_GOOGLE, Region, Camera} from "react-native-maps";
 import CheckPoint from "./CheckPoint";
 import {MarkersType, Question} from "@/interfaces/common";
 import {useMapDispatch, useMapsState} from "./MapsContext";
@@ -55,6 +55,7 @@ const MapsComponent = () => {
         useRef<{gameName: string, isAdmin: boolean, routeId: number, inOrder: boolean, isPrivate: boolean}>(initRouteInfo);
     const {routeId} = useLocalSearchParams<{routeId: string}>();
     const {token, signInApp} = useToken();
+    const mapRef = useRef<MapView | null>(null);
 
     const db = useSQLiteContext();
 
@@ -290,6 +291,25 @@ const MapsComponent = () => {
     };
 
     const handleNextCheckpoint = () => {
+        if (!showNextCheckpoint) {
+            let region;
+            for (let i = 0; i < state.checkpoints.length; i++) {
+                if (i === currentCheckpointIndex) {
+                    const checkpoint = state.checkpoints[i];
+                    region = {
+                        latitude: Number(checkpoint.latitude),
+                        longitude: Number(checkpoint.longitude),
+                        latitudeDelta: LATITUDE_DELTA,
+                        longitudeDelta: LONGITUDE_DELTA,
+                    };
+                }
+            }
+
+            if (region) {
+                mapRef.current?.animateToRegion(region, 1000);
+            }
+        }
+
         setShowNextCheckpoint(!showNextCheckpoint);
     }
 
@@ -365,6 +385,7 @@ const MapsComponent = () => {
                 <FlashMessage ref={flashMessageRef} />
 
                 <MapView
+                    ref={map => mapRef.current = map}
                     provider={PROVIDER_GOOGLE}
                     style={styles.map}
                     initialRegion={currentRegion}
