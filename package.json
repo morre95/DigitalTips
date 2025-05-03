@@ -67,5 +67,15 @@
     "react-test-renderer": "18.3.1",
     "typescript": "^5.7.3"
   },
-  "private": true
+  "private": true,
+
+  "expo": {
+    "doctor": {
+      "reactNativeDirectoryCheck": {
+        "enabled": true,
+        "exclude": ["expo-checkbox"],
+        "listUnknownPackages": true
+      }
+    }
+  }
 }
