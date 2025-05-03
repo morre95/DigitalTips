@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {StyleSheet, Text} from 'react-native'
-import { getDistance } from 'geolib';
+import {getDistanceFast} from '@/functions/getDistance';
 //import * as Location from 'expo-location';
 import { MarkerImages } from "@/assets/images";
 import {Checkpoint, Question} from "@/interfaces/common";
@@ -48,7 +48,7 @@ const CheckPoint: React.FC<ICheckPoint> = (
 
     useEffect(() => {
         if (userLocation) {
-            const distance = getDistance(userLocation.coords, {
+            const distance = getDistanceFast(userLocation.coords, {
                 latitude: Number(checkpoint.latitude),
                 longitude: Number(checkpoint.longitude)
             }) - globalThreshold;

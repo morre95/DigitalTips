@@ -4,7 +4,7 @@ import {View, Modal, Text, TextInput, StyleSheet, Button, Alert} from 'react-nat
 import {Picker} from '@react-native-picker/picker';
 import Checkbox from 'expo-checkbox';
 
-import { getDistance } from 'geolib';
+import {getDistanceFast} from '@/functions/getDistance';
 
 import {randomCoordinate, Coordinate} from '@/functions/coordinates'
 
@@ -89,7 +89,7 @@ const RandomCheckPoints: React.FC<iProps> = ({ isVisible, onFinish, currentCoord
 
             let tooClose = false;
             for (const checkpoint of checkpoints) {
-                const distance = getDistance(coordinate, checkpoint.marker);
+                const distance = getDistanceFast(coordinate, checkpoint.marker);
                 if (distance < minDistance) {
                     tooClose = true;
                     break;
