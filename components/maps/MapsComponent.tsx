@@ -1,6 +1,6 @@
 import React, {useState, useRef, ComponentRef, useEffect} from 'react';
 import {StyleSheet, View, Text, Vibration, Alert, Dimensions} from 'react-native';
-import MapView, {PROVIDER_GOOGLE, Region, Camera} from "react-native-maps";
+import MapView, {PROVIDER_GOOGLE, Region} from "react-native-maps";
 import CheckPoint from "./CheckPoint";
 import {MarkersType, Question} from "@/interfaces/common";
 import {useMapDispatch, useMapsState} from "./MapsContext";
@@ -72,8 +72,6 @@ const MapsComponent = () => {
                 const playerId = await getPlayerId();
                 if (markers.checkpoints.length > 0) {
                     const isAdmin = Number(markers.owner) === playerId;
-                    //const routeId = markers.checkpoints[0].route_id;
-                    //setCurrentRouteAdmin({isAdmin: true, routeId: routeId});
                     currentRouteInfoRef.current = {
                         gameName: markers.gameName,
                         isAdmin: isAdmin,
@@ -82,7 +80,6 @@ const MapsComponent = () => {
                         isPrivate: markers.isPrivate,
                     }
                 } else {
-                    //setCurrentRouteAdmin({isAdmin: false, routeId: -1});
                     currentRouteInfoRef.current = initRouteInfo
                 }
 
@@ -93,9 +90,6 @@ const MapsComponent = () => {
 
 
     const handleMapPress = (/*event: any*/) => {
-        //const { coordinate } = event.nativeEvent;
-        //setCurrentPos(coordinate);
-
         setShowSearchButton(true);
     }
 
@@ -111,7 +105,6 @@ const MapsComponent = () => {
 
         const markers = await getCheckpoints<MarkersType>(routeId, token as string);
 
-        //if (markers.gameName) setGameName(markers.gameName);
         if (markers.checkpoints.length > 0) {
             const playerId = await getPlayerId();
             const isAdmin = Number(markers.owner) === playerId;
@@ -248,21 +241,6 @@ const MapsComponent = () => {
             dispatch(()=>[]);
             setScore(0);
             setCurrentCheckpointIndex(0);
-
-            /*Alert.alert(
-                'Finished...',
-                `Congratulations!!! You have finished the route with score: ${myScore}/${state.checkpoints.length}`,
-                [
-                    {
-                        text: 'OK',
-                        onPress: () => {
-                            dispatch(() => []);
-                            setScore(0);
-                            setCurrentCheckpointIndex(0);
-                        }
-                    },
-                ]
-            );*/
 
             return
         } else {

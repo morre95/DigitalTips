@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {StyleSheet, Text} from 'react-native'
 import {getDistanceFast} from '@/functions/getDistance';
-//import * as Location from 'expo-location';
 import { MarkerImages } from "@/assets/images";
 import {Checkpoint, Question} from "@/interfaces/common";
 import MarkerShaker from "@/components/maps/MarkerShaker";
@@ -17,19 +16,9 @@ interface ICheckPoint {
     onChange: (distance: number) => void;
     showNextCheckpoint: boolean;
     inOrder: boolean;
-    // TBD: currentPosition har bara laggts till för att användas i debug syfte
-    /*currentPosition?: Coordinate;*/
 }
 
-// Typdefinition för en koordinat
-/*interface Coordinate {
-    latitude: number;
-    longitude: number;
-}*/
-
 const globalThreshold = 20 /*9_000_000;*/ // Tröskelvärde i meter
-
-//let foregroundSubscription: Location.LocationSubscription | null = null
 
 const CheckPoint: React.FC<ICheckPoint> = (
     {
