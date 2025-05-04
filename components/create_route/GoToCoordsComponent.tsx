@@ -52,7 +52,7 @@ const GoToCoordsComponent = ({onCoordsFound}: IProps) => {
         } else {
             setGeocodingResult([{
                 id: '999',
-                city: 'No results found',
+                city: `'${text}' gave no results...`,
                 latitude: -10000,
                 longitude: -10000
             }]);
@@ -62,6 +62,13 @@ const GoToCoordsComponent = ({onCoordsFound}: IProps) => {
     const handleCoordsFound = (coords: CoordsFound) => {
         if (coords.latitude !== -10000 && coords.longitude !== -10000) {
             onCoordsFound(coords);
+        }
+    }
+
+    const handleOnTextChange = (text: string) => {
+        onChangeText(text);
+        if (geoCodingResult) {
+            setGeocodingResult(null);
         }
     }
 
@@ -92,7 +99,7 @@ const GoToCoordsComponent = ({onCoordsFound}: IProps) => {
             <View style={styles.container}>
                 <TextInput
                     style={styles.input}
-                    onChangeText={onChangeText}
+                    onChangeText={handleOnTextChange}
                     onSubmitEditing={handleOnSubmit}
                     placeholder={'Go to address'}
                     value={text}
