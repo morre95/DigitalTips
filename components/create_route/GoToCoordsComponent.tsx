@@ -30,40 +30,48 @@ const GoToCoordsComponent = ({onCoordsFound}: IProps) => {
     const [geoCodingResult, setGeocodingResult] = React.useState<IData[] | null>(null);
 
     const handleOnSubmit = async () => {
-        if (text.length > 2) {
-            const result = await getCoordinatesFromAddress(text);
-            if (result?.length === 1) {
-                onCoordsFound({longitude: result[0].longitude, latitude: result[0].latitude});
-            } else if (result && result.length > 1) {
-                const citys = [];
-                for (let i = 0; i < result.length; i++) {
-                    const city = await getCity({latitude: result[i].latitude, longitude: result[i].longitude});
-                    if (city) {
-                        citys.push({city: city, latitude: result[i].latitude, longitude: result[i].longitude});
-                    }
+        if (text.length < 1) { return; }
+        const result = await getCoordinatesFromAddress(text);
+        if (result?.length === 1) {
+            onCoordsFound({longitude: result[0].longitude, latitude: result[0].latitude});
+        } else if (result && result.length > 1) {
+            const citys = [];
+            for (let i = 0; i < result.length; i++) {
+                const city = await getCity({latitude: result[i].latitude, longitude: result[i].longitude});
+                if (city) {
+                    citys.push({city: city, latitude: result[i].latitude, longitude: result[i].longitude});
                 }
-
-                setGeocodingResult(citys.map((item, index) => ({
-                    id: index.toString(),
-                    city: item.city,
-                    latitude: item.latitude,
-                    longitude: item.longitude
-                })));
-            } else {
-                setGeocodingResult(null);
             }
+
+            setGeocodingResult(citys.map((item, index) => ({
+                id: index.toString(),
+                city: item.city,
+                latitude: item.latitude,
+                longitude: item.longitude
+            })));
         } else {
-            setGeocodingResult(null);
+            setGeocodingResult([{
+                id: '999',
+                city: 'No results found',
+                latitude: -10000,
+                longitude: -10000
+            }]);
         }
     };
 
+    const handleCoordsFound = (coords: CoordsFound) => {
+        if (coords.latitude !== -10000 && coords.longitude !== -10000) {
+            onCoordsFound(coords);
+        }
+    }
+
     const Item = ({city, longitude, latitude}: ItemProps) => {
         return (
-            <View style={styles.item}>
+            <View style={styles.searchItem}>
                 <TouchableOpacity
-                    onPress={() => onCoordsFound({longitude, latitude})}
+                    onPress={() => handleCoordsFound({longitude, latitude})}
                 >
-                    <Text style={styles.title}>{city}</Text>
+                    <Text style={styles.searchTitle}>{city}</Text>
                 </TouchableOpacity>
             </View>
         )
@@ -93,7 +101,7 @@ const GoToCoordsComponent = ({onCoordsFound}: IProps) => {
                     style={styles.button}
                     onPress={handleOnSubmit}
                 >
-                    <EvilIcons name="search" size={24} color="black" />
+                    <EvilIcons style={styles.buttonIcon} name="search" size={24} color="black" />
                 </TouchableOpacity>
             </View>
         </View>
@@ -105,31 +113,33 @@ const styles = StyleSheet.create({
         flexDirection: "row",
     },
     input: {
+        flex: 1,
         height: 40,
         margin: 12,
         borderWidth: 1,
-        borderRadius: 8,
+        borderRadius: 12,
         padding: 10,
-        paddingRight: 30
+        paddingRight: 30,
     },
     button: {
-        marginTop: 20,
-        marginLeft: -38,
+
     },
-    buttonText: {
-        textAlign: 'center',
-        padding: 20,
-        color: 'white',
+    buttonIcon: {
+        marginTop: 20,
+        marginLeft: -43,
     },
 
-    item: {
-        backgroundColor: '#f9c2ff',
-        padding: 2,
-        marginVertical: 1,
+    searchItem: {
+        backgroundColor: '#5b91fb',
+        padding: 8,
+        marginVertical: 4,
         marginHorizontal: 2,
+        borderRadius: 12
     },
-    title: {
-        fontSize: 32,
+    searchTitle: {
+
+        fontSize: 16,
+        color: '#fff'
     },
 });
 

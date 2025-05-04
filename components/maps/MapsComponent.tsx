@@ -10,7 +10,7 @@ import Autocomplete from "./Autocomplete";
 import {getCheckpoints, SearchResponse} from "@/functions/api/Get";
 import AnswerQuestionComponent from "@/components/maps/AnswerQuestionComponent";
 import Feather from "@expo/vector-icons/Feather";
-import Menu, {MenuItemLink, MenuTextItem} from "@/components/maps/Menu";
+import Menu, {MenuClickableItem, MenuItemLink, MenuTextItem} from "@/components/maps/Menu";
 import {useLocalSearchParams, useRouter} from 'expo-router';
 import {getPlayerId} from "@/functions/common";
 import {useToken} from "@/components/login/LoginContext";
@@ -19,6 +19,7 @@ import RefPopup from "@/components/popup/RefPopup";
 import FinishPopup from "@/components/popup/FinishPopup";
 import {LocationProvider} from "@/hooks/LocationProvider";
 import ScoreComponent from "@/components/maps/ScoreComponent";
+import GoToCoordsComponent from "@/components/create_route/GoToCoordsComponent";
 
 const {width, height} = Dimensions.get('window');
 const ASPECT_RATIO = width / height;
@@ -438,6 +439,19 @@ const MapsComponent = () => {
                     <MenuTextItem text={'Restart the game'} onPress={handleRestartGame} />
                     <MenuTextItem text={'Remove game'} onPress={handleRemoveGame} />
                     <MenuTextItem text={'Qr Code Reader'} onPress={handleQrReader} />
+                    <MenuClickableItem onPress={() => null} >
+                        <GoToCoordsComponent
+                            onCoordsFound={(coords) => {
+                                const region: Region = {
+                                    latitude: coords.latitude,
+                                    longitude: coords.longitude,
+                                    latitudeDelta: LATITUDE_DELTA,
+                                    longitudeDelta: LONGITUDE_DELTA
+                                }
+                                mapRef.current?.animateToRegion(region, 1000);
+                            }}
+                        />
+                    </MenuClickableItem>
                     {currentRouteInfoRef.current.isAdmin && <MenuItemLink
                         href={{
                             pathname: '/CreateRoutes',

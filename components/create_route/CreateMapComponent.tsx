@@ -41,10 +41,10 @@ export function CreateMapComponent() {
     const [currentRegion, setCurrentRegion] = useState<Region>(initialRegion);
     const [showHelpPopup, setShowHelpPopup] = useState<boolean>(false);
     const [loading, setLoading] = useState(false);
-    const [newRegion, setNewRegion] = useState<Region|undefined>();
     const {routeId} = useLocalSearchParams()
     const router = useRouter();
     const {token, signInApp} = useToken();
+    const mapRef = useRef<MapView | null>(null);
 
     useEffect(() => {
         (async () => {
@@ -280,12 +280,12 @@ export function CreateMapComponent() {
             />: null}
 
             <MapView
+                ref={mapRef}
                 provider={PROVIDER_GOOGLE}
-                initialRegion={initialRegion}
+                region={initialRegion}
                 style={styles.map}
                 onPress={handleMapPress}
                 onRegionChange={setCurrentRegion}
-                region={newRegion}
                 showsMyLocationButton={false}
                 toolbarEnabled={false}
                 showsUserLocation={false}
@@ -321,7 +321,7 @@ export function CreateMapComponent() {
                                 latitudeDelta: LATITUDE_DELTA,
                                 longitudeDelta: LONGITUDE_DELTA
                             }
-                            setNewRegion(region);
+                            mapRef.current?.animateToRegion(region, 1000);
                         }}
                     />
                 </MenuClickableItem>
