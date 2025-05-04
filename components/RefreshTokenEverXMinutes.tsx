@@ -22,33 +22,36 @@ interface IRefreshTokenEverXMinutes {
 }
 
 const RefreshTokenEverXMinutes = ({minutes}: IRefreshTokenEverXMinutes) => {
-    const {token, signOutApp, signInApp} = useToken();
+    const {signOutApp, signInApp} = useToken();
+
     useEffect(() => {
+        let interval: string | number | NodeJS.Timeout | undefined;
         (async () => {
-            const time = await getTime();
-            if (time) {
-                const now = new Date().getTime();
-                const timeSinceLastRefresh = (now - time) / 1000;
-                if (minutes < timeSinceLastRefresh / 60) {
-                    signOutApp();
-                    await signInApp();
-                    await setTime();
-                }
-            } else {
+            signOutApp();
+            await signInApp();
+            await setTime();
+
+            interval = setInterval(checkTimeInterval, 60_000);
+        })();
+        return () => clearInterval(interval);
+    }, [minutes]);
+
+    const checkTimeInterval = async () => {
+        const time = await getTime();
+        if (time) {
+            const now = new Date().getTime();
+            const timeSinceLastRefresh = (now - time) / 1000;
+            if (minutes < timeSinceLastRefresh / 60) {
                 signOutApp();
                 await signInApp();
                 await setTime();
             }
-        })();
-    }, [minutes]);
-
-    useEffect(() => {
-        if (token) {
-            (async () => {
-                await setTime();
-            })();
+        } else {
+            signOutApp();
+            await signInApp();
+            await setTime();
         }
-    }, [token]);
+    };
 
     return (
         <></>
