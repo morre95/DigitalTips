@@ -1,6 +1,6 @@
 import React from 'react';
 import { useRouter, useNavigation } from 'expo-router';
-import { Alert, View, Text, StyleSheet, Button, Linking } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import AntDesign from '@expo/vector-icons/AntDesign';
 
 export default function Credits() {
@@ -14,10 +14,6 @@ export default function Credits() {
             ),
         });
     }, [navigation, router]);
-
-    const goBackToSettings = () => {
-        router.replace('/Settings');
-    }
 
     return (
         <View style={styles.container}>

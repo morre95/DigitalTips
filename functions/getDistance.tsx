@@ -38,7 +38,7 @@ export const getDistanceFast = (start: Coordinates, end: Coordinates): number =>
 
     const x = deltaLambda * Math.cos(meanLat);
     const y = deltaPhi;
-    return Math.sqrt(x * x + y * y) * R;
+    return Number((Math.sqrt(x * x + y * y) * R).toFixed(2));
 }
 
 export default getDistance;
