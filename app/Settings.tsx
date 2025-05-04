@@ -1,7 +1,6 @@
 import {useRouter} from 'expo-router';
 import React, {useState} from 'react';
 import {View, Text, StyleSheet, Button, Linking, TouchableOpacity} from 'react-native';
-import {fetchCityName} from '@/components/ReverseGeocoding';
 import PlayerNameSelect from "@/components/PlayerNameSelect";
 import updatePlayerName from "@/functions/updatePlayerName";
 import PingApi from "@/components/PingApi";
@@ -71,18 +70,6 @@ export default function Settings() {
                 <Button onPress={() => {
                     openURL("https://www.google.com");
                 }} title="Terms & Conditions" color="#1abc9c"/>
-            </View>
-            <View style={styles.buttonContainer}>
-                <Button onPress={async () => {
-                    let city = await fetchCityName("58.753001", "17.008733");
-                    console.log(city);
-                }} title="Nyköping" color="#1abc9c"/>
-            </View>
-            <View style={styles.buttonContainer}>
-                <Button onPress={async () => {
-                    let city = await fetchCityName("48.855321", "2.345764");
-                    console.log(city);
-                }} title="Paris" color="#1abc9c"/>
             </View>
 
 
