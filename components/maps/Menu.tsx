@@ -10,25 +10,22 @@ import {
 } from "react-native";
 import {Link, Href} from "expo-router";
 
-const { width: layoutWidth, height: layoutHeight } = Dimensions.get("window");
+const { height: layoutHeight} = Dimensions.get("window");
 
 interface IMenuProps {
     trigger: React.ReactNode;
     children: React.ReactNode;
-    topRight?: boolean;
     topLeft?: boolean;
-    bottomRight?: boolean;
+    topRight?: boolean;
     bottomLeft?: boolean;
+    bottomRight?: boolean;
+}
+
+type PressableType = {
     top?: number;
     left?: number;
     right?: number;
     bottom?: number;
-}
-
-type PressableType = {
-    top: number | null;
-    left: number;
-    bottom: number;
 }
 
 const Menu = ({ trigger, children, topRight, topLeft, bottomRight, bottomLeft } : IMenuProps) => {
@@ -87,15 +84,15 @@ const Menu = ({ trigger, children, topRight, topLeft, bottomRight, bottomLeft } 
 
     useEffect(() => {
         if (topLeft) {
-            pressablePositionRef.current = {top: 10, left: 10, bottom: 0};
+            pressablePositionRef.current = {top: 10, left: 10};
         } else if (topRight) {
-            pressablePositionRef.current = {top: 10, left: layoutWidth - (10 + triggerDimensions.width), bottom: 0};
+            pressablePositionRef.current = {top: 10, right: 10};
         } else if (bottomLeft) {
-            pressablePositionRef.current = {top: null, left: 10, bottom: 10};
+            pressablePositionRef.current = {left: 10, bottom: 10};
         } else if (bottomRight) {
-            pressablePositionRef.current = {top: null, left: layoutWidth - (10 + triggerDimensions.width), bottom: 10};
+            pressablePositionRef.current = {right: 10, bottom: 10};
         }
-    }, [topRight, topLeft, bottomRight, bottomLeft, triggerDimensions.width, triggerDimensions.height]);
+    }, [topRight, topLeft, bottomRight, bottomLeft]);
 
     return (
         <>
