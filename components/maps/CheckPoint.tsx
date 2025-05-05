@@ -96,7 +96,7 @@ const CheckPoint: React.FC<ICheckPoint> = (
             coordinate={{ latitude: Number(checkpoint.latitude), longitude: Number(checkpoint.longitude)  }}
             title={`Checkpoint: ${inOrder ? checkpoint.checkpoint_order: '#'}`}
             image={showNextCheckpoint ? undefined : {
-                uri: checkpoint.isAnswered ? MarkerImageBlue : MarkerImagePink
+                uri: !checkpoint.isAnswered ? MarkerImageBlue : MarkerImagePink
             }}
             onPress={handelOnPress}
             triggerShake={showNextCheckpoint}

@@ -53,9 +53,8 @@ const RefreshTokenEverXMinutes = ({minutes}: IRefreshTokenEverXMinutes) => {
         }
     };
 
-    return (
-        <></>
-    )
+    return null;
+
 }
 
 export default RefreshTokenEverXMinutes;

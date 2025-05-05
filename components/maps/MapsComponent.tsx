@@ -249,7 +249,7 @@ const MapsComponent = () => {
             flashMessageRef.current?.warning("Sorry but that is not the right answer...", 8000);
         }
 
-        setQuestion(null)
+        setQuestion(null);
         setCurrentCheckpointIndex(prevIndex => prevIndex + 1);
 
         const nextCheckpoints = state.checkpoints.map(checkpoint => {
@@ -282,6 +282,7 @@ const MapsComponent = () => {
         }
 
         if (isFinished) {
+            await saveScore(isCorrect, questionId, checkpointId);
             await routeFinished();
             return
         } else {
