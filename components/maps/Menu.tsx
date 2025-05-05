@@ -31,7 +31,7 @@ type PressableType = {
 const Menu = ({ trigger, children, topRight, topLeft, bottomRight, bottomLeft } : IMenuProps) => {
     const [modalVisible, setModalVisible] = useState(false);
     const triggerWrapperRef = useRef<View>(null);
-    const pressablePositionRef = useRef<PressableType>({top: 0, left: 0, bottom: 0});
+    const pressablePositionRef = useRef<PressableType>({top: 0, left: 0});
 
     // states to hold the trigger and menu dimensions
     const [triggerDimensions, setTriggerDimensions] = useState({
@@ -91,6 +91,8 @@ const Menu = ({ trigger, children, topRight, topLeft, bottomRight, bottomLeft } 
             pressablePositionRef.current = {left: 10, bottom: 10};
         } else if (bottomRight) {
             pressablePositionRef.current = {right: 10, bottom: 10};
+        } else {
+            //pressablePositionRef.current = {top: 10, left: 10};
         }
     }, [topRight, topLeft, bottomRight, bottomLeft]);
 
