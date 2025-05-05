@@ -90,8 +90,16 @@ const MapsComponent = () => {
     }, [routeId]);
 
 
-    const handleMapPress = (/*event: any*/) => {
+    const [testLocation, setTestLocation] = useState<{
+        latitude: number
+        longitude: number
+    } | null>(null);
+    const handleMapPress = (event: any) => {
         setShowSearchButton(true);
+
+        // TBD: Test kode som behövs för att kunna test köra frågedelen i emulatorn
+        const {coordinate} = event.nativeEvent;
+        setTestLocation({longitude: coordinate.longitude, latitude: coordinate.latitude});
     }
 
     const handleSearchPress = () => {
@@ -126,7 +134,7 @@ const MapsComponent = () => {
             answered_correctly: boolean;
         }
         const progress = await db.getAllAsync<RouteProgress>(
-            'SELECT * FROM route_progress WHERE route_id = ?', markers.checkpoints[0].route_id
+            'SELECT * FROM route_progress WHERE route_id = ?', currentRouteInfoRef.current.routeId
         );
         if (progress.length > 0) {
             Alert.alert(
@@ -155,20 +163,16 @@ const MapsComponent = () => {
                     }, {
                     text: 'Go to start',
                     onPress: async () => {
+                        await handleRemoveGame();
                         dispatch(() => markers.checkpoints);
-                        await db.execAsync('DELETE FROM route_progress;');
-                        setScore(0);
-                        setCurrentCheckpointIndex(0);
                     },
                     style: 'cancel'
                 }
                 ]
             )
         } else {
-            await db.execAsync('DELETE FROM route_progress;');
+            await handleRemoveGame();
             dispatch(() => markers.checkpoints);
-            setScore(0);
-            setCurrentCheckpointIndex(0);
         }
 
         if (markers.checkpoints.length > 0) {
@@ -204,6 +208,38 @@ const MapsComponent = () => {
         router.setParams({ details: item })
     }
 
+    const routeFinished = async () => {
+        let myScore;
+        setScore(prevScore => myScore = prevScore);
+
+        FinishPopup.show(
+            'Finished...',
+            `Congratulations!!! You have finished the route with score: ${myScore}/${state.checkpoints.length}`
+        );
+
+        await handleRemoveGame();
+    }
+
+    const saveScore = async (isCorrect: boolean, questionId: number, checkpointId: number) => {
+        const statement = await db.prepareAsync(
+            `INSERT INTO route_progress(route_id, checkpoint_id, question_id, answered_correctly) 
+                    VALUES ($route_id, $checkpoint_id, $question_id, $answered_correctly)`);
+
+        try {
+            await statement.executeAsync(
+                {
+                    $route_id: currentRouteInfoRef.current.routeId,
+                    $checkpoint_id: checkpointId,
+                    $question_id: questionId,
+                    $answered_correctly: isCorrect ? 1 : 0
+                });
+        } catch (e) {
+            console.error((e as Error).message);
+        } finally {
+            await statement.finalizeAsync();
+        }
+    }
+
     const handleAnswerSelected = async (isCorrect: boolean, questionId: number, checkpointId: number) => {
         if (isCorrect) {
             setScore(prevScore => prevScore + 1);
@@ -212,8 +248,8 @@ const MapsComponent = () => {
         } else {
             flashMessageRef.current?.warning("Sorry but that is not the right answer...", 8000);
         }
-        setQuestion(null)
 
+        setQuestion(null)
         setCurrentCheckpointIndex(prevIndex => prevIndex + 1);
 
         const nextCheckpoints = state.checkpoints.map(checkpoint => {
@@ -229,41 +265,27 @@ const MapsComponent = () => {
         const isFinished =
             nextCheckpoints.filter(checkpoint => checkpoint.isAnswered).length === state.checkpoints.length;
 
+        const result = await db.getAllAsync("SELECT * FROM route_progress");
+        for (const item of result) {
+            console.log(item)
+        }
+        const result2 = await db.getAllAsync(
+            `SELECT 
+                    (SELECT COUNT(answered_correctly) FROM route_progress WHERE answered_correctly = 1) AS correct, 
+                    COUNT(*) AS totalAnswered, 
+                    route_id AS routeId, 
+                    checkpoint_id as checkpointId 
+                    FROM route_progress`
+        );
+        for (const item of result2) {
+            console.log(item)
+        }
+
         if (isFinished) {
-            await db.execAsync('DELETE FROM route_progress;');
-            let myScore;
-            setScore(prevScore => myScore = prevScore);
-
-            FinishPopup.show(
-                'Finished...',
-                `Congratulations!!! You have finished the route with score: ${myScore}/${state.checkpoints.length}`
-            );
-
-            dispatch(()=>[]);
-            setScore(0);
-            setCurrentCheckpointIndex(0);
-
+            await routeFinished();
             return
         } else {
-            const routeId = nextCheckpoints[0].route_id;
-
-            const statement = await db.prepareAsync(
-                `INSERT INTO route_progress(route_id, checkpoint_id, question_id, answered_correctly) 
-                                    VALUES ($route_id, $checkpoint_id, $question_id, $answered_correctly)`);
-
-            try {
-                await statement.executeAsync(
-                    {
-                        $route_id: routeId,
-                        $checkpoint_id: checkpointId,
-                        $question_id: questionId,
-                        $answered_correctly: isCorrect ? 1 : 0
-                    });
-            } catch (e) {
-                console.error((e as Error).message);
-            } finally {
-                await statement.finalizeAsync();
-            }
+            await saveScore(isCorrect, questionId, checkpointId);
         }
 
         dispatch(() => nextCheckpoints);
@@ -293,17 +315,16 @@ const MapsComponent = () => {
     }
 
     const handleResetGame = () => {
-        function reset() {
+        async function reset() {
             const checkpoints = state.checkpoints.map(checkpoint => {
                 if (checkpoint.isAnswered) {
                     checkpoint.isAnswered = false;
                 }
                 return checkpoint
             });
-            dispatch(() => checkpoints);
+            await handleRemoveGame();
 
-            setScore(0);
-            setCurrentCheckpointIndex(0);
+            dispatch(() => checkpoints);
         }
 
         Alert.alert(
@@ -317,8 +338,7 @@ const MapsComponent = () => {
                 },
                 {
                     text: 'OK',
-                    onPress: () =>
-                        reset()
+                    onPress: async () => await reset()
                 },
             ]
         );
@@ -333,8 +353,11 @@ const MapsComponent = () => {
         router.replace('./QrCodeReader');
     }
 
-    const handleRemoveGame = () => {
-        dispatch(() => []);
+    const handleRemoveGame = async () => {
+        dispatch(()=>[]);
+        setScore(0);
+        setCurrentCheckpointIndex(0);
+        await db.execAsync('DELETE FROM route_progress;');
     }
 
     const handleOnRegionChange = (currentRegion: Region) => {
@@ -393,6 +416,8 @@ const MapsComponent = () => {
                                 console.log('onEnter()', 'id:', checkpoint.checkpoint_id);
                             }}
                             inOrder={currentRouteInfoRef.current.inOrder}
+
+                            testLocation={testLocation ? testLocation: undefined}
                         />
                     ))}
                 </MapView>
@@ -425,6 +450,7 @@ const MapsComponent = () => {
                 <ScoreComponent
                     visible={score > 0}
                     score={score}
+                    routeId={currentRouteInfoRef.current.routeId}
                     questionAnswered={state.checkpoints.filter(obj => obj.isAnswered).length}
                     totalQuestions={state.checkpoints.length}
                 />

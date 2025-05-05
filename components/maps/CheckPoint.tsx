@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {StyleSheet, Text} from 'react-native'
 import {getDistanceFast} from '@/functions/getDistance';
-import { MarkerImages } from "@/assets/images";
+import { MarkerImageBlue, MarkerImagePink } from "@/assets/images";
 import {Checkpoint, Question} from "@/interfaces/common";
 import MarkerShaker from "@/components/maps/MarkerShaker";
 import {useLocation} from "@/hooks/LocationProvider";
@@ -16,6 +16,11 @@ interface ICheckPoint {
     onChange: (distance: number) => void;
     showNextCheckpoint: boolean;
     inOrder: boolean;
+
+    testLocation?: {
+        latitude: number;
+        longitude: number;
+    };
 }
 
 const globalThreshold = 20 /*9_000_000;*/ // Tröskelvärde i meter
@@ -30,49 +35,69 @@ const CheckPoint: React.FC<ICheckPoint> = (
         onEnter,
         showNextCheckpoint,
         inOrder,
+        testLocation
     }) => {
 
     const [inActiveRegion, setInActiveRegion] = useState<boolean>(false);
     const {userLocation} = useLocation();
 
     useEffect(() => {
+        if (testLocation) {
+            const distance = calculateDistance(testLocation);
+
+            checkDistance(distance);
+        }
+    }, [testLocation]);
+
+    useEffect(() => {
         if (userLocation) {
-            const distance = getDistanceFast(userLocation.coords, {
-                latitude: Number(checkpoint.latitude),
-                longitude: Number(checkpoint.longitude)
-            }) - globalThreshold;
+            const distance = calculateDistance(userLocation.coords);
 
-            if (distance <= 0) {
-                onChange(0);
-            } else {
-                onChange(distance);
-            }
-
-            if (distance < globalThreshold && (activeCheckpoint || !inOrder) && !inActiveRegion) {
-                onQuestion(checkpoint.question, checkpoint.checkpoint_id, checkpoint.isAnswered)
-                onEnter();
-                setInActiveRegion(true);
-            } else if (activeCheckpoint && inActiveRegion) {
-                onLeave();
-                setInActiveRegion(false);
-            }
+            checkDistance(distance);
         }
     }, [userLocation]);
 
-    const handelOnPress = async () => {
-        console.log(`CheckPointOrder: ${checkpoint.checkpoint_order}`, {
+    const calculateDistance = (location: {
+        latitude: number;
+        longitude: number;
+    }): number => {
+        return getDistanceFast(location, {
             latitude: Number(checkpoint.latitude),
             longitude: Number(checkpoint.longitude)
-        }, 'nothing implemented here yet')
+        }) - globalThreshold;
+    };
+
+    const checkDistance = (distance: number) => {
+        if (distance <= 0) {
+            onChange(0);
+        } else {
+            onChange(distance);
+        }
+
+        if (distance < globalThreshold && (activeCheckpoint || !inOrder) && !inActiveRegion) {
+            onQuestion(checkpoint.question, checkpoint.checkpoint_id, checkpoint.isAnswered)
+            onEnter();
+            setInActiveRegion(true);
+        } else if (activeCheckpoint && inActiveRegion) {
+            onLeave();
+            setInActiveRegion(false);
+        }
     }
 
+    const handelOnPress = async () => {
+        console.log(`CheckPointOrder: ${checkpoint.checkpoint_order}`,
+            userLocation ? calculateDistance(userLocation?.coords): 'unknown',
+            'meters to this checkpoint');
+    };
 
     return (
         <MarkerShaker
             key={checkpoint.checkpoint_id}
             coordinate={{ latitude: Number(checkpoint.latitude), longitude: Number(checkpoint.longitude)  }}
             title={`Checkpoint: ${inOrder ? checkpoint.checkpoint_order: '#'}`}
-            image={showNextCheckpoint ? undefined : {uri: MarkerImages}}
+            image={showNextCheckpoint ? undefined : {
+                uri: checkpoint.isAnswered ? MarkerImageBlue : MarkerImagePink
+            }}
             onPress={handelOnPress}
             triggerShake={showNextCheckpoint}
             direction={'vertical'}
