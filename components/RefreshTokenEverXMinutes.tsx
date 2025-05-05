@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import {useEffect} from 'react';
 import {useToken} from "@/components/login/LoginContext";
 import * as SecureStore from "expo-secure-store";
 
