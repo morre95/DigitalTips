@@ -21,6 +21,7 @@ import {LocationProvider} from "@/hooks/LocationProvider";
 import ScoreComponent from "@/components/maps/ScoreComponent";
 import GoToCoordsComponent from "@/components/create_route/GoToCoordsComponent";
 
+
 const {width, height} = Dimensions.get('window');
 const ASPECT_RATIO = width / height;
 const LATITUDE_DELTA = 0.0722;
@@ -250,7 +251,7 @@ const MapsComponent = () => {
         }
 
         setQuestion(null);
-        setCurrentCheckpointIndex(prevIndex => prevIndex + 1);
+
 
         const nextCheckpoints = state.checkpoints.map(checkpoint => {
             if (checkpoint.checkpoint_id === checkpointId) {
@@ -287,32 +288,43 @@ const MapsComponent = () => {
             return
         } else {
             await saveScore(isCorrect, questionId, checkpointId);
+
         }
+
+        setCurrentCheckpointIndex((prevIndex: number) => {
+            const newState = prevIndex + 1
+
+            if (currentRouteInfoRef.current.inOrder && showNextCheckpoint) {
+                moveCameraToCheckpoint(newState);
+            }
+
+            return newState
+        });
 
         dispatch(() => nextCheckpoints);
     };
 
-    const handleNextCheckpoint = () => {
-        if (!showNextCheckpoint) {
-            let region;
-            for (let i = 0; i < state.checkpoints.length; i++) {
-                if (i === currentCheckpointIndex) {
-                    const checkpoint = state.checkpoints[i];
-                    region = {
-                        latitude: Number(checkpoint.latitude),
-                        longitude: Number(checkpoint.longitude),
-                        latitudeDelta: LATITUDE_DELTA,
-                        longitudeDelta: LONGITUDE_DELTA,
-                    };
-                }
-            }
+    const moveCameraToCheckpoint = (index: number = currentCheckpointIndex): void => {
+        const checkpoint = state.checkpoints[index];
+        const region = {
+            latitude: Number(checkpoint.latitude),
+            longitude: Number(checkpoint.longitude),
+            latitudeDelta: LATITUDE_DELTA,
+            longitudeDelta: LONGITUDE_DELTA,
+        };
 
-            if (region) {
-                mapRef.current?.animateToRegion(region, 1000);
-            }
+        if (region) {
+            mapRef.current?.animateToRegion(region, 1000);
         }
+    }
 
-        setShowNextCheckpoint(!showNextCheckpoint);
+    const handleNextCheckpoint = () => {
+        setShowNextCheckpoint(prevState => {
+            if (!prevState) {
+                moveCameraToCheckpoint();
+            }
+            return !prevState;
+        });
     }
 
     const handleResetGame = () => {

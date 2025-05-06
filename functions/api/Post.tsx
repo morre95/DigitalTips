@@ -1,3 +1,4 @@
+import { fetch } from 'expo/fetch';
 import BaseUrl from './BaseUrl';
 
 function prepareHeaders<T>(data: T, token?: string) {

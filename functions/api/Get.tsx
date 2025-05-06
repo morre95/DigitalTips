@@ -1,4 +1,4 @@
-
+import { fetch } from 'expo/fetch';
 import BaseUrl from './BaseUrl';
 
 async function getJson<T>(url: string, headers: any = null, baseUrl: BaseUrl = BaseUrl.remote): Promise<T> {
