@@ -5,9 +5,6 @@ use Psr\Http\Message\ServerRequestInterface;
 use Modules\DB;
 use Psr\Log\LoggerInterface;
 
-require '../../functions/common.php';
-
-
 class RouteController
 {
     private $logger;

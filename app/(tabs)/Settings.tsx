@@ -80,11 +80,12 @@ export default function Settings() {
                 </TouchableOpacity>
             </View>
 
+            <ShowResult />
+
             <PingApi />
 
             <GetNewToken />
 
-            <ShowResult />
 
             <PlayerNameSelect
                 visible={selectPlayerNameVisible}

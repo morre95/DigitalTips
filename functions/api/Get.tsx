@@ -12,11 +12,10 @@ async function getJson<T>(url: string, headers: any = null, baseUrl: BaseUrl = B
         headers: headers
     };
 
-    url = url.startsWith('/') ? `${baseUrl}${url.slice(1)}` : `${baseUrl}${url}`
+    url = url.startsWith('/') ? `${baseUrl}${url.slice(1)}` : `${baseUrl}${url}`;
 
     try {
         const response = await fetch(url, requestOptions);
-
         if (response.headers.has('X-RateLimit-Remaining')) {
             const timestamp = Number(response.headers.get('X-RateLimit-Reset')) * 1000
             const date = new Date(timestamp);

@@ -1,14 +1,14 @@
 import React, {useState, useRef} from 'react';
-import {View, Text, StyleSheet, Modal, TouchableOpacity} from 'react-native';
+import {View, Text, StyleSheet, Modal, TouchableOpacity, Pressable} from 'react-native';
 import {useToken} from "@/components/login/LoginContext";
 import {getMyResults} from "@/functions/api/Get";
 import {getPlayerId} from "@/functions/common";
 
-const Row = ({columns}: {columns: string[]}) => {
+const Row = ({column}: {column: string[]}) => {
     return (
         <View style={styles.rowStyle}>
-            {columns.map((data) => (
-                <Cell data={data} />
+            {column.map((data, index) => (
+                <Cell key={index.toString()} data={data} />
             ))}
         </View>
     );
@@ -22,24 +22,53 @@ const Cell = ({data}: {data: string}) => {
     );
 };
 
+const Header = ({column}: {column: string[]}) => {
+    return (
+        <View style={styles.headerStyle}>
+            {column.map((data, index) => (
+                <HeaderCell key={index.toString()} data={data} />
+            ))}
+        </View>
+    );
+};
+
+const HeaderCell = ({data}: {data: string}) => {
+    return (
+        <View style={styles.headerCellStyle}>
+            <Text style={styles.headerTextStyle}>{data}</Text>
+        </View>
+    );
+};
+
 const ShowResult = () => {
     const [showResult, setShowResult] = useState(false);
     const {token} = useToken();
-    let dataRef = useRef<string[]>([]).current;
+    let dataRef = useRef<string[][]>([]).current;
 
     const setData = async () => {
         const userId = await getPlayerId();
         const result = await getMyResults(userId, token as string);
         if (result) {
+            // Ingen snygg lösning men eftersom dataRef = [] inte funkade så...;
+            while(dataRef.length){
+                dataRef.pop();
+            }
             for (const item of result) {
-                dataRef.push(item.name);
-                dataRef.push(item.correct.toString());
-                dataRef.push(item.incorrect.toString());
-                dataRef.push(item.notAnswered.toString());
+                dataRef.push([
+                    item.name,
+                    item.correct.toString(),
+                    item.incorrect.toString(),
+                    item.notAnswered.toString()
+                ]);
             }
 
             setShowResult(true);
         }
+    }
+
+    const handleClose = () => {
+        dataRef = [];
+        setShowResult(false);
     }
 
     return (
@@ -51,11 +80,14 @@ const ShowResult = () => {
                 onRequestClose={() => {
                     setShowResult(!showResult);
                 }}>
-                <View style={styles.centeredView}>
+                <Pressable style={styles.centeredView} onPress={handleClose}>
                     <View style={styles.gridContainer}>
-                        <Row columns={dataRef} />
+                        <Header column={['Name', 'Correct', 'Incorrect', 'Not Answered']} />
+                        {dataRef.map((column, index) => (
+                            <Row key={index.toString()} column={column} />
+                        ))}
                     </View>
-                </View>
+                </Pressable>
             </Modal>
             <View style={styles.buttonContainer}>
                 <TouchableOpacity style={styles.touchableButton} onPress={setData}>
@@ -74,7 +106,26 @@ const styles = StyleSheet.create({
             alignItems: 'center',
     },
     gridContainer: {
-        width: 220,
+        width: '100%',
+        backgroundColor: '#fff',
+        borderRadius: 10,
+    },
+
+    headerStyle: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-around",
+        borderBottomWidth: 1,
+        borderStyle: 'solid',
+        borderColor: '#000',
+    },
+    headerCellStyle: {
+        flex: 1,
+        marginHorizontal: 10,
+    },
+    headerTextStyle: {
+        fontSize: 18,
+        fontWeight: 'bold'
     },
     rowStyle: {
         flexDirection: "row",

@@ -5,8 +5,6 @@ use Psr\Http\Message\ServerRequestInterface;
 use Modules\DB;
 use Psr\Log\LoggerInterface;
 
-require '../../functions/common.php';
-
 class ResultController
 {
     private $logger;
@@ -79,7 +77,9 @@ class ResultController
     public function get_my_results(ServerRequestInterface $request, ResponseInterface $response, $args): ResponseInterface {
         $user_id = $args["user_id"];
 
-        $sql = "SELECT * FROM results WHERE user_id = ?";
+        $sql = "SELECT * FROM results WHERE user_id = :user_id";
+
+        $this->logger->info("get_my_results(): $sql, $user_id");
 
         $newResults = [];
         try {
@@ -99,8 +99,8 @@ class ResultController
                     ':route_id' => $result->route_id,
                 ]);
 
-                $name = $statement->fetch(PDO::FETCH_OBJ)->name;
-                $result->name = $name;
+                $name = $statement->fetch(PDO::FETCH_OBJ);
+                $result->name = $name->name;
                 $newResults[] = mapSnakeToCamel($result);
             }
         } catch (PDOException $e) {
@@ -109,6 +109,7 @@ class ResultController
                 "message" => $e->getMessage()
             );
 
+            $this->logger->error('Något gick helt fel');
             $this->logger->error($error["message"]);
 
             $response->getBody()->write(json_encode($error));
@@ -122,6 +123,8 @@ class ResultController
             'message' => 'Successfully getting result',
             'results' => $newResults
         ];
+
+        $this->logger->info(var_export($json, true));
 
         $response->getBody()->write(json_encode($json));
         return $response
