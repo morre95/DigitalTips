@@ -3,6 +3,8 @@ export type Coordinates = {
     latitude: number
 }
 
+export const globalThreshold = 20;
+
 const getDistance = (
     start: Coordinates,
     end: Coordinates,

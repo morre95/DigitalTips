@@ -11,21 +11,22 @@ export interface Checkpoint {
     isAnswered?:      boolean;
     in_order:         boolean;
     city:             string;
+    closest?:         boolean;
 }
 
 export type MarkersType = {
     checkpoints: Checkpoint[];
-    routeId: number;
-    gameName: string;
-    owner: number;
-    inOrder: boolean;
-    isPrivate: boolean;
+    routeId:     number;
+    gameName:    string;
+    owner:       number;
+    inOrder:     boolean;
+    isPrivate:   boolean;
 }
 
 export interface Question {
     questionId: number;
-    text:    string;
-    answers: Answer[];
+    text:       string;
+    answers:    Answer[];
 }
 
 export interface Answer {
@@ -44,18 +45,18 @@ export interface MarkerData {
 }
 
 export type RouteData = {
-    marker: MarkerData;
-    question?: string;
+    marker:      MarkerData;
+    question?:   string;
     questionId?: number;
-    answers?: Answer[];
+    answers?:    Answer[];
 }
 
 export type Coordinate = {
-    latitude: number
+    latitude:  number
     longitude: number
 }
 
 export type QrCodeType = {
-    name: string;
+    name:    string;
     routeId: number;
 }

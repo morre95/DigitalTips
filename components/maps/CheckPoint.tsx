@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {StyleSheet, Text} from 'react-native'
-import {getDistanceFast} from '@/functions/getDistance';
+import {getDistanceFast, globalThreshold} from '@/functions/getDistance';
 import { MarkerImageBlue, MarkerImagePink } from "@/assets/images";
 import {Checkpoint, Question} from "@/interfaces/common";
 import MarkerShaker from "@/components/maps/MarkerShaker";
@@ -23,7 +23,6 @@ interface ICheckPoint {
     };
 }
 
-const globalThreshold = 20 /*9_000_000;*/ // Tröskelvärde i meter
 
 const CheckPoint: React.FC<ICheckPoint> = (
     {

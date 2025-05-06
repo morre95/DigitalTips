@@ -11,6 +11,7 @@ import register from "@/functions/register";
 import Loader from "@/components/Loader";
 import { SQLiteProvider } from 'expo-sqlite';
 import { migrateDbIfNeeded } from '@/functions/common';
+import {LocationProvider} from "@/hooks/LocationProvider";
 
 let updatePlayerTries = 0;
 
@@ -83,11 +84,13 @@ export default function Maps() {
 
     return (
         <View style={styles.container}>
-            <MapsProvider>
-                <SQLiteProvider databaseName={'localDataStore.db'} onInit={migrateDbIfNeeded}>
-                    <MapsComponent />
-                </SQLiteProvider>
-            </MapsProvider>
+            <LocationProvider>
+                <MapsProvider>
+                    <SQLiteProvider databaseName={'localDataStore.db'} onInit={migrateDbIfNeeded}>
+                        <MapsComponent />
+                    </SQLiteProvider>
+                </MapsProvider>
+            </LocationProvider>
             <PlayerNameSelect
                 visible={showSelectPlayerName}
                 onSelect={handlePlayerNameSelect}
