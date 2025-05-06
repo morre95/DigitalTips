@@ -76,7 +76,9 @@ const CheckPoint: React.FC<ICheckPoint> = (
         }
 
         if (distance < globalThreshold && (activeCheckpoint || !inOrder) && !inActiveRegion) {
-            onQuestion(checkpoint.question, checkpoint.checkpoint_id, checkpoint.isAnswered)
+            if (!checkpoint.isAnswered) {
+                onQuestion(checkpoint.question, checkpoint.checkpoint_id, checkpoint.isAnswered);
+            }
             onEnter();
             setInActiveRegion(true);
         } else if (activeCheckpoint && inActiveRegion) {

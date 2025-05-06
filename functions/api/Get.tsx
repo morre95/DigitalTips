@@ -152,5 +152,29 @@ async function getMyRoutes(appId: number, token: string): Promise<SearchResponse
     return mapSearchResult(response);
 }
 
+type Result = {
+    name: string;
+    resultId: number;
+    routeId: number;
+    userId: number;
+    correct: number;
+    incorrect: number;
+    notAnswered: number;
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+interface IResultResp {
+    error: string;
+    message: string;
+    results: Result[];
+}
+
+async function getMyResults(userId: number, token: string): Promise<Result[]|null> {
+    const response = await getRestricted<IResultResp>(`api/get/my/results/${encodeURIComponent(userId)}`, token);
+    if (response.error) return null;
+    return response.results;
+}
+
 export default getJson;
-export { BaseUrl, getRestricted, getSearch, SearchResponse, getCheckpoints, deleteCheckpoint, getRoute, pingServer, getMyRoutes };
+export { BaseUrl, getRestricted, getSearch, SearchResponse, getCheckpoints, deleteCheckpoint, getRoute, pingServer, getMyRoutes, getMyResults };

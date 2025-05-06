@@ -7,6 +7,7 @@ import PingApi from "@/components/PingApi";
 import GetNewToken from "@/components/GetNewToken";
 import Loader from "@/components/Loader";
 import {useToken} from '@/components/login/LoginContext'
+import ShowResult from "@/components/ShowResult";
 
 
 export default function Settings() {
@@ -82,6 +83,8 @@ export default function Settings() {
             <PingApi />
 
             <GetNewToken />
+
+            <ShowResult />
 
             <PlayerNameSelect
                 visible={selectPlayerNameVisible}

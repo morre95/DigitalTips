@@ -15,8 +15,6 @@ import {useLocalSearchParams, useRouter} from 'expo-router';
 import {getPlayerId} from "@/functions/common";
 import {useToken} from "@/components/login/LoginContext";
 import {useSQLiteContext} from "expo-sqlite";
-import RefPopup from "@/components/popup/RefPopup";
-import FinishPopup from "@/components/popup/FinishPopup";
 import ScoreComponent from "@/components/maps/ScoreComponent";
 import GoToCoordsComponent from "@/components/create_route/GoToCoordsComponent";
 import {useLocation} from "@/hooks/LocationProvider";
@@ -245,18 +243,6 @@ const MapsComponent = () => {
         router.setParams({ details: item })
     }
 
-    const routeFinished = async () => {
-        let myScore;
-        setScore(prevScore => myScore = prevScore);
-
-        FinishPopup.show(
-            'Finished...',
-            `Congratulations!!! You have finished the route with score: ${myScore}/${state.checkpoints.length}`
-        );
-
-        await handleRemoveGame();
-    }
-
     const saveScore = async (isCorrect: boolean, questionId: number, checkpointId: number) => {
         const statement = await db.prepareAsync(
             `INSERT INTO route_progress(route_id, checkpoint_id, question_id, answered_correctly) 
@@ -299,10 +285,11 @@ const MapsComponent = () => {
                 return checkpoint;
             }
         });
+
         const isFinished =
             nextCheckpoints.filter(checkpoint => checkpoint.isAnswered).length === state.checkpoints.length;
 
-        const result = await db.getAllAsync("SELECT * FROM route_progress");
+        /*const result = await db.getAllAsync("SELECT * FROM route_progress");
         for (const item of result) {
             console.log(item)
         }
@@ -316,16 +303,9 @@ const MapsComponent = () => {
         );
         for (const item of result2) {
             console.log(item)
-        }
+        }*/
 
-        if (isFinished) {
-            await saveScore(isCorrect, questionId, checkpointId);
-            await routeFinished();
-            return
-        } else {
-            await saveScore(isCorrect, questionId, checkpointId);
-
-        }
+        await saveScore(isCorrect, questionId, checkpointId);
 
         setCurrentCheckpointIndex((prevIndex: number) => {
             const newState = prevIndex + 1
@@ -337,7 +317,14 @@ const MapsComponent = () => {
             return newState
         });
 
+        if (isFinished) {
+            //await handleRemoveGame();
+            /*const ch = nextCheckpoints[state.checkpoints.length - 1];
+            console.log('#', ch.checkpoint_id, 'is answered:', ch.isAnswered);*/
+        }
+
         dispatch(() => nextCheckpoints);
+
     };
 
     const moveCameraToCheckpoint = (index: number = currentCheckpointIndex): void => {
@@ -532,11 +519,7 @@ const MapsComponent = () => {
                 />}
             </Menu>
 
-            <RefPopup
-                onClose={() => {
-                    FinishPopup.hide();
-                }}
-            />
+
 
         </View>
     )

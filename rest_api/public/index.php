@@ -17,6 +17,7 @@ use Modules\DB;
 require __DIR__ . '/../vendor/autoload.php';
 require __DIR__ . '/../src/Controllers/UserController.php';
 require __DIR__ . '/../src/Controllers/RouteController.php';
+require __DIR__ . '/../src/Controllers/ResultController.php';
 require __DIR__ . '/../src/Middlewares/RateLimitMiddleware.php';
 require __DIR__ . '/../src/Middlewares/JwtBearerMiddleware.php';
 
@@ -119,11 +120,14 @@ $app->group('/api', function (\Slim\Routing\RouteCollectorProxy $group) {
     $group->get('/search/routes/{keyword}', \RouteController::class . ':search');
     $group->get('/get/checkpoints/{id}', \RouteController::class . ':get_checkpoints');
     $group->get('/get/my/routes/{owner}', \RouteController::class . ':get_my_routes');
+    $group->get('/get/my/results/{user_id}', \RouteController::class . ':get_my_results');
+
 
     $group->post('/add/routes', \RouteController::class . ':add_new');
     $group->post('/edit/route', \RouteController::class . ':edit_route');
     $group->post('/change/player/name', \UserController::class . ':change_player_name');
-})->add(JwtBearerMiddleware::class)/*->add($jwtMiddleware)*/;
+    $group->post('/add/result', \ResultController::class . ':add_result');
+})->add(JwtBearerMiddleware::class);
 
 
 /**
