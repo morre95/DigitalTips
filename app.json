@@ -4,7 +4,7 @@
     "slug": "DigitalTips",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/splash-screen.png",
+    "icon": "./assets/images/splash-screen-small.png",
     "scheme": "myapp",
     "owner": "newgradfuntime",
     "userInterfaceStyle": "automatic",
