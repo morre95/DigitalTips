@@ -378,7 +378,7 @@ const MapsComponent = () => {
 
         Alert.alert(
             'Reset the game',
-            'Do you really want to rest the game?',
+            'Do you really want to restart the game? \nAnd delete all your progress?',
             [
                 {
                     text: 'Cancel',
@@ -392,10 +392,6 @@ const MapsComponent = () => {
             ]
         );
 
-    }
-
-    const handleRestartGame = () => {
-        console.log('Restart Game!!!', 'Not implemented yet!!!');
     }
 
     const handleQrReader = () => {
@@ -511,8 +507,7 @@ const MapsComponent = () => {
 
             <Menu trigger={<Feather name="menu" size={44} color="black" />} bottomRight={true}>
                 <MenuTextItem text={showNextCheckpoint ? 'Show Checkpoints Flags only':'Next Checkpoint'} onPress={handleNextCheckpoint} />
-                <MenuTextItem text={'Reset the game'} onPress={handleResetGame} />
-                <MenuTextItem text={'Restart the game'} onPress={handleRestartGame} />
+                <MenuTextItem text={'Restart the game'} onPress={handleResetGame} />
                 <MenuTextItem text={'Remove game'} onPress={handleRemoveGame} />
                 <MenuTextItem text={'Qr Code Reader'} onPress={handleQrReader} />
                 <MenuClickableItem onPress={() => null} >
