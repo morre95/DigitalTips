@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import {StyleSheet, Text} from 'react-native'
 import {getDistanceFast, globalThreshold} from '@/functions/getDistance';
-import { MarkerImageBlue, MarkerImagePink } from "@/assets/images";
+import { MarkerImageBlue, MarkerImagePink, MarkerImageGreen } from "@/assets/images";
 import {Checkpoint, Question} from "@/interfaces/common";
 import MarkerShaker from "@/components/maps/MarkerShaker";
 import {useLocation} from "@/hooks/LocationProvider";
+import {useSQLiteContext} from "expo-sqlite";
 
 
 interface ICheckPoint {
@@ -39,6 +40,7 @@ const CheckPoint: React.FC<ICheckPoint> = (
 
     const [inActiveRegion, setInActiveRegion] = useState<boolean>(false);
     const {userLocation} = useLocation();
+    const db = useSQLiteContext();
 
     useEffect(() => {
         if (testLocation) {
@@ -89,13 +91,27 @@ const CheckPoint: React.FC<ICheckPoint> = (
             'meters to this checkpoint');
     };
 
+    const getMarkerImageUri = (): string => {
+        if (checkpoint.isAnswered) {
+            const result = db.getFirstSync<{correct: number}>(
+                "SELECT answered_correctly AS correct FROM route_progress WHERE checkpoint_id = ?",
+                [checkpoint.checkpoint_id]
+            );
+            if (result && result.correct === 1) {
+                return MarkerImageGreen;
+            }
+            return MarkerImagePink;
+        }
+        return MarkerImageBlue;
+    }
+
     return (
         <MarkerShaker
             key={checkpoint.checkpoint_id}
             coordinate={{ latitude: Number(checkpoint.latitude), longitude: Number(checkpoint.longitude)  }}
             title={`Checkpoint: ${inOrder ? checkpoint.checkpoint_order: '#'}`}
             image={showNextCheckpoint ? undefined : {
-                uri: !checkpoint.isAnswered ? MarkerImageBlue : MarkerImagePink
+                uri: getMarkerImageUri()
             }}
             onPress={handelOnPress}
             triggerShake={showNextCheckpoint}
