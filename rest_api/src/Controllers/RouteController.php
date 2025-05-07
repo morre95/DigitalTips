@@ -238,12 +238,14 @@ class RouteController
             $stmt->execute();
             $routes = $stmt->fetchAll(PDO::FETCH_OBJ);
 
+            $user_id = (int)$args['user_id'];
             for($i = 0; $i < count($routes); $i++) {
                 $route = $routes[$i];
+                $route_id = $route->route_id;
 
                 $sql = "SELECT COUNT(*) as num FROM `checkpoints` WHERE `route_id` = :route_id";
                 $stmt = $conn->prepare($sql);
-                $stmt->bindValue(":route_id", $route->route_id, PDO::PARAM_INT);
+                $stmt->bindValue(":route_id", $route_id, PDO::PARAM_INT);
                 $stmt->execute();
                 
                 $marker_count = $stmt->fetch(PDO::FETCH_OBJ);
@@ -252,11 +254,23 @@ class RouteController
                 // Konvertera från sträng till boolean
                 $routes[$i]->is_private = $routes[$i]->is_private === 'true';
                 $routes[$i]->in_order = $routes[$i]->in_order === 'true';
+
+
+
+                $sql = "SELECT COUNT(*) AS num FROM results WHERE user_id = :user_id AND route_id = :route_id";
+                $statement = $conn->prepare($sql);
+                $statement->bindValue(":user_id", $user_id, PDO::PARAM_INT);
+                $statement->bindValue(":route_id", $route_id, PDO::PARAM_INT);
+                $statement->execute();
+
+                $progress = $statement->fetch(PDO::FETCH_OBJ);
+
+                $routes[$i]->playerHaseFinishedThis = ((int)$progress->num) > 0;
             }
 
             $db = null;
 
-            $this->logger->info("Keyword: $keyword, Result: " . var_export($routes,true));
+            //$this->logger->info("Keyword: $keyword, Result: " . var_export($routes,true));
 
             $result = (object) [
                 "routes" => $routes,
@@ -354,7 +368,7 @@ class RouteController
             $conn = $db->connect();
             $stmt = $conn->prepare($sql);
 
-            $route_id = (int)$args['id'];
+            $route_id = (int)$args['route_id'];
             $stmt->execute([
                 ':route_id' => $route_id
             ]);
@@ -396,22 +410,22 @@ class RouteController
             $conn = $db->connect();
             $stmt = $conn->prepare($sql);
 
-            $id = $args['id'];
-            $stmt->bindParam(":route_id", $id);
+            $route_id = $args['route_id'];
+            $stmt->bindParam(":route_id", $route_id);
             $stmt->execute();
 
             $checkpoints = $stmt->fetchAll(PDO::FETCH_OBJ);
 
             $sql = "SELECT name, owner, is_private, in_order FROM routes WHERE route_id = :route_id";
             $stmt = $conn->prepare($sql);
-            $stmt->bindParam(":route_id", $id);
+            $stmt->bindParam(":route_id", $route_id);
             $stmt->execute();
 
             $route = $stmt->fetch(PDO::FETCH_OBJ);
 
             $result = [
                 "checkpoints" => [],
-                "routeId" => (int)$id,
+                "routeId" => (int)$route_id,
                 "gameName" => $route->name,
                 "owner" => (int)$route->owner,
                 "isPrivate" => $route->is_private === '1',
@@ -480,7 +494,7 @@ class RouteController
     }
 
     public function delete_checkpoint(ServerRequestInterface $request, ResponseInterface $response, $args): ResponseInterface {
-        $route_id = (int)$args['id'];
+        $route_id = (int)$args['route_id'];
 
         try {
             $db = new Db();

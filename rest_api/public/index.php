@@ -118,10 +118,10 @@ $app->post('/register', UserController::class . ':register');
 
 // Alla API calls som behöver skyddas behöver ligga under den här gruppen
 $app->group('/api', function (\Slim\Routing\RouteCollectorProxy $group) {
-    $group->get('/delete/checkpoint/{id}', RouteController::class . ':delete_checkpoint');
-    $group->get('/get/route/info/{id}', RouteController::class . ':get_route_info');
-    $group->get('/search/routes/{keyword}', \RouteController::class . ':search');
-    $group->get('/get/checkpoints/{id}', \RouteController::class . ':get_checkpoints');
+    $group->get('/delete/checkpoint/{route_id}', RouteController::class . ':delete_checkpoint');
+    $group->get('/get/route/info/{route_id}', RouteController::class . ':get_route_info');
+    $group->get('/search/routes/{keyword}/{user_id}', \RouteController::class . ':search');
+    $group->get('/get/checkpoints/{route_id}', \RouteController::class . ':get_checkpoints');
     $group->get('/get/my/routes/{owner}', \RouteController::class . ':get_my_routes');
     $group->get('/get/my/results/{user_id}', \ResultController::class . ':get_my_results');
 

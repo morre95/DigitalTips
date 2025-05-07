@@ -6,6 +6,7 @@ import Tooltip, {Position} from "@/components/Tooltip";
 import {getPlayerId} from '@/functions/common';
 import EvilIcons from '@expo/vector-icons/EvilIcons';
 import AntDesign from '@expo/vector-icons/AntDesign';
+import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import SearchBar from "@/components/SearchBar";
 import {useToken} from "@/components/login/LoginContext";
 import useKeyboardOffsetHeight from "@/hooks/useKeyboardOffsetHeight";
@@ -78,6 +79,7 @@ const Autocomplete: React.FC<IAutocompleteProps> = ({ onSelect, onSubmit, onFoku
         if (item.isPrivate && !isAdmin) {
             return null;
         }
+
         return (
             <TouchableOpacity key={item.routeId} onPress={() => handleSelect(item)}>
                 <View style={[styles.item, styles.row]}>
@@ -95,8 +97,15 @@ const Autocomplete: React.FC<IAutocompleteProps> = ({ onSelect, onSubmit, onFoku
                     name="edit"
                     size={14}
                     color="black"
-                    onPress={() => console.log('Edit not implemented yet')}
                 />}
+                {item.playerHaseFinishedThis &&
+                    <FontAwesome5
+                        style={{position: 'absolute', top: 0, right: 25, }}
+                        name="flag-checkered"
+                        size={14}
+                        color="black"
+                        onPress={() => console.log('Finnish not implemented yet')}
+                    />}
             </TouchableOpacity>
         );
     };
@@ -142,6 +151,7 @@ const Autocomplete: React.FC<IAutocompleteProps> = ({ onSelect, onSubmit, onFoku
                         owner={item.owner}
                         endAt={item.endAt}
                         startAt={item.startAt}
+                        playerHaseFinishedThis={item.playerHaseFinishedThis}
                     />
                 )}
                 style={{maxHeight: maxHeight}}
