@@ -10,6 +10,7 @@ type CoordsFound = {
 
 interface IProps {
     onCoordsFound: (coordsFound: CoordsFound) => void;
+    closeModal?: () => void;
 }
 
 type ItemProps = {
@@ -25,7 +26,7 @@ type IData = {
     longitude: number;
 }
 
-const GoToCoordsComponent = ({onCoordsFound}: IProps) => {
+const GoToCoordsComponent = ({onCoordsFound, closeModal}: IProps) => {
     const [text, onChangeText] = React.useState('');
     const [geoCodingResult, setGeocodingResult] = React.useState<IData[] | null>(null);
 
@@ -34,6 +35,9 @@ const GoToCoordsComponent = ({onCoordsFound}: IProps) => {
         const result = await getCoordinatesFromAddress(text);
         if (result?.length === 1) {
             onCoordsFound({longitude: result[0].longitude, latitude: result[0].latitude});
+            if (closeModal) {
+                closeModal();
+            }
         } else if (result && result.length > 1) {
             const citys = [];
             for (let i = 0; i < result.length; i++) {
@@ -62,6 +66,9 @@ const GoToCoordsComponent = ({onCoordsFound}: IProps) => {
     const handleCoordsFound = (coords: CoordsFound) => {
         if (coords.latitude !== -10000 && coords.longitude !== -10000) {
             onCoordsFound(coords);
+            if (closeModal) {
+                closeModal();
+            }
         }
     }
 

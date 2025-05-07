@@ -91,8 +91,6 @@ const Menu = ({ trigger, children, topRight, topLeft, bottomRight, bottomLeft } 
             pressablePositionRef.current = {left: 10, bottom: 10};
         } else if (bottomRight) {
             pressablePositionRef.current = {right: 10, bottom: 10};
-        } else {
-            //pressablePositionRef.current = {top: 10, left: 10};
         }
     }, [topRight, topLeft, bottomRight, bottomLeft]);
 
@@ -125,7 +123,7 @@ const Menu = ({ trigger, children, topRight, topLeft, bottomRight, bottomLeft } 
                         {
                             React.Children.map(children, child => {
                                 if (React.isValidElement(child)) {
-                                    return React.cloneElement(child as React.ReactElement<any>, {closeModal})
+                                    return React.cloneElement(child as React.ReactElement, {closeModal})
                                 }
                             })
                         }
@@ -165,12 +163,21 @@ interface IMenuChildrenItemProps {
 export const MenuClickableItem = ({ onPress, closeModal, children }: IMenuChildrenItemProps) => {
     const handleOnPress = () => {
         onPress();
-        if (closeModal) closeModal();
+        if (closeModal) {
+            closeModal();
+        }
     };
+
+    const childrenWithProps = React.Children.map(children, child => {
+        if (React.isValidElement(child)) {
+            return React.cloneElement(child as React.ReactElement, {closeModal})
+        }
+        return child;
+    });
 
     return (
         <TouchableOpacity onPress={handleOnPress}>
-            {children}
+            {childrenWithProps}
         </TouchableOpacity>
     );
 }

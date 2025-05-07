@@ -10,6 +10,8 @@ import SearchBar from "@/components/SearchBar";
 import {useToken} from "@/components/login/LoginContext";
 import useKeyboardOffsetHeight from "@/hooks/useKeyboardOffsetHeight";
 import RouteSearchSettings from "@/components/maps/RouteSearchSettings";
+import {getPlayerId} from "@/functions/common";
+import Spacer from "@/components/Spacer";
 
 interface IAutocompleteProps {
     onSelect: (item: SearchResponse) => void;
@@ -21,9 +23,16 @@ const Autocomplete: React.FC<IAutocompleteProps> = ({ onSelect, onSubmit, onFoku
     const [query, setQuery] = useState('');
     const [filteredData, setFilteredData] = useState<SearchResponse[]>([]);
     const [isFocused, setIsFocused] = useState(true);
+    const [appUserId, setAppUserId] = useState<number>(-1);
     const {token, signInApp} = useToken();
     const [keyboardIsOpen] = useKeyboardOffsetHeight();
     const animatedValue = useRef(new Animated.Value(0)).current;
+
+    useEffect(() => {
+        (async () => {
+            setAppUserId(await getPlayerId());
+        })();
+    }, []);
 
     useEffect(() => {
         Animated.timing(animatedValue, {
@@ -66,7 +75,7 @@ const Autocomplete: React.FC<IAutocompleteProps> = ({ onSelect, onSubmit, onFoku
     };
 
     const Item = (item: SearchResponse) => {
-        const isAdmin = true; /*Number(item.owner) === appUserId;*/
+        const isAdmin = Number(item.owner) === appUserId;
 
         if (item.isPrivate && !isAdmin) {
             return null;
@@ -75,7 +84,7 @@ const Autocomplete: React.FC<IAutocompleteProps> = ({ onSelect, onSubmit, onFoku
         return (
             <TouchableOpacity key={item.routeId} onPress={() => handleSelect(item)}>
                 <View style={[styles.item, styles.row]}>
-                    <Text style={{maxWidth: '96%'}}>{item.name}</Text>
+                    <Text style={{maxWidth: '94%'}}>{item.name}</Text>
                     <View style={{flex: 1, alignItems: 'flex-end', marginRight: 3}}>
                         <Tooltip content={`${item.description}\n(With ${item.count} checkpoints)`} position={Position.Left}>
                             <EvilIcons name="question" size={24} color="black" />
@@ -91,12 +100,15 @@ const Autocomplete: React.FC<IAutocompleteProps> = ({ onSelect, onSubmit, onFoku
                         color="black"
                     />}
                     {item.playerHaseFinishedThis &&
-                        <FontAwesome5
-                            name="flag-checkered"
-                            size={14}
-                            color="black"
-                            onPress={() => console.log('Finnish not implemented yet')}
-                        />}
+                        <>
+                            <Spacer size={8} horizontal={true}/>
+                            <FontAwesome5
+                                name="flag-checkered"
+                                size={14}
+                                color="black"
+                                onPress={() => console.log('Finnish not implemented yet')}
+                            />
+                        </>}
                 </View>
             </TouchableOpacity>
         );
