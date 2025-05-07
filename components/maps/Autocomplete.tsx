@@ -3,7 +3,6 @@ import {Animated, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {getSearch, SearchResponse} from '@/functions/api/Get'
 
 import Tooltip, {Position} from "@/components/Tooltip";
-import {getPlayerId} from '@/functions/common';
 import EvilIcons from '@expo/vector-icons/EvilIcons';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
@@ -22,7 +21,6 @@ const Autocomplete: React.FC<IAutocompleteProps> = ({ onSelect, onSubmit, onFoku
     const [query, setQuery] = useState('');
     const [filteredData, setFilteredData] = useState<SearchResponse[]>([]);
     const [isFocused, setIsFocused] = useState(true);
-    const [appUserId, setAppUserId] = useState<number | null>(null);
     const {token, signInApp} = useToken();
     const [keyboardIsOpen] = useKeyboardOffsetHeight();
     const animatedValue = useRef(new Animated.Value(0)).current;
@@ -34,12 +32,6 @@ const Autocomplete: React.FC<IAutocompleteProps> = ({ onSelect, onSubmit, onFoku
             useNativeDriver: false,
         }).start();
     }, [keyboardIsOpen]);
-
-    useEffect(() => {
-        (async () => {
-            setAppUserId(await getPlayerId());
-        })();
-    }, []);
 
     const handleInputChange = async (text: string) => {
         setQuery(text);
@@ -74,7 +66,7 @@ const Autocomplete: React.FC<IAutocompleteProps> = ({ onSelect, onSubmit, onFoku
     };
 
     const Item = (item: SearchResponse) => {
-        const isAdmin = Number(item.owner) === appUserId;
+        const isAdmin = true; /*Number(item.owner) === appUserId;*/
 
         if (item.isPrivate && !isAdmin) {
             return null;
@@ -92,20 +84,20 @@ const Autocomplete: React.FC<IAutocompleteProps> = ({ onSelect, onSubmit, onFoku
                 </View>
                 <Text style={styles.date}>{item.date.toLocaleString()}</Text>
                 <Text style={styles.city}>{item.city}</Text>
-                {isAdmin && <AntDesign
-                    style={{position: 'absolute', top: 0, right: 5, }}
-                    name="edit"
-                    size={14}
-                    color="black"
-                />}
-                {item.playerHaseFinishedThis &&
-                    <FontAwesome5
-                        style={{position: 'absolute', top: 0, right: 25, }}
-                        name="flag-checkered"
+                <View style={{position: 'absolute', top: 0, right: 5, flexDirection: 'row'}}>
+                    {isAdmin && <AntDesign
+                        name="edit"
                         size={14}
                         color="black"
-                        onPress={() => console.log('Finnish not implemented yet')}
                     />}
+                    {item.playerHaseFinishedThis &&
+                        <FontAwesome5
+                            name="flag-checkered"
+                            size={14}
+                            color="black"
+                            onPress={() => console.log('Finnish not implemented yet')}
+                        />}
+                </View>
             </TouchableOpacity>
         );
     };

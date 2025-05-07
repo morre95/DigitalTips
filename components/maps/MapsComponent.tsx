@@ -132,9 +132,11 @@ const MapsComponent = () => {
         setShowSearchButton(true);
 
         // TBD: Test kode som behövs för att kunna test köra frågedelen i emulatorn
-        const {coordinate} = event.nativeEvent;
-        setTestLocation({longitude: coordinate.longitude, latitude: coordinate.latitude});
-        updateClosestCheckpoint({longitude: coordinate.longitude, latitude: coordinate.latitude});
+        if (state.checkpoints.length > 0) {
+            const {coordinate} = event.nativeEvent;
+            setTestLocation({longitude: coordinate.longitude, latitude: coordinate.latitude});
+            updateClosestCheckpoint({longitude: coordinate.longitude, latitude: coordinate.latitude});
+        }
     }
 
     const handleSearchPress = () => {
@@ -386,10 +388,10 @@ const MapsComponent = () => {
     }
 
     const handleRemoveGame = async () => {
-        dispatch(()=>[]);
         setScore(0);
         setCurrentCheckpointIndex(0);
         await db.execAsync('DELETE FROM route_progress;');
+        dispatch(() => []);
     }
 
     const handleOnRegionChange = (currentRegion: Region) => {
