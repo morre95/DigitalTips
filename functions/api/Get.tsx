@@ -43,7 +43,7 @@ async function getRestricted<T>(url: string, token: string, baseUrl: BaseUrl = B
     return await getJson<T>(url, {'Content-Type': 'application/json', 'Authorization': newToken}, baseUrl);
 }
 
-interface SearchResponse {
+export interface SearchResponse {
     routeId: number;
     name: string;
     city: string;
@@ -57,7 +57,7 @@ interface SearchResponse {
     endAt?: Date;
 }
 
-interface IRestrictedRoute {
+export interface IRestrictedRoute {
     route_id: number;
     name: string;
     description: string;
@@ -72,7 +72,7 @@ interface IRestrictedRoute {
     end_at?: Date;
 }
 
-interface ISearchResultResp {
+export interface ISearchResultResp {
     routes: IRestrictedRoute[]
     count: number
     error: boolean
@@ -109,7 +109,7 @@ async function getCheckpoints<T>(id: number, token: string): Promise<T> {
     return await getRestricted<T>(url, token);
 }
 
-type RouteInfo = {
+export type RouteInfo = {
     routeId: number;
     owner: number;
     name: string;
@@ -128,7 +128,7 @@ async function getRoute(id: number, token: string) {
     return await getJson<RouteInfo>(url, {'Content-Type': 'application/json', 'Authorization': newToken});
 }
 
-type DeleteType = {
+export type DeleteType = {
     error: string;
     message: string;
 }
@@ -151,7 +151,7 @@ async function getMyRoutes(appId: number, token: string): Promise<SearchResponse
     return mapSearchResult(response);
 }
 
-type Result = {
+export type Result = {
     name: string;
     resultId: number;
     routeId: number;
@@ -163,7 +163,7 @@ type Result = {
     updatedAt: Date;
 }
 
-interface IResultResp {
+export interface IResultResp {
     error: string;
     message: string;
     results: Result[];
@@ -176,4 +176,4 @@ async function getMyResults(userId: number, token: string): Promise<Result[]|nul
 }
 
 export default getJson;
-export { BaseUrl, getRestricted, getSearch, SearchResponse, getCheckpoints, deleteCheckpoint, getRoute, pingServer, getMyRoutes, getMyResults };
+export { BaseUrl, getRestricted, getSearch, getCheckpoints, deleteCheckpoint, getRoute, pingServer, getMyRoutes, getMyResults };
