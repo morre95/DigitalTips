@@ -2,7 +2,7 @@ import {postJsonWithToken} from "@/functions/api/Post";
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import * as Clipboard from 'expo-clipboard';
 import React, {FC, useState, useRef, useEffect} from 'react';
-import {Alert, Button, Dimensions, StyleSheet, Text, TextInput, View, ScrollView} from 'react-native';
+import {Alert, Button, StyleSheet, Text, TextInput, View, ScrollView} from 'react-native';
 import { ButtonsComponent } from '../ButtonsComponent';
 import {QrCodeType, RouteData} from '@/interfaces/common';
 import CityComponent from './CityComponent';
