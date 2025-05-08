@@ -36,7 +36,6 @@ const initialRegion: Region = {
 type QuestionType = {
     question: Question;
     checkPointId: number;
-    questionId: number;
 };
 
 const MapsComponent = () => {
@@ -401,12 +400,14 @@ const MapsComponent = () => {
         setCurrentRegion(currentRegion);
     }
 
-    const handleOnQuestion = (question: Question, checkpointId: number, isAnswered: boolean | undefined) => {
-        if (!isAnswered) {
+    const handleOnQuestion = (checkpoint: Checkpoint) => {
+        if (!checkpoint.isAnswered) {
+            setQuestion(null); // Test, maybe not needed...
             Vibration.vibrate([1000, 1000, 1000]) // vibrerar 1 sek tre gånger
-            setQuestion({question: question, checkPointId: checkpointId, questionId: question.questionId});
+
+            setQuestion({question: checkpoint.question, checkPointId: checkpoint.checkpoint_id});
         } else {
-            console.log(question.text, 'is already answered');
+            console.log(checkpoint.question.text, 'is already answered');
         }
     }
 
@@ -435,7 +436,7 @@ const MapsComponent = () => {
                     <CheckPoint
                         key={checkpoint.checkpoint_id}
                         checkpoint={checkpoint}
-                        onQuestion={handleOnQuestion}
+                        onQuestion={() => handleOnQuestion(checkpoint)}
                         onChange={(distance: number) => {
                             if (checkpoint.closest) {
                                 flashMessageRef.current?.flash(`Distance changed, you are ${distance} meters from the checkpoint #${checkpoint.checkpoint_order}`, 10000);
@@ -444,11 +445,12 @@ const MapsComponent = () => {
                         activeCheckpoint={currentCheckpointIndex === index}
                         showNextCheckpoint={(currentCheckpointIndex === index || !currentRouteInfoRef.current.inOrder) && showNextCheckpoint}
                         onLeave={() => {
-                            console.log('onLeave()', 'id:', checkpoint.checkpoint_id);
+                            console.log('onLeave()', 'id:', checkpoint.checkpoint_id, 'order:', checkpoint.checkpoint_order);
                             setQuestion(null);
                         }}
                         onEnter={() => {
-                            console.log('onEnter()', 'id:', checkpoint.checkpoint_id);
+                            console.log('onEnter()', 'id:', checkpoint.checkpoint_id, 'order:', checkpoint.checkpoint_order);
+                            //setQuestion({question: checkpoint.question, checkPointId: checkpoint.checkpoint_id, questionId: checkpoint.question.questionId});
                         }}
                         inOrder={currentRouteInfoRef.current.inOrder}
 

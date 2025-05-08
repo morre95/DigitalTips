@@ -10,7 +10,7 @@ import {useSQLiteContext} from "expo-sqlite";
 
 interface ICheckPoint {
     checkpoint: Checkpoint;
-    onQuestion: (question: Question, checkpointId: number, isAnswered: boolean | undefined) => void;
+    onQuestion: () => void;
     activeCheckpoint: boolean;
     onEnter: () => void;
     onLeave: () => void;
@@ -75,13 +75,13 @@ const CheckPoint: React.FC<ICheckPoint> = (
             onChange(distance);
         }
 
-        if (distance < globalThreshold && (activeCheckpoint || !inOrder) && !inActiveRegion) {
+        if (checkpoint.closest && distance < globalThreshold && (activeCheckpoint || !inOrder) && !inActiveRegion) {
             if (!checkpoint.isAnswered) {
-                onQuestion(checkpoint.question, checkpoint.checkpoint_id, checkpoint.isAnswered);
+                onQuestion();
             }
             onEnter();
             setInActiveRegion(true);
-        } else if (activeCheckpoint && inActiveRegion) {
+        } else if (!checkpoint.closest && distance >= globalThreshold && inActiveRegion) {
             onLeave();
             setInActiveRegion(false);
         }
@@ -89,7 +89,7 @@ const CheckPoint: React.FC<ICheckPoint> = (
 
     const handelOnPress = async () => {
         console.log(`CheckPointOrder: ${checkpoint.checkpoint_order}`,
-            userLocation ? calculateDistance(userLocation?.coords): 'unknown',
+            userLocation ? calculateDistance(userLocation.coords): 'unknown',
             'meters to this checkpoint');
     };
 
