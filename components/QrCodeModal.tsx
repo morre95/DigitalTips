@@ -5,7 +5,6 @@ import ViewShot, { captureRef } from "react-native-view-shot";
 import {QR_codeIcon} from "@/assets/images";
 import QRCode from "react-native-qrcode-svg";
 import Spacer from "@/components/Spacer";
-import {QrCodeType} from '@/interfaces/common';
 
 interface QRCodeModalProps {
     name: string;

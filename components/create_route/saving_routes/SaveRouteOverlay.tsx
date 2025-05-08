@@ -15,8 +15,6 @@ import {getRoute} from "@/functions/api/Get";
 import {useToken} from '@/components/login/LoginContext'
 import QrCodeModal from "@/components/QrCodeModal";
 
-const { width: layoutWidth} = Dimensions.get("window");
-
 
 type ResponseData = {
     error: boolean | string;
