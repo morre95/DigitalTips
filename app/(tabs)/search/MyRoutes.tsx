@@ -3,7 +3,7 @@ import {View, Text, StyleSheet, FlatList, TouchableOpacity} from 'react-native';
 import {getPlayerId} from "@/functions/common";
 import {useToken} from "@/components/login/LoginContext";
 import {getMyRoutes, SearchResponse} from "@/functions/api/Get";
-import QrCodeModal from "@/components/search/QrCodeModal";
+import QrCodeModal from "@/components/QrCodeModal";
 import {Link} from "expo-router";
 
 const MyRoutes = () => {

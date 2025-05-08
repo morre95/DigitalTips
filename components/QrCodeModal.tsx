@@ -5,6 +5,7 @@ import ViewShot, { captureRef } from "react-native-view-shot";
 import {QR_codeIcon} from "@/assets/images";
 import QRCode from "react-native-qrcode-svg";
 import Spacer from "@/components/Spacer";
+import {QrCodeType} from '@/interfaces/common';
 
 interface QRCodeModalProps {
     name: string;
@@ -85,7 +86,7 @@ const QrCodeModal = ({name, routeId, visible, close, open}: QRCodeModalProps)  =
                 style={[styles.button, styles.buttonOpen]}
                 onPress={() => open()}
             >
-                <Text style={styles.textStyle}>Show QR code</Text>
+                <Text style={styles.textStyle}>Show & Share QR code</Text>
             </TouchableOpacity>
         </View>
     )

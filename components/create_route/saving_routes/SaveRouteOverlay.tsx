@@ -1,10 +1,8 @@
 import {postJsonWithToken} from "@/functions/api/Post";
-import { QR_codeIcon } from '@/assets/images';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import * as Clipboard from 'expo-clipboard';
 import React, {FC, useState, useRef, useEffect} from 'react';
 import {Alert, Button, Dimensions, StyleSheet, Text, TextInput, View, ScrollView} from 'react-native';
-import QRCode from 'react-native-qrcode-svg';
 import { ButtonsComponent } from '../ButtonsComponent';
 import {QrCodeType, RouteData} from '@/interfaces/common';
 import CityComponent from './CityComponent';
@@ -15,6 +13,7 @@ import AreRoutesPrivateAndInOrder from "./AreRoutesPrivateAndInOrder";
 import SetStartAndEndTime from "./SetStartAndEndTime";
 import {getRoute} from "@/functions/api/Get";
 import {useToken} from '@/components/login/LoginContext'
+import QrCodeModal from "@/components/QrCodeModal";
 
 const { width: layoutWidth} = Dimensions.get("window");
 
@@ -46,7 +45,7 @@ interface Props {
     routeId?: number;
 }
 
-const NextRoutesOverlay: FC<Props> = ({ currentRoutes, onFinish, onClose, alreadyInDb, routeId }) => {
+const SaveRouteOverlay: FC<Props> = ({ currentRoutes, onFinish, onClose, alreadyInDb, routeId }) => {
     const [routeName, setRouteName] = useState<string>('')
     const [routeCity, setRouteCity] = useState<string>('')
     const [routeDescription, setRouteDescription] = useState<string>('')
@@ -63,6 +62,8 @@ const NextRoutesOverlay: FC<Props> = ({ currentRoutes, onFinish, onClose, alread
 
     const [startTime, setStartTime] = useState<Date | null>(null);
     const [endTime, setEndTime] = useState<Date | null>(null);
+
+    const [showQrCode, setShowQrCode] = useState<boolean>(false);
     const {token, signInApp} = useToken();
 
     useEffect(() => {
@@ -240,7 +241,7 @@ const NextRoutesOverlay: FC<Props> = ({ currentRoutes, onFinish, onClose, alread
             ) : (
                 <>
                     <Text>Your route is published!!!</Text>
-                    <Text>{"\n"}</Text>
+                    <Spacer size={10}/>
                     <View style={styles.row}>
                         <Text style={{marginTop: 15}}>{qrCodeValue?.name} </Text>
                         <FontAwesome6.Button
@@ -251,14 +252,13 @@ const NextRoutesOverlay: FC<Props> = ({ currentRoutes, onFinish, onClose, alread
                             onPress={async () => await copyToClipboard()}
                         />
                     </View>
-                    <Text>{"\n"}{"\n"}{"\n"}</Text>
-                    <QRCode
-                        value={JSON.stringify(qrCodeValue)}
-                        size={layoutWidth - 70}
-                        logo={{uri: QR_codeIcon}}
-                        logoSize={40}
-                        logoBackgroundColor='transparent'
-                        logoBorderRadius={5}
+                    <Spacer size={20}/>
+                    <QrCodeModal
+                        routeId={qrCodeValue?.routeId}
+                        name={qrCodeValue?.name}
+                        visible={showQrCode}
+                        close={() => setShowQrCode(false)}
+                        open={() => setShowQrCode(true)}
                     />
                     <Spacer size={20}/>
                     <Button title={'Close'} onPress={() => onClose()}/>
@@ -302,4 +302,4 @@ const styles = StyleSheet.create({
 
 });
 
-export default NextRoutesOverlay
+export default SaveRouteOverlay

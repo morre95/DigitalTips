@@ -24,25 +24,10 @@ interface IScoreProps {
 
 export default function ScoreComponent({visible, routeId, score, questionAnswered, totalQuestions}: IScoreProps) {
     const {token} = useToken();
+
     useEffect(() => {
         (async () => {
             if (routeId > -1 && questionAnswered === totalQuestions) {
-                const userId = await getPlayerId();
-                const sendData : SendData = {
-                    route_id: routeId,
-                    user_id: userId,
-                    correct: score,
-                    incorrect: totalQuestions - score,
-                    not_answered: totalQuestions - questionAnswered,
-                };
-
-                await postJsonWithToken<SendData, {error: boolean, message: string}>(
-                    '/api/add/result',
-                    sendData,
-                    token as string
-                );
-
-
                 FinishPopup.show(
                     'Finished...',
                     `Congratulations!!! You have finished the route with score: ${score}/${totalQuestions}`
@@ -52,13 +37,35 @@ export default function ScoreComponent({visible, routeId, score, questionAnswere
 
     }, [questionAnswered, totalQuestions]);
 
+    const saveResult = async () => {
+        if (routeId > -1 && questionAnswered === totalQuestions) {
+            const userId = await getPlayerId();
+            const sendData : SendData = {
+                route_id: routeId,
+                user_id: userId,
+                correct: score,
+                incorrect: totalQuestions - score,
+                not_answered: totalQuestions - questionAnswered,
+            };
+
+            await postJsonWithToken<SendData, {error: boolean, message: string}>(
+                '/api/add/result',
+                sendData,
+                token as string
+            );
+        }
+    }
+
+
+
     return visible ? (
         <View style={styles.container}>
             <Text style={styles.scoreText}>{score} correct answers of {questionAnswered}.</Text>
             <Text style={styles.scoreText2}>Total number of question {totalQuestions} and {totalQuestions-questionAnswered} left to be answered</Text>
             <RefPopup
-                onClose={() => {
+                onClose={async () => {
                     FinishPopup.hide();
+                    await saveResult();
                 }}
             />
         </View>

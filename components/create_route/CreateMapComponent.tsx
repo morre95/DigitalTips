@@ -8,7 +8,7 @@ import {useCreateDispatch} from "@/components/create_route/CreateContext";
 import CircleMarker from "@/components/create_route/CircleMarker";
 import AddQuestion from "@/components/create_route/AddQuestion";
 import {ButtonsComponent} from "@/components/create_route/ButtonsComponent";
-import NextRoutesOverlay from "@/components/create_route/saving_routes/NextRoutesOverlay";
+import SaveRouteOverlay from "@/components/create_route/saving_routes/SaveRouteOverlay";
 import AddQuestionFromDb from "@/components/create_route/AddQuestionFromDb";
 import RandomCheckPoints from "@/components/create_route/RandomCheckpoints";
 import HelpPopup from "@/components/create_route/HelpPopup";
@@ -341,7 +341,7 @@ export function CreateMapComponent() {
             />
 
             {showNext &&
-                <NextRoutesOverlay
+                <SaveRouteOverlay
                     currentRoutes={state.checkpoints}
                     onFinish={() => dispatch({type: 'deleteAll'})}
                     onClose={() => {

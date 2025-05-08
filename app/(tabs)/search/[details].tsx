@@ -4,7 +4,7 @@ import {Link,  useLocalSearchParams } from 'expo-router';
 import SearchBar from "@/components/SearchBar";
 import {getSearch, SearchResponse} from "@/functions/api/Get";
 import {getPlayerId} from "@/functions/common";
-import QrCodeModal from "@/components/search/QrCodeModal";
+import QrCodeModal from "@/components/QrCodeModal";
 import SearchFilterSettings from "@/components/search/SearchFilterSettings";
 import {useToken} from "@/components/login/LoginContext";
 
