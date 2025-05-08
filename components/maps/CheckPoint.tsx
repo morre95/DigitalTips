@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {StyleSheet, Text} from 'react-native'
 import {getDistanceFast, globalThreshold} from '@/functions/getDistance';
 import { MarkerImageBlue, MarkerImagePink, MarkerImageGreen } from "@/assets/images";
-import {Checkpoint, Question} from "@/interfaces/common";
+import {Checkpoint} from "@/interfaces/common";
 import MarkerShaker from "@/components/maps/MarkerShaker";
 import {useLocation} from "@/hooks/LocationProvider";
 import {useSQLiteContext} from "expo-sqlite";
