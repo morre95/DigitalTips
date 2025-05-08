@@ -1,4 +1,4 @@
-import React, {createContext, useContext, useEffect, useState} from 'react';
+import React, {createContext, useContext, useEffect} from 'react';
 import {useStorageState} from '@/hooks/useStorageState';
 import * as SecureStore from "expo-secure-store";
 import postJson from "@/functions/api/Post";
@@ -40,20 +40,19 @@ export function useToken() {
 
 export function TokenProvider({ children }: { children: React.ReactNode }) {
     const [[isLoading, token], setToken] = useStorageState('session');
-    const [isAppRegistered, setIsAppRegistered] = useState(false);
 
     useEffect(() => {
         (async () => {
             const result = await handleIsAppRegistered();
             if (!result) {
                 if (await register()) {
-                    setIsAppRegistered(true);
+                    await handleSignIn();
                 } else {
                     throw new Error('Could not register app')
                 }
             }
         })();
-    }, [isAppRegistered]);
+    }, []);
 
     const handleIsAppRegistered = async (): Promise<boolean> => {
         const username = await SecureStore.getItemAsync('username');
@@ -86,7 +85,6 @@ export function TokenProvider({ children }: { children: React.ReactNode }) {
             } else if (response.error && !response.token && !response.user) {
                 setToken(null);
                 await resetAppUser();
-                setIsAppRegistered(!isAppRegistered);
             } else {
                 throw new Error("Login failed");
             }

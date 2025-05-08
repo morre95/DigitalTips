@@ -287,23 +287,11 @@ const MapsComponent = () => {
             }
         });
 
-        const isFinished =
+        /*const isFinished =
             nextCheckpoints.filter(checkpoint => checkpoint.isAnswered).length === state.checkpoints.length;
 
-        /*const result = await db.getAllAsync("SELECT * FROM route_progress");
-        for (const item of result) {
-            console.log(item)
-        }
-        const result2 = await db.getAllAsync(
-            `SELECT 
-                    (SELECT COUNT(answered_correctly) FROM route_progress WHERE answered_correctly = 1) AS correct, 
-                    COUNT(*) AS totalAnswered, 
-                    route_id AS routeId, 
-                    checkpoint_id as checkpointId 
-                    FROM route_progress`
-        );
-        for (const item of result2) {
-            console.log(item)
+        if (isFinished) {
+
         }*/
 
         await saveScore(isCorrect, questionId, checkpointId);
@@ -318,11 +306,7 @@ const MapsComponent = () => {
             return newState
         });
 
-        if (isFinished) {
-            //await handleRemoveGame();
-            /*const ch = nextCheckpoints[state.checkpoints.length - 1];
-            console.log('#', ch.checkpoint_id, 'is answered:', ch.isAnswered);*/
-        }
+
 
         dispatch(() => nextCheckpoints);
 
