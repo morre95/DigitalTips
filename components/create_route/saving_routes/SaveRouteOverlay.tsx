@@ -1,8 +1,8 @@
 import {postJsonWithToken} from "@/functions/api/Post";
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import * as Clipboard from 'expo-clipboard';
-import React, {FC, useState, useRef, useEffect} from 'react';
-import {Alert, Button, StyleSheet, Text, TextInput, View, ScrollView} from 'react-native';
+import React, {useState, useRef, useEffect} from 'react';
+import {Alert, StyleSheet, Text, TextInput, View, ScrollView, TouchableOpacity} from 'react-native';
 import { ButtonsComponent } from '../ButtonsComponent';
 import {QrCodeType, RouteData} from '@/interfaces/common';
 import CityComponent from './CityComponent';
@@ -43,7 +43,7 @@ interface Props {
     routeId?: number;
 }
 
-const SaveRouteOverlay: FC<Props> = ({ currentRoutes, onFinish, onClose, alreadyInDb, routeId }) => {
+const SaveRouteOverlay = ({ currentRoutes, onFinish, onClose, alreadyInDb, routeId }: Props) => {
     const [routeName, setRouteName] = useState<string>('')
     const [routeCity, setRouteCity] = useState<string>('')
     const [routeDescription, setRouteDescription] = useState<string>('')
@@ -263,7 +263,13 @@ const SaveRouteOverlay: FC<Props> = ({ currentRoutes, onFinish, onClose, already
                         }}
                     />
                     <Spacer size={20}/>
-                    <Button title={'Close'} onPress={() => onClose()}/>
+
+                    <TouchableOpacity
+                        style={[styles.button]}
+                        onPress={() => onClose()}
+                    >
+                        <Text style={styles.buttonTextStyle}>Close</Text>
+                    </TouchableOpacity>
                 </>
             )}
             </ScrollView>
@@ -301,7 +307,18 @@ const styles = StyleSheet.create({
         padding: 10,
         marginBottom: 10
     },
-
+    button: {
+        borderRadius: 20,
+        padding: 10,
+        elevation: 2,
+        minWidth: 150,
+    },
+    buttonTextStyle: {
+        backgroundColor: '#2196F3',
+        color: 'white',
+        fontWeight: 'bold',
+        textAlign: 'center',
+    }
 });
 
 export default SaveRouteOverlay
