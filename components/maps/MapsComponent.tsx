@@ -10,7 +10,7 @@ import Autocomplete from "./Autocomplete";
 import {getCheckpoints, SearchResponse} from "@/functions/api/Get";
 import AnswerQuestionComponent from "@/components/maps/AnswerQuestionComponent";
 import Feather from "@expo/vector-icons/Feather";
-import Menu, {MenuClickableItem, MenuItemLink, MenuTextItem} from "@/components/maps/Menu";
+import Menu, {MenuClickableItem, MenuLinkItem, MenuTextItem} from "@/components/maps/Menu";
 import {useLocalSearchParams, useRouter} from 'expo-router';
 import {getPlayerId} from "@/functions/common";
 import {useToken} from "@/components/login/LoginContext";
@@ -512,7 +512,7 @@ const MapsComponent = () => {
                         }}
                     />
                 </MenuClickableItem>
-                {currentRouteInfoRef.current.isAdmin && <MenuItemLink
+                {currentRouteInfoRef.current.isAdmin && <MenuLinkItem
                     href={{
                         pathname: '/CreateRoutes',
                         params: {routeId: currentRouteInfoRef.current.routeId.toString()}

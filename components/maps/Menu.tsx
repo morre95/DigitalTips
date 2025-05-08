@@ -189,17 +189,25 @@ interface IMenuItemLinkProps {
     children?: React.ReactNode;
 }
 
-export const MenuItemLink = ({href, text, closeModal, children}: IMenuItemLinkProps) => {
+export const MenuLinkItem = ({href, text, closeModal, children}: IMenuItemLinkProps) => {
     const handleOnPress = () => {
         if (closeModal) closeModal();
     };
+
+    const childrenWithProps = React.Children.map(children, child => {
+        if (React.isValidElement(child)) {
+            return React.cloneElement(child as React.ReactElement, {closeModal})
+        }
+        return child;
+    });
+
     return (
         <Link
             onPress={handleOnPress}
             style={styles.touchableButton}
             href={href}>
             <Text style={styles.touchableText}>{text}</Text>
-            {children}
+            {childrenWithProps}
         </Link>
     )
 }
