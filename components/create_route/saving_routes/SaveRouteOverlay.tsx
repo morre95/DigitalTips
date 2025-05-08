@@ -52,7 +52,7 @@ const SaveRouteOverlay: FC<Props> = ({ currentRoutes, onFinish, onClose, already
 
     const [nameError, setNameError] = useState<string | null>(null);
     const [descriptionError, setDescriptionError] = useState<string | null>(null);
-    const [qrCodeValue, setQrCodeValue] = useState<QrCodeType>();
+    const [qrCodeValue, setQrCodeValue] = useState<QrCodeType>({name: '', routeId: -1});
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
     const refPrivateInorder = useRef<{isPrivate: boolean, isInOrder: boolean}>({isPrivate: false, isInOrder: true})
@@ -165,8 +165,9 @@ const SaveRouteOverlay: FC<Props> = ({ currentRoutes, onFinish, onClose, already
     }
 
     const copyToClipboard = async () => {
-        if (qrCodeValue)
-        await Clipboard.setStringAsync(qrCodeValue.name);
+        if (qrCodeValue.routeId > -1) {
+            await Clipboard.setStringAsync(qrCodeValue.name);
+        }
     }
 
     const getCitys= () => {
@@ -252,11 +253,14 @@ const SaveRouteOverlay: FC<Props> = ({ currentRoutes, onFinish, onClose, already
                     </View>
                     <Spacer size={20}/>
                     <QrCodeModal
-                        routeId={qrCodeValue?.routeId}
-                        name={qrCodeValue?.name}
+                        routeId={qrCodeValue.routeId}
+                        name={qrCodeValue.name}
                         visible={showQrCode}
                         close={() => setShowQrCode(false)}
                         open={() => setShowQrCode(true)}
+                        showButtonStyle={{
+                            backgroundColor: '#2196F3',
+                        }}
                     />
                     <Spacer size={20}/>
                     <Button title={'Close'} onPress={() => onClose()}/>

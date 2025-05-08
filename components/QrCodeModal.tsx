@@ -1,4 +1,4 @@
-import {Modal, Text, View, TouchableOpacity, StyleSheet, Alert} from "react-native";
+import {Modal, Text, View, TouchableOpacity, StyleSheet, Alert, StyleProp, ViewStyle, TextStyle} from "react-native";
 import React, {useRef} from "react";
 import * as Sharing from 'expo-sharing';
 import ViewShot, { captureRef } from "react-native-view-shot";
@@ -12,6 +12,8 @@ interface QRCodeModalProps {
     visible: boolean;
     close: () => void;
     open: () => void;
+    showButtonStyle?: StyleProp<ViewStyle>;
+    showButtonTextStyle?: StyleProp<TextStyle>;
 }
 
 const checkSharingAvailability = async (): Promise<boolean> => {
@@ -22,7 +24,7 @@ const checkSharingAvailability = async (): Promise<boolean> => {
     return isAvailable;
 };
 
-const QrCodeModal = ({name, routeId, visible, close, open}: QRCodeModalProps)  => {
+const QrCodeModal = ({name, routeId, visible, close, open, showButtonStyle, showButtonTextStyle}: QRCodeModalProps)  => {
     const qrRef = useRef<ViewShot | null>(null);
 
     const handleShareOnPress = async () => {
@@ -82,10 +84,10 @@ const QrCodeModal = ({name, routeId, visible, close, open}: QRCodeModalProps)  =
                 </TouchableOpacity>
             </Modal>
             <TouchableOpacity
-                style={[styles.button, styles.buttonOpen]}
+                style={[styles.button, styles.buttonOpen, showButtonStyle]}
                 onPress={() => open()}
             >
-                <Text style={styles.textStyle}>Show & Share QR code</Text>
+                <Text style={[styles.textStyle, showButtonTextStyle]}>Show & Share QR code</Text>
             </TouchableOpacity>
         </View>
     )
