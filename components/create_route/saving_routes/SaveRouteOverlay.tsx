@@ -11,7 +11,7 @@ import {getPlayerId}  from '@/functions/common'
 import Loader from "@/components/Loader";
 import AreRoutesPrivateAndInOrder from "./AreRoutesPrivateAndInOrder";
 import SetStartAndEndTime from "./SetStartAndEndTime";
-import {getRoute} from "@/functions/api/Get";
+import {getRouteInfo} from "@/functions/api/Get";
 import {useToken} from '@/components/login/LoginContext'
 import QrCodeModal from "@/components/QrCodeModal";
 
@@ -71,16 +71,18 @@ const SaveRouteOverlay = ({ currentRoutes, onFinish, onClose, alreadyInDb, route
                     await signInApp();
                 }
 
-                const result = await getRoute(routeId, token as string);
+                const result = await getRouteInfo(routeId, token as string);
 
-                setRouteName(result.name);
-                setRouteCity(result.city);
-                setRouteDescription(result.description);
-                setStartTime(result.startAt);
-                setEndTime(result.endAt);
-                console.log('private', result.isPrivate, 'inOrder', result.inOrder);
-                refPrivateInorder.current = {isPrivate: result.isPrivate, isInOrder: result.inOrder}
-                refInitStartEndTime.current = {start: result.startAt, end: result.endAt}
+                if (!result.error) {
+                    setRouteName(result.routeInfo.name);
+                    setRouteCity(result.routeInfo.city);
+                    setRouteDescription(result.routeInfo.description);
+                    setStartTime(result.routeInfo.startAt);
+                    setEndTime(result.routeInfo.endAt);
+                    console.log('private', result.routeInfo.isPrivate, 'inOrder', result.routeInfo.inOrder);
+                    refPrivateInorder.current = {isPrivate: result.routeInfo.isPrivate, isInOrder: result.routeInfo.inOrder}
+                    refInitStartEndTime.current = {start: result.routeInfo.startAt, end: result.routeInfo.endAt}
+                }
             }
         })();
     }, [alreadyInDb]);

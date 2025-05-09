@@ -127,10 +127,16 @@ export type RouteInfo = {
     createdAt: Date;
     updatedAt: Date;
 }
-async function getRoute(id: number, token: string) {
+
+export type ResponseRouteInfo = {
+    routeInfo: RouteInfo;
+    message: string;
+    error: false;
+}
+async function getRouteInfo(id: number, token: string) {
     const url = `api/get/route/info/${id}`;
     let newToken = `Bearer_${token}`
-    return await getJson<RouteInfo>(url, {'Content-Type': 'application/json', 'Authorization': newToken});
+    return await getJson<ResponseRouteInfo>(url, {'Content-Type': 'application/json', 'Authorization': newToken});
 }
 
 export type DeleteType = {
@@ -181,4 +187,4 @@ async function getMyResults(userId: number, token: string): Promise<Result[]|nul
 }
 
 export default getJson;
-export { BaseUrl, getRestricted, getSearch, getCheckpoints, deleteCheckpoint, getRoute, pingServer, getMyRoutes, getMyResults };
+export { BaseUrl, getRestricted, getSearch, getCheckpoints, deleteCheckpoint, getRouteInfo, pingServer, getMyRoutes, getMyResults };

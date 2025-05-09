@@ -378,12 +378,28 @@ class RouteController
                 $route = mapSnakeToCamel($route);
                 $route->inOrder = $route->inOrder === '1';
                 $route->isPrivate = $route->isPrivate === '1';
-                $response->getBody()->write(json_encode($route));
+
+                $result = (object) [
+                    "routeInfo" => $route,
+                    "error" => false,
+                    "message" => "Route Info"
+                ];
+
+                $response->getBody()->write(json_encode($result));
                 return $response
                     ->withHeader('content-type', 'application/json')
                     ->withStatus(200);
             } else {
-                throw new \PDOException("Route not found");
+                $result = (object) [
+                    "routeInfo" => null,
+                    "error" => true,
+                    "message" => "Route not found"
+                ];
+
+                $response->getBody()->write(json_encode($result));
+                return $response
+                    ->withHeader('content-type', 'application/json')
+                    ->withStatus(200);
             }
 
         } catch (PDOException $e) {

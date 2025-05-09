@@ -19,6 +19,7 @@ import ScoreComponent from "@/components/maps/ScoreComponent";
 import GoToCoordsComponent from "@/components/create_route/GoToCoordsComponent";
 import {useLocation} from "@/hooks/LocationProvider";
 import {getDistanceFast} from "@/functions/getDistance";
+import GameUrlComponent from "@/components/maps/GameUrlComponent";
 
 
 const {width, height} = Dimensions.get('window');
@@ -57,6 +58,8 @@ const MapsComponent = () => {
     const {token, signInApp} = useToken();
     const mapRef = useRef<MapView | null>(null);
     const {userLocation} = useLocation();
+
+    const [loadGameUrlVisible, setLoadGameUrlVisible] = useState<boolean>(false);
 
     const db = useSQLiteContext();
 
@@ -399,7 +402,6 @@ const MapsComponent = () => {
         setShowSearchButton(!isFokus);
     }
 
-
     return (
         <View style={styles.container}>
             <FlashMessage ref={flashMessageRef} />
@@ -480,11 +482,17 @@ const MapsComponent = () => {
                 <Text>"{currentRouteInfoRef.current.gameName}" is running. {currentRouteInfoRef.current.isAdmin && 'Click menu to edit'}</Text>
             )}
 
+            <GameUrlComponent
+                visible={loadGameUrlVisible}
+                close={() => setLoadGameUrlVisible(false)}
+            />
+
             <Menu trigger={<Feather name="menu" size={44} color="black" />} bottomRight={true}>
                 <MenuTextItem text={showNextCheckpoint ? 'Show Checkpoints Flags only':'Next Checkpoint'} onPress={handleNextCheckpoint} />
                 <MenuTextItem text={'Restart the game'} onPress={handleResetGame} />
                 <MenuTextItem text={'Remove game'} onPress={handleRemoveGame} />
                 <MenuTextItem text={'Qr Code Reader'} onPress={handleQrReader} />
+                <MenuTextItem text={'Load game from URL'} onPress={() => setLoadGameUrlVisible(true)} />
                 <MenuClickableItem onPress={() => null} >
                     <GoToCoordsComponent
                         onCoordsFound={(coords) => {
@@ -498,6 +506,7 @@ const MapsComponent = () => {
                         }}
                     />
                 </MenuClickableItem>
+
                 {currentRouteInfoRef.current.isAdmin && <MenuLinkItem
                     href={{
                         pathname: '/CreateRoutes',
