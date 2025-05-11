@@ -108,7 +108,7 @@ const GoToCoordsComponent = ({onCoordsFound, closeModal}: IProps) => {
                     style={styles.input}
                     onChangeText={handleOnTextChange}
                     onSubmitEditing={handleOnSubmit}
-                    placeholder={'Go to address'}
+                    placeholder={'Move map to address'}
                     value={text}
                 />
                 <TouchableOpacity

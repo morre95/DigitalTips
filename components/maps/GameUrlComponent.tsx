@@ -2,9 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { StyleSheet, View, Text, Button, TextInput, Modal, TouchableOpacity, ToastAndroid } from 'react-native';
 import * as Linking from 'expo-linking';
 import * as Clipboard from 'expo-clipboard';
-import {getRouteInfo, RouteInfo} from "@/functions/api/Get";
-import {useToken} from "@/components/login/LoginContext";
-
+import { getRouteInfo, RouteInfo } from "@/functions/api/Get";
+import { useToken } from "@/components/login/LoginContext";
 import { Link } from 'expo-router';
 import Spacer from "@/components/Spacer";
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
@@ -15,11 +14,17 @@ interface GameUrlComponentProps {
     close: () => void;
 }
 
+enum PasteBackgroundColor {
+    error = '#ff0000',
+    info = '#0569FF'
+}
+
 export default function GameUrlComponent({visible, close}: GameUrlComponentProps) {
     const [routeId, setRouteId] = useState<number | null>(null);
     const [url, setUrl] = useState<string>('');
     const {token} = useToken();
     const [routeInfo, setRouteInfo] = useState<RouteInfo | null>(null);
+    const [pasteButtonColor, setPasteButtonColor] = useState<PasteBackgroundColor>(PasteBackgroundColor.info);
 
     // Start the app with URL
     useEffect(() => {
@@ -39,14 +44,33 @@ export default function GameUrlComponent({visible, close}: GameUrlComponentProps
     }, []);
 
     const fetchCopiedText = async () => {
-        const text = await Clipboard.getStringAsync();
-        await handleUrl(text);
+        if (await Clipboard.hasImageAsync()) {
+            console.error('It is an image in the clipboard');
+            setPasteButtonColor(PasteBackgroundColor.error);
+            return
+        }
+
+        if (pasteButtonColor !== PasteBackgroundColor.info) {
+            setPasteButtonColor(PasteBackgroundColor.info);
+        }
+
+        if (await Clipboard.hasStringAsync()) {
+            const text = await Clipboard.getStringAsync();
+            if (!isValidUrl(text)) {
+                setPasteButtonColor(PasteBackgroundColor.error);
+                showToastMsg('The url has the wrong format');
+                showToastMsg('The right format: something://something?id=[route id]');
+                return
+            }
+            await handleUrl(text);
+        }
     };
 
     const handleUrl = async (url: string) => {
         if (!isValidUrl(url)) {
             showToastMsg('The url has the wrong format');
             showToastMsg('The right format: something://something?id=[route id]');
+            return;
         }
 
         const { queryParams} = Linking.parse(url);
@@ -119,7 +143,7 @@ export default function GameUrlComponent({visible, close}: GameUrlComponentProps
                     ) : (
                         <View>
                             <Text>Example: example://startGame?id=4</Text>
-                            <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+                            <View style={styles.row}>
                                     <TextInput
                                         style={styles.input}
                                         value={url}
@@ -131,7 +155,7 @@ export default function GameUrlComponent({visible, close}: GameUrlComponentProps
                                     <Text style={styles.linkText}>Check</Text>
                                 </TouchableOpacity>
                             </View>
-                            <TouchableOpacity style={styles.button} onPress={fetchCopiedText}>
+                            <TouchableOpacity style={[styles.button, {backgroundColor: pasteButtonColor}]} onPress={fetchCopiedText}>
                                 <Text style={styles.buttonText}>Paste URL</Text>
                             </TouchableOpacity>
                         </View>
@@ -162,6 +186,10 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.25,
         shadowRadius: 4,
         elevation: 5,
+    },
+    row: {
+        flexDirection: 'row',
+        justifyContent: 'space-between'
     },
     input: {
         flex: 1,
