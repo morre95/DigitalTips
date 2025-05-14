@@ -210,6 +210,12 @@ export const MenuLinkItem = ({href, text, closeModal, children}: IMenuItemLinkPr
             {childrenWithProps}
         </Link>
     )
+};
+
+export const MenuItemWithoutAction = ({children}: {children: React.ReactNode}) => {
+    return (<>
+        {children}
+    </>)
 }
 
 const styles = StyleSheet.create({

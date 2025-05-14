@@ -31,7 +31,7 @@ export default function GameUrlComponent({visible, close}: GameUrlComponentProps
         let subscription: any
         (async () => {
             const text = await Linking.getInitialURL();
-            if (text) {
+            if (text && isValidUrl(text)) {
                 await handleUrl(text);
             }
 

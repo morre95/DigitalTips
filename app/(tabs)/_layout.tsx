@@ -11,7 +11,11 @@ export default function AppLayout() {
             <RefreshTokenEverXMinutes
                 minutes={45}
             />
-            <Tabs>
+            <Tabs
+                screenOptions={{
+                    tabBarHideOnKeyboard: true,
+                }}
+            >
                 <Tabs.Screen
                     name="CreateRoutes"
                     options={{

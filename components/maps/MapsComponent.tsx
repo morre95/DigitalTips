@@ -10,8 +10,8 @@ import Autocomplete from "./Autocomplete";
 import {getCheckpoints, SearchResponse} from "@/functions/api/Get";
 import AnswerQuestionComponent from "@/components/maps/AnswerQuestionComponent";
 import Feather from "@expo/vector-icons/Feather";
-import Menu, {MenuClickableItem, MenuLinkItem, MenuTextItem} from "@/components/maps/Menu";
-import {useLocalSearchParams, useRouter} from 'expo-router';
+import Menu, {MenuClickableItem, MenuItemWithoutAction, MenuLinkItem, MenuTextItem} from "@/components/maps/Menu";
+import {useLocalSearchParams, useNavigation, useRouter} from 'expo-router';
 import {getPlayerId} from "@/functions/common";
 import {useToken} from "@/components/login/LoginContext";
 import {useSQLiteContext} from "expo-sqlite";
@@ -58,10 +58,22 @@ const MapsComponent = () => {
     const {token, signInApp} = useToken();
     const mapRef = useRef<MapView | null>(null);
     const {userLocation} = useLocation();
-
     const [loadGameUrlVisible, setLoadGameUrlVisible] = useState<boolean>(false);
-
     const db = useSQLiteContext();
+    const navigation = useNavigation();
+
+    useEffect(() => {
+        console.log('Japp state.checkpoints.length är ändrad')
+        if (state.checkpoints.length > 0) {
+            navigation.setOptions({
+                tabBarStyle: { display: "none" }
+            });
+        } else {
+            navigation.setOptions({
+                tabBarStyle: { display: undefined }
+            });
+        }
+    }, [state.checkpoints.length]);
 
     const updateClosestCheckpoint = (location: {
         latitude: number;
@@ -470,18 +482,6 @@ const MapsComponent = () => {
                 }}
             />}
 
-            <ScoreComponent
-                visible={score > 0}
-                score={score}
-                routeId={currentRouteInfoRef.current.routeId}
-                questionAnswered={state.checkpoints.filter(obj => obj.isAnswered).length}
-                totalQuestions={state.checkpoints.length}
-            />
-
-            {state.checkpoints.length > 0 && (
-                <Text>"{currentRouteInfoRef.current.gameName}" is running. {currentRouteInfoRef.current.isAdmin && 'Click menu to edit'}</Text>
-            )}
-
             <GameUrlComponent
                 visible={loadGameUrlVisible}
                 close={() => setLoadGameUrlVisible(false)}
@@ -514,9 +514,20 @@ const MapsComponent = () => {
                     }}
                     text={'Edit Route'}
                 />}
+
+                <MenuItemWithoutAction>
+                    {state.checkpoints.length > 0 && (
+                        <Text style={styles.gameStatusText}>"{currentRouteInfoRef.current.gameName}" is running. {currentRouteInfoRef.current.isAdmin && 'Click menu to edit'}</Text>
+                    )}
+                    <ScoreComponent
+                        visible={score > 0}
+                        score={score}
+                        routeId={currentRouteInfoRef.current.routeId}
+                        questionAnswered={state.checkpoints.filter(obj => obj.isAnswered).length}
+                        totalQuestions={state.checkpoints.length}
+                    />
+                </MenuItemWithoutAction>
             </Menu>
-
-
 
         </View>
     )
@@ -565,6 +576,9 @@ const styles = StyleSheet.create({
         fontWeight: '600',
         fontStyle: 'italic',
         color: '#fff',
+    },
+    gameStatusText: {
+        fontWeight: 'bold'
     },
 })
 
