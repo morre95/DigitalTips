@@ -47,6 +47,9 @@ export const LocationProvider = ({ children }: LocationProviderProps) => {
                 },
                 (loc) => {
                     setLocation(loc);
+                },
+                (error) => {
+                    setErrorMsg(error);
                 }
             );
         })();
