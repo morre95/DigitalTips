@@ -1,8 +1,9 @@
-import React, {useState, useRef} from 'react';
+import React, {useState, useRef, ComponentRef} from 'react';
 import {View, Text, StyleSheet, Modal, TouchableOpacity, Pressable} from 'react-native';
 import {useToken} from "@/components/login/LoginContext";
 import {getMyResults} from "@/functions/api/Get";
 import {getPlayerId} from "@/functions/common";
+import FlashMessage from "@/components/FlashMessage";
 
 const Row = ({column}: {column: string[]}) => {
     return (
@@ -44,11 +45,12 @@ const ShowResult = () => {
     const [showResult, setShowResult] = useState(false);
     const {token} = useToken();
     let dataRef = useRef<string[][]>([]).current;
+    const flashMessageRef = useRef<ComponentRef<typeof FlashMessage>>(null);
 
     const setData = async () => {
         const userId = await getPlayerId();
         const result = await getMyResults(userId, token as string);
-        if (result) {
+        if (result && result.length > 0) {
             // Ingen snygg lösning men eftersom dataRef = [] inte funkade så...;
             while(dataRef.length){
                 dataRef.pop();
@@ -63,6 +65,8 @@ const ShowResult = () => {
             }
 
             setShowResult(true);
+        } else if(flashMessageRef.current) {
+            flashMessageRef.current.warning( 'There are no result to show', 2000);
         }
     }
 
@@ -73,6 +77,7 @@ const ShowResult = () => {
 
     return (
         <>
+            <FlashMessage ref={flashMessageRef} />
             <Modal
                 animationType="slide"
                 transparent={true}
