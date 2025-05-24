@@ -56,7 +56,7 @@ async function post<TReturn>(url: string, requestOptions: any): Promise<TReturn>
         }
         return await response.json();
     } catch (error) {
-        console.error('Error: ', error);
+        console.error('post() Error: ', error, url);
         throw error;
     }
 }
@@ -75,7 +75,7 @@ async function registerUser<T, TReturn>(data: T): Promise<TReturn> {
         }
         return await response.json();
     } catch (error) {
-        console.error(`Error: `, error);
+        console.error(`registerUser() Error: `, error);
         throw error;
     }
 }
