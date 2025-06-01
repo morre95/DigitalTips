@@ -67,6 +67,10 @@ export default class FlashMessage extends Component<{}, IFlashMessageProp> {
         });
     }
 
+    public clearQueue() {
+        this.queue = [];
+    }
+
     // Här ligger din gamla flashBase kod, utan att hantera kön
     private showNotification(message: string, duration: number) {
         this.setState({ notification: message }, () => {

@@ -436,8 +436,15 @@ const MapsComponent = () => {
                         checkpoint={checkpoint}
                         onQuestion={() => handleOnQuestion(checkpoint)}
                         onChange={(distance: number) => {
-                            if (checkpoint.closest) {
-                                flashMessageRef.current?.flash(`Distance changed, you are ${distance} meters from the checkpoint #${checkpoint.checkpoint_order}`, 10000);
+                            if (currentRouteInfoRef.current.inOrder && checkpoint.checkpoint_order == (currentCheckpointIndex + 1) && userLocation) {
+                                const theDistance = getDistanceFast({latitude: Number(checkpoint.latitude), longitude: Number(checkpoint.longitude)}, userLocation.coords);
+                                flashMessageRef.current?.clearQueue();
+                                flashMessageRef.current?.flash(`Distance changed, you are ${theDistance.toFixed(0)} next checkpoint`, 10000);
+                            } else if (!currentRouteInfoRef.current.inOrder) {
+                                if (checkpoint.closest) {
+                                    flashMessageRef.current?.clearQueue();
+                                    flashMessageRef.current?.flash(`Distance changed, you are ${distance} meters from the checkpoint #${checkpoint.checkpoint_order}`, 10000);
+                                }
                             }
                         }}
                         activeCheckpoint={currentCheckpointIndex === index}
