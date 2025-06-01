@@ -427,7 +427,7 @@ const MapsComponent = () => {
                 onPress={handleMapPress}
                 onRegionChange={handleOnRegionChange}
                 showsUserLocation={true}
-                showsMyLocationButton={false}
+                showsMyLocationButton={true}
                 toolbarEnabled={false}
             >
                 {state.checkpoints.map((checkpoint, index) => (
