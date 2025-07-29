@@ -12,6 +12,9 @@ export default function AppLayout() {
         useCallback(() => {
             const timeout = setTimeout(() => {
                 if (Platform.OS === "android") {
+                    // FIXME: Detta ger varning om att det inte stöds när edge-to-edge är enabled.
+                    // Har sat "edgeToEdgeEnabled": false i app.json under "android". Men det hjälper inte
+                    // Här finns mer info om edge-to-edge i Android: https://expo.dev/blog/edge-to-edge-display-now-streamlined-for-android
                     setStatusBarBackgroundColor('#fff');
                 }
             }, 400);
