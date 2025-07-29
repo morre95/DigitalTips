@@ -10,7 +10,7 @@ export default function Credits() {
     React.useLayoutEffect(() => {
         navigation.setOptions({
             headerLeft: () => (
-                <AntDesign name="arrowleft" size={24} color="black" onPress={() => router.replace('/Settings')} style={{ marginLeft: 15, marginRight: 10 }}/>
+                <AntDesign name="arrowleft" size={24} color="black" onPress={() => router.replace('./Settings')} style={{ marginLeft: 15, marginRight: 10 }}/>
             ),
         });
     }, [navigation, router]);

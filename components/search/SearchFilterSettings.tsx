@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React from 'react';
 import {View, Switch, TextInput, StyleSheet, Text } from 'react-native';
 import Slider from '@react-native-community/slider';
 import CollapsibleView from "@/components/CollapsibleView";

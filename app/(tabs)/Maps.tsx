@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {AppState, AppStateStatus, StyleSheet, View} from 'react-native';
 import { MapsProvider } from "@/components/maps/MapsContext";
 import MapsComponent from "@/components/maps/MapsComponent";
-import { getPlayerId, getPlayerName, sleep } from "@/functions/common";
+import { getPlayerId, getPlayerName, sleep, migrateDbIfNeeded } from "@/functions/common";
 import PlayerNameSelect from "@/components/PlayerNameSelect";
 import updatePlayerName from "@/functions/updatePlayerName";
 import { useToken } from "@/components/login/LoginContext";
@@ -10,7 +10,6 @@ import { Redirect } from 'expo-router';
 import register from "@/functions/register";
 import Loader from "@/components/Loader";
 import { SQLiteProvider } from 'expo-sqlite';
-import { migrateDbIfNeeded } from '@/functions/common';
 import {LocationProvider} from "@/hooks/LocationProvider";
 
 let updatePlayerTries = 0;
@@ -44,7 +43,7 @@ export default function Maps() {
     const startFunction = async () => {
         const isAppRegistered = await isAppRegisteredAsync();
         if (!isAppRegistered) {
-            return <Redirect href="/sign-in-app" />;
+            return <Redirect href="./sign-in-app" />;
         }
         const playerName = await getPlayerName();
         if (playerName === null) {

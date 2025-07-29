@@ -127,7 +127,7 @@ export default function GameUrlComponent({visible, close}: GameUrlComponentProps
                                     <Text>{routeInfo.city}</Text>
                                     <Spacer size={10} />
                                     <Link onPress={handleClose} href={{
-                                        pathname: '/Maps',
+                                        pathname: './Maps',
                                         params: { routeId: routeId },
                                     }}
                                     >

@@ -2,7 +2,7 @@ import React, {useState, useEffect} from "react";
 import {StyleSheet, View, Modal, Text, TextInput, Button, Alert} from "react-native";
 import {Answer, RouteData} from "@/interfaces/common";
 import { ButtonsComponent } from '@/components/create_route/ButtonsComponent';
-import Checkbox from "expo-checkbox";
+import {Checkbox} from "expo-checkbox";
 
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";

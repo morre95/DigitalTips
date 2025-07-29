@@ -15,7 +15,7 @@ const CheckOutToken = () => {
         (async () => {
             if (!token) {
                 await signInApp();
-                router.replace('/Maps');
+                router.replace('./Maps');
             }
         })()
     }, [token]);

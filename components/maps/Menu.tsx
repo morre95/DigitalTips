@@ -12,6 +12,7 @@ import {Link, Href} from "expo-router";
 
 const { height: layoutHeight} = Dimensions.get("window");
 
+
 interface IMenuProps {
     trigger: React.ReactNode;
     children: React.ReactNode;
@@ -123,7 +124,10 @@ const Menu = ({ trigger, children, topRight, topLeft, bottomRight, bottomLeft } 
                         {
                             React.Children.map(children, child => {
                                 if (React.isValidElement(child)) {
-                                    return React.cloneElement(child as React.ReactElement, {closeModal})
+                                    return React.cloneElement(
+                                        child as React.ReactElement<{ closeModal?: () => void }>,
+                                        { closeModal }
+                                    );
                                 }
                             })
                         }
@@ -170,7 +174,7 @@ export const MenuClickableItem = ({ onPress, closeModal, children }: IMenuChildr
 
     const childrenWithProps = React.Children.map(children, child => {
         if (React.isValidElement(child)) {
-            return React.cloneElement(child as React.ReactElement, {closeModal})
+            return React.cloneElement(child as React.ReactElement<{ closeModal?: () => void }>, {closeModal})
         }
         return child;
     });
@@ -196,7 +200,7 @@ export const MenuLinkItem = ({href, text, closeModal, children}: IMenuItemLinkPr
 
     const childrenWithProps = React.Children.map(children, child => {
         if (React.isValidElement(child)) {
-            return React.cloneElement(child as React.ReactElement, {closeModal})
+            return React.cloneElement(child as React.ReactElement<{ closeModal?: () => void }>, {closeModal})
         }
         return child;
     });

@@ -25,7 +25,7 @@ const CheckIfCreateInFokus = () => {
                 ]);
             }
         });
-    }, [navigation, state.checkpoints]);
+    }, [navigation, state.checkpoints, dispatch]);
 
 
     return <></>

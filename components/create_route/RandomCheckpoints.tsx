@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 
 import {View, Modal, Text, TextInput, StyleSheet, Button, Alert} from 'react-native'
 import {Picker} from '@react-native-picker/picker';
-import Checkbox from 'expo-checkbox';
+import {Checkbox} from 'expo-checkbox';
 
 import {getDistanceFast} from '@/functions/getDistance';
 

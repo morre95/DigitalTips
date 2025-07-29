@@ -27,7 +27,7 @@ export default function Settings() {
 
     const goToCredits = () => {
         // Navigate programmatically to the "Credits" page
-        router.replace('/Credits');
+        router.replace('./Credits');
     };
 
     const openSelectPlayerName = () => {

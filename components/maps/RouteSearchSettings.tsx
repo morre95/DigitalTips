@@ -1,18 +1,15 @@
 import {StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import React, {useState} from "react";
-import Checkbox from 'expo-checkbox';
+import {Checkbox} from 'expo-checkbox';
 import { useRouter } from 'expo-router';
 
-interface Props {
 
-}
-
-const RouteSearchSettings = ({}: Props) => {
+const RouteSearchSettings = () => {
     const router = useRouter();
     const [isOpenRoutesChecked, setOpenRoutesChecked] = useState(false);
 
     const handleMyRoutesPressed = () => {
-        router.push('/search/MyRoutes');
+        router.push('./search/MyRoutes');
     }
 
     const handleOnOpenValueChange = (value: boolean) => {

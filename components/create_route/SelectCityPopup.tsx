@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { StyleSheet, View, Text } from "react-native";
-import Checkbox from 'expo-checkbox';
+import {Checkbox} from 'expo-checkbox';
 import { PopupBase } from "@/components/popup/PopupBase";
 
 import {City} from '@/interfaces/City'

@@ -5,7 +5,6 @@ import CheckPoint from "./CheckPoint";
 import {Checkpoint, MarkersType, Question} from "@/interfaces/common";
 import {useMapDispatch, useMapsState} from "./MapsContext";
 import FlashMessage from "@/components/FlashMessage";
-import FontAwesome from "@expo/vector-icons/FontAwesome";
 import Autocomplete from "./Autocomplete";
 import {getCheckpoints, SearchResponse} from "@/functions/api/Get";
 import AnswerQuestionComponent from "@/components/maps/AnswerQuestionComponent";
@@ -48,7 +47,7 @@ const MapsComponent = () => {
     const [question, setQuestion] = useState<QuestionType | null>(null);
     const [currentCheckpointIndex, setCurrentCheckpointIndex] = useState<number>(0);
     const [score, setScore] = useState(0);
-    const [showSearchButton, setShowSearchButton] = useState(true);
+    const [showSearchField, setShowSearchField] = useState(true);
     const [showNextCheckpoint, setShowNextCheckpoint] = useState(false);
     const [newRegion, setNewRegion] = useState<Region|undefined>();
     const initRouteInfo = {gameName: '', isAdmin: false, routeId: -1, inOrder: false, isPrivate: false}
@@ -143,7 +142,7 @@ const MapsComponent = () => {
         longitude: number
     } | null>(null);
     const handleMapPress = (event: any) => {
-        setShowSearchButton(true);
+        //setShowSearchField(true);
 
         // TBD: Test kode som behövs för att kunna test köra frågedelen i emulatorn
         if (state.checkpoints.length > 0) {
@@ -151,11 +150,6 @@ const MapsComponent = () => {
             setTestLocation({longitude: coordinate.longitude, latitude: coordinate.latitude});
             updateClosestCheckpoint({longitude: coordinate.longitude, latitude: coordinate.latitude});
         }
-    }
-
-    const handleSearchPress = () => {
-        //setShowSearchButton(!showSearchButton);
-        setShowSearchButton(false);
     }
 
     const DispatchCheckpoints = async (routeId: number) => {
@@ -236,7 +230,7 @@ const MapsComponent = () => {
     }
 
     const handleAutoOnSelect = async (item: SearchResponse) => {
-        setShowSearchButton(true);
+        //setShowSearchField(true);
 
         await DispatchCheckpoints(item.routeId);
     }
@@ -254,7 +248,7 @@ const MapsComponent = () => {
     }
 
     const handleAutoOnSubmit = (item: string) => {
-        setShowSearchButton(true)
+        setShowSearchField(true)
         router.push( './search/[details}');
         router.setParams({ details: item })
     }
@@ -411,7 +405,7 @@ const MapsComponent = () => {
     }
 
     const handleOnFocusChange = (isFokus: boolean) => {
-        setShowSearchButton(!isFokus);
+        setShowSearchField(!isFokus);
     }
 
     return (
@@ -419,7 +413,7 @@ const MapsComponent = () => {
             <FlashMessage ref={flashMessageRef} />
 
             <MapView
-                ref={map => mapRef.current = map}
+                ref={mapRef}
                 provider={PROVIDER_GOOGLE}
                 style={styles.map}
                 initialRegion={currentRegion}
@@ -463,16 +457,7 @@ const MapsComponent = () => {
                     />
                 ))}
             </MapView>
-            {showSearchButton ? (
-                <View style={styles.search}>
-                    <FontAwesome.Button
-                        name="search"
-                        size={35}
-                        color="black"
-                        backgroundColor="rgba(52, 52, 52, 0)"
-                        onPress={handleSearchPress} />
-                </View>
-            ) : (
+            {!showSearchField && (
                 <View style={styles.autoCompleteContainer}>
                     <Autocomplete
                         onSelect={handleAutoOnSelect}
@@ -495,6 +480,7 @@ const MapsComponent = () => {
             />
 
             <Menu trigger={<Feather name="menu" size={44} color="black" />} bottomRight={true}>
+                <MenuTextItem text={'Search route'} onPress={() => setShowSearchField(false)} />
                 <MenuTextItem text={showNextCheckpoint ? 'Show Checkpoints Flags only':'Next Checkpoint'} onPress={handleNextCheckpoint} />
                 <MenuTextItem text={'Restart the game'} onPress={handleResetGame} />
                 <MenuTextItem text={'Remove game'} onPress={handleRemoveGame} />
@@ -516,7 +502,7 @@ const MapsComponent = () => {
 
                 {currentRouteInfoRef.current.isAdmin && <MenuLinkItem
                     href={{
-                        pathname: '/CreateRoutes',
+                        pathname: './CreateRoutes',
                         params: {routeId: currentRouteInfoRef.current.routeId.toString()}
                     }}
                     text={'Edit Route'}
@@ -524,7 +510,7 @@ const MapsComponent = () => {
 
                 <MenuItemWithoutAction>
                     {state.checkpoints.length > 0 && (
-                        <Text style={styles.gameStatusText}>"{currentRouteInfoRef.current.gameName}" is running. {currentRouteInfoRef.current.isAdmin && 'Click menu to edit'}</Text>
+                        <Text style={styles.gameStatusText}>&#34;{currentRouteInfoRef.current.gameName}&#34; is running. {currentRouteInfoRef.current.isAdmin && 'Click menu to edit'}</Text>
                     )}
                     <ScoreComponent
                         visible={score > 0}
@@ -549,7 +535,7 @@ const styles = StyleSheet.create({
     },
     search: {
         position: 'absolute',
-        top: 2,
+        top: 42,
         left: 0,
         width: 65,
         height: 50,

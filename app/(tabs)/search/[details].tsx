@@ -174,7 +174,7 @@ const Item = ({routeId, name, city, description, date, isAdmin, startAt, endAt}:
             <Link
                 style={styles.name}
                 href={{
-                    pathname: '/Maps',
+                    pathname: './Maps',
                     params: {routeId: routeId}
                 }}
             >{name}</Link>

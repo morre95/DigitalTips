@@ -16,7 +16,7 @@ const RefPopup = ({onClose}: Props, ref?: any) => {
     const [popupVisible, setPopupVisible] = useState(false);
     const [title, setTitle] = useState<string>('');
     const [message, setMessage] = useState<string>('');
-    const popupRef = useRef<CustomModalRef>();
+    const popupRef = useRef<CustomModalRef>(ref);
 
     useLayoutEffect(() => {
         if (ref) {

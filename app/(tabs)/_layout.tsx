@@ -1,16 +1,32 @@
+import React, {useCallback} from 'react';
+import {Platform} from 'react-native';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import {Tabs} from 'expo-router';
-import React from 'react';
+import {Tabs, useFocusEffect} from 'expo-router';
 import {TokenProvider} from "@/components/login/LoginContext";
 import RefreshTokenEverXMinutes from '@/components/RefreshTokenEverXMinutes';
+import { StatusBar, setStatusBarBackgroundColor } from 'expo-status-bar';
 
 export default function AppLayout() {
+    useFocusEffect(
+        useCallback(() => {
+            const timeout = setTimeout(() => {
+                if (Platform.OS === "android") {
+                    setStatusBarBackgroundColor('#fff');
+                }
+            }, 400);
+
+            return () => {
+                clearTimeout(timeout);
+            };
+        }, []),
+    );
     return (
         <TokenProvider>
             <RefreshTokenEverXMinutes
                 minutes={45}
             />
+            <StatusBar style="dark" />
             <Tabs
                 screenOptions={{
                     tabBarHideOnKeyboard: true,

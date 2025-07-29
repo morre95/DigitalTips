@@ -110,7 +110,7 @@ export default function QrCodeReader() {
                             {qrResult && <Link
                                 style={styles.startGameLink}
                                 href={{
-                                    pathname: '/Maps',
+                                    pathname: './Maps',
                                     params: {routeId: JSON.parse(qrResult).routeId.toString()}
                                 }}>
                                 Start Game
