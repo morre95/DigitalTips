@@ -11,7 +11,7 @@ You need Expo to run this game as it is now
 The things you need before installing the software.
 
 * Expo
-* Emulator os phone
+* Emulator or phone
 
 ### Installation
 
