@@ -15,7 +15,13 @@ The things you need before installing the software.
 
 ### Installation
 
-Set up your environment by following this guid: [https://docs.expo.dev/get-started/set-up-your-environment/](https://docs.expo.dev/get-started/set-up-your-environment/)
+* Set up your environment by following this guid: [https://docs.expo.dev/get-started/set-up-your-environment/](https://docs.expo.dev/get-started/set-up-your-environment/)
+* Clone repo run:
+```
+git clone https://github.com/erikmueller/DigitalTips.git
+```
+* Run `npm install`
+* Run `expo start`
 
 ## Usage
 
