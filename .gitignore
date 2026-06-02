@@ -43,3 +43,9 @@ rest_api/update.php
 /.idea/
 /.env
 .vs/*
+
+android/.gradle/
+android/app/build/
+android/build/
+android/local.properties        # contains local SDK path
+*.keystore                      # signing keys — store elsewhere securely
