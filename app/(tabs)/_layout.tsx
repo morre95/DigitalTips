@@ -1,29 +1,12 @@
-import React, {useCallback} from 'react';
-import {Platform} from 'react-native';
+import React from 'react';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import {Tabs, useFocusEffect} from 'expo-router';
+import {Tabs} from 'expo-router';
 import {TokenProvider} from "@/components/login/LoginContext";
 import RefreshTokenEverXMinutes from '@/components/RefreshTokenEverXMinutes';
-import { StatusBar, setStatusBarBackgroundColor } from 'expo-status-bar';
+import { StatusBar } from 'expo-status-bar';
 
 export default function AppLayout() {
-    useFocusEffect(
-        useCallback(() => {
-            const timeout = setTimeout(() => {
-                if (Platform.OS === "android") {
-                    // FIXME: Detta ger varning om att det inte stöds när edge-to-edge är enabled.
-                    // Har sat "edgeToEdgeEnabled": false i app.json under "android". Men det hjälper inte
-                    // Här finns mer info om edge-to-edge i Android: https://expo.dev/blog/edge-to-edge-display-now-streamlined-for-android
-                    setStatusBarBackgroundColor('#fff');
-                }
-            }, 400);
-
-            return () => {
-                clearTimeout(timeout);
-            };
-        }, []),
-    );
     return (
         <TokenProvider>
             <RefreshTokenEverXMinutes
