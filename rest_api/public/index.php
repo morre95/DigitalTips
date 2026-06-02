@@ -124,6 +124,7 @@ $app->group('/api', function (\Slim\Routing\RouteCollectorProxy $group) {
     $group->get('/get/checkpoints/{route_id}', \RouteController::class . ':get_checkpoints');
     $group->get('/get/my/routes/{owner}', \RouteController::class . ':get_my_routes');
     $group->get('/get/my/results/{user_id}', \ResultController::class . ':get_my_results');
+    $group->get('/get/leaderboard/{route_id}', \ResultController::class . ':get_leaderboard');
 
 
     $group->post('/add/routes', \RouteController::class . ':add_new');

@@ -1,18 +1,5 @@
-import React, {useEffect} from 'react';
+import React from 'react';
 import {StyleSheet, View, Text} from 'react-native';
-import RefPopup from "@/components/popup/RefPopup";
-import FinishPopup from "@/components/popup/FinishPopup";
-import {getPlayerId} from "@/functions/common";
-import {postJsonWithToken} from "@/functions/api/Post";
-import {useToken} from "@/components/login/LoginContext";
-
-interface SendData {
-    route_id: number;
-    user_id: number;
-    correct: number;
-    incorrect: number;
-    not_answered: number;
-}
 
 interface IScoreProps {
     visible: boolean;
@@ -22,52 +9,13 @@ interface IScoreProps {
     totalQuestions: number;
 }
 
-export default function ScoreComponent({visible, routeId, score, questionAnswered, totalQuestions}: IScoreProps) {
-    const {token} = useToken();
-
-    useEffect(() => {
-        (async () => {
-            if (routeId > -1 && questionAnswered === totalQuestions) {
-                FinishPopup.show(
-                    'Finished...',
-                    `Congratulations!!! You have finished the route with score: ${score}/${totalQuestions}`
-                );
-            }
-        })()
-
-    }, [questionAnswered, totalQuestions]);
-
-    const saveResult = async () => {
-        if (routeId > -1 && questionAnswered === totalQuestions) {
-            const userId = await getPlayerId();
-            const sendData : SendData = {
-                route_id: routeId,
-                user_id: userId,
-                correct: score,
-                incorrect: totalQuestions - score,
-                not_answered: totalQuestions - questionAnswered,
-            };
-
-            await postJsonWithToken<SendData, {error: boolean, message: string}>(
-                '/api/add/result',
-                sendData,
-                token as string
-            );
-        }
-    }
-
-
-
+// Inline score readout shown in the in-game menu. Completion (result submission +
+// the result page / leaderboard) is handled by app/(tabs)/Result.tsx.
+export default function ScoreComponent({visible, score, questionAnswered, totalQuestions}: IScoreProps) {
     return visible ? (
         <View style={styles.container}>
             <Text style={styles.scoreText}>{score} correct answers of {questionAnswered}.</Text>
             <Text style={styles.scoreText2}>Total number of question {totalQuestions} and {totalQuestions-questionAnswered} left to be answered</Text>
-            <RefPopup
-                onClose={async () => {
-                    FinishPopup.hide();
-                    await saveResult();
-                }}
-            />
         </View>
     ) : null;
 }

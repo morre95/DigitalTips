@@ -144,8 +144,9 @@ const MapsComponent = () => {
     const handleMapPress = (event: any) => {
         //setShowSearchField(true);
 
-        // TBD: Test kode som behövs för att kunna test köra frågedelen i emulatorn
-        if (state.checkpoints.length > 0) {
+        // Dev-only: tapping the map fakes the player's GPS position so the question
+        // flow can be tested in an emulator without real movement. No-op in production.
+        if (__DEV__ && state.checkpoints.length > 0) {
             const {coordinate} = event.nativeEvent;
             setTestLocation({longitude: coordinate.longitude, latitude: coordinate.latitude});
             updateClosestCheckpoint({longitude: coordinate.longitude, latitude: coordinate.latitude});
@@ -296,14 +297,26 @@ const MapsComponent = () => {
             }
         });
 
-        /*const isFinished =
-            nextCheckpoints.filter(checkpoint => checkpoint.isAnswered).length === state.checkpoints.length;
-
-        if (isFinished) {
-
-        }*/
-
         await saveScore(isCorrect, questionId, checkpointId);
+
+        const isFinished = nextCheckpoints.every(checkpoint => checkpoint.isAnswered);
+        if (isFinished) {
+            // `score` is the render-time value; this answer's point isn't applied yet.
+            const finalCorrect = isCorrect ? score + 1 : score;
+            const total = nextCheckpoints.length;
+            router.push({
+                pathname: './Result',
+                params: {
+                    routeId: String(currentRouteInfoRef.current.routeId),
+                    correct: String(finalCorrect),
+                    incorrect: String(total - finalCorrect),
+                    total: String(total),
+                },
+            });
+            // Reset the in-progress game so returning to the map starts fresh.
+            await handleRemoveGame();
+            return;
+        }
 
         setCurrentCheckpointIndex((prevIndex: number) => {
             const newState = prevIndex + 1

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {StyleSheet, Text} from 'react-native'
-import {getDistanceFast, globalThreshold} from '@/functions/getDistance';
+import {getDistanceFast, ENTER_RADIUS, LEAVE_RADIUS} from '@/functions/getDistance';
 import { MarkerImageBlue, MarkerImagePink, MarkerImageGreen } from "@/assets/images";
 import {Checkpoint} from "@/interfaces/common";
 import MarkerShaker from "@/components/maps/MarkerShaker";
@@ -65,23 +65,22 @@ const CheckPoint: React.FC<ICheckPoint> = (
         return getDistanceFast(location, {
             latitude: Number(checkpoint.latitude),
             longitude: Number(checkpoint.longitude)
-        }) - globalThreshold;
+        });
     };
 
     const checkDistance = (distance: number) => {
-        if (distance <= 0) {
-            onChange(0);
-        } else {
-            onChange(distance);
-        }
+        onChange(distance);
 
-        if (checkpoint.closest && distance < globalThreshold && (activeCheckpoint || !inOrder) && !inActiveRegion) {
+        if (!inActiveRegion
+            && distance <= ENTER_RADIUS
+            && checkpoint.closest
+            && (activeCheckpoint || !inOrder)) {
             if (!checkpoint.isAnswered) {
                 onQuestion();
             }
             onEnter();
             setInActiveRegion(true);
-        } else if (!checkpoint.closest && distance >= globalThreshold && inActiveRegion) {
+        } else if (inActiveRegion && distance > LEAVE_RADIUS) {
             onLeave();
             setInActiveRegion(false);
         }

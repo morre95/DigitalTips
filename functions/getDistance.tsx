@@ -5,6 +5,12 @@ export type Coordinates = {
 
 export const globalThreshold = 20;
 
+// Proximity radii (meters) for triggering / dismissing a checkpoint question.
+// A small gap between enter and leave adds hysteresis so GPS jitter near the
+// boundary does not rapidly toggle the question on and off.
+export const ENTER_RADIUS = globalThreshold;
+export const LEAVE_RADIUS = globalThreshold + 5;
+
 const getDistance = (
     start: Coordinates,
     end: Coordinates,

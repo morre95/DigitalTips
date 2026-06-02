@@ -4,42 +4,7 @@ import {useToken} from "@/components/login/LoginContext";
 import {getMyResults} from "@/functions/api/Get";
 import {getPlayerId} from "@/functions/common";
 import FlashMessage from "@/components/FlashMessage";
-
-const Row = ({column}: {column: string[]}) => {
-    return (
-        <View style={styles.rowStyle}>
-            {column.map((data, index) => (
-                <Cell key={index.toString()} data={data} />
-            ))}
-        </View>
-    );
-};
-
-const Cell = ({data}: {data: string}) => {
-    return (
-        <View style={styles.cellStyle}>
-            <Text>{data}</Text>
-        </View>
-    );
-};
-
-const Header = ({column}: {column: string[]}) => {
-    return (
-        <View style={styles.headerStyle}>
-            {column.map((data, index) => (
-                <HeaderCell key={index.toString()} data={data} />
-            ))}
-        </View>
-    );
-};
-
-const HeaderCell = ({data}: {data: string}) => {
-    return (
-        <View style={styles.headerCellStyle}>
-            <Text style={styles.headerTextStyle}>{data}</Text>
-        </View>
-    );
-};
+import ResultTable from "@/components/ResultTable";
 
 const ShowResult = () => {
     const [showResult, setShowResult] = useState(false);
@@ -86,12 +51,7 @@ const ShowResult = () => {
                     setShowResult(!showResult);
                 }}>
                 <Pressable style={styles.centeredView} onPress={handleClose}>
-                    <View style={styles.gridContainer}>
-                        <Header column={['Name', 'Correct', 'Incorrect', 'Not Answered']} />
-                        {dataRef.map((column, index) => (
-                            <Row key={index.toString()} column={column} />
-                        ))}
-                    </View>
+                    <ResultTable columns={['Name', 'Correct', 'Incorrect', 'Not Answered']} rows={dataRef} />
                 </Pressable>
             </Modal>
             <View style={styles.buttonContainer}>
@@ -109,37 +69,6 @@ const styles = StyleSheet.create({
         flex: 1,
             justifyContent: 'center',
             alignItems: 'center',
-    },
-    gridContainer: {
-        width: '100%',
-        backgroundColor: '#fff',
-        borderRadius: 10,
-    },
-
-    headerStyle: {
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "space-around",
-        borderBottomWidth: 1,
-        borderStyle: 'solid',
-        borderColor: '#000',
-    },
-    headerCellStyle: {
-        flex: 1,
-        marginHorizontal: 10,
-    },
-    headerTextStyle: {
-        fontSize: 18,
-        fontWeight: 'bold'
-    },
-    rowStyle: {
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "space-around",
-    },
-    cellStyle: {
-        flex: 1,
-        margin: 10,
     },
     buttonContainer: {
         width: 200,

@@ -186,5 +186,26 @@ async function getMyResults(userId: number, token: string): Promise<Result[]|nul
     return response.results;
 }
 
+export type LeaderboardEntry = {
+    userId: number;
+    name: string;
+    correct: number;
+    incorrect: number;
+    notAnswered: number;
+    createdAt: Date;
+}
+
+export interface ILeaderboardResp {
+    error: string;
+    message: string;
+    leaderboard: LeaderboardEntry[];
+}
+
+async function getLeaderboard(routeId: number, token: string): Promise<LeaderboardEntry[]|null> {
+    const response = await getRestricted<ILeaderboardResp>(`api/get/leaderboard/${encodeURIComponent(routeId)}`, token);
+    if (response.error) return null;
+    return response.leaderboard;
+}
+
 export default getJson;
-export { BaseUrl, getRestricted, getSearch, getCheckpoints, deleteCheckpoint, getRouteInfo, pingServer, getMyRoutes, getMyResults };
+export { BaseUrl, getRestricted, getSearch, getCheckpoints, deleteCheckpoint, getRouteInfo, pingServer, getMyRoutes, getMyResults, getLeaderboard };
