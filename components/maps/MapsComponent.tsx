@@ -531,7 +531,7 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     map: {
-        ...StyleSheet.absoluteFillObject,
+        flex: 1,
     },
     search: {
         position: 'absolute',
