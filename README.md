@@ -21,7 +21,7 @@ The things you need before installing the software.
 git clone https://github.com/erikmueller/DigitalTips.git
 ```
 * Run `npm install`
-* Run `expo start`
+* Run `npx expo start`
 
 ## Usage
 
