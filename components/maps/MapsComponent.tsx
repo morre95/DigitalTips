@@ -137,22 +137,6 @@ const MapsComponent = () => {
     }, [routeId]);
 
 
-    const [testLocation, setTestLocation] = useState<{
-        latitude: number
-        longitude: number
-    } | null>(null);
-    const handleMapPress = (event: any) => {
-        //setShowSearchField(true);
-
-        // Dev-only: tapping the map fakes the player's GPS position so the question
-        // flow can be tested in an emulator without real movement. No-op in production.
-        if (__DEV__ && state.checkpoints.length > 0) {
-            const {coordinate} = event.nativeEvent;
-            setTestLocation({longitude: coordinate.longitude, latitude: coordinate.latitude});
-            updateClosestCheckpoint({longitude: coordinate.longitude, latitude: coordinate.latitude});
-        }
-    }
-
     const DispatchCheckpoints = async (routeId: number) => {
         if (!token) {
             await signInApp();
@@ -304,17 +288,23 @@ const MapsComponent = () => {
             // `score` is the render-time value; this answer's point isn't applied yet.
             const finalCorrect = isCorrect ? score + 1 : score;
             const total = nextCheckpoints.length;
+            const finishedRouteId = currentRouteInfoRef.current.routeId;
+
+            // Remove the finished route from the map and clear its progress.
+            await handleRemoveGame();
+            currentRouteInfoRef.current = initRouteInfo;
+            // Clear the routeId param so the load effect can't reload the route.
+            router.setParams({routeId: ''});
+
             router.push({
                 pathname: './Result',
                 params: {
-                    routeId: String(currentRouteInfoRef.current.routeId),
+                    routeId: String(finishedRouteId),
                     correct: String(finalCorrect),
                     incorrect: String(total - finalCorrect),
                     total: String(total),
                 },
             });
-            // Reset the in-progress game so returning to the map starts fresh.
-            await handleRemoveGame();
             return;
         }
 
@@ -395,8 +385,10 @@ const MapsComponent = () => {
     const handleRemoveGame = async () => {
         setScore(0);
         setCurrentCheckpointIndex(0);
-        await db.execAsync('DELETE FROM route_progress;');
+        // Clear the markers from the map first so removal never depends on the
+        // local DB delete succeeding.
         dispatch(() => []);
+        await db.execAsync('DELETE FROM route_progress;');
     }
 
     const handleOnRegionChange = (currentRegion: Region) => {
@@ -431,7 +423,6 @@ const MapsComponent = () => {
                 style={styles.map}
                 initialRegion={currentRegion}
                 region={newRegion}
-                onPress={handleMapPress}
                 onRegionChange={handleOnRegionChange}
                 showsUserLocation={true}
                 showsMyLocationButton={true}
@@ -465,8 +456,6 @@ const MapsComponent = () => {
                             //setQuestion({question: checkpoint.question, checkPointId: checkpoint.checkpoint_id, questionId: checkpoint.question.questionId});
                         }}
                         inOrder={currentRouteInfoRef.current.inOrder}
-
-                        testLocation={testLocation ? testLocation: undefined}
                     />
                 ))}
             </MapView>

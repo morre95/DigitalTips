@@ -3,6 +3,10 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
 import {Question} from '@/interfaces/common';
 
+// Testing aid: prefix the correct answer with "*". Controlled by
+// EXPO_PUBLIC_SHOW_CORRECT_ANSWER in .env; off unless explicitly set to "true".
+const SHOW_CORRECT_ANSWER = process.env.EXPO_PUBLIC_SHOW_CORRECT_ANSWER === 'true';
+
 
 interface Props {
     question: Question;
@@ -19,7 +23,7 @@ const AnswerQuestionComponent: React.FC<Props> = ({ question, onAnswerSelected }
                     style={styles.answerButton}
                     onPress={() => onAnswerSelected(answer.isCorrect, question.questionId)}
                 >
-                    <Text style={styles.answerText}>{answer.isCorrect ? `*${answer.text}` : answer.text}</Text>
+                    <Text style={styles.answerText}>{answer.isCorrect && SHOW_CORRECT_ANSWER ? `*${answer.text}` : answer.text}</Text>
                 </TouchableOpacity>
             ))}
         </View>

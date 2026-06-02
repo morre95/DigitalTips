@@ -17,11 +17,6 @@ interface ICheckPoint {
     onChange: (distance: number) => void;
     showNextCheckpoint: boolean;
     inOrder: boolean;
-
-    testLocation?: {
-        latitude: number;
-        longitude: number;
-    };
 }
 
 
@@ -34,21 +29,12 @@ const CheckPoint: React.FC<ICheckPoint> = (
         onLeave,
         onEnter,
         showNextCheckpoint,
-        inOrder,
-        testLocation
+        inOrder
     }) => {
 
     const [inActiveRegion, setInActiveRegion] = useState<boolean>(false);
     const {userLocation} = useLocation();
     const db = useSQLiteContext();
-
-    useEffect(() => {
-        if (testLocation) {
-            const distance = calculateDistance(testLocation);
-
-            checkDistance(distance);
-        }
-    }, [testLocation]);
 
     useEffect(() => {
         if (userLocation) {
