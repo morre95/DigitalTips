@@ -21,7 +21,8 @@ The things you need before installing the software.
 git clone https://github.com/erikmueller/DigitalTips.git
 ```
 * Run `npm install`
-* Run `npx expo start`
+* Run `npx expo start` or `npx expo run:android`
+* '
 
 ## Usage
 
