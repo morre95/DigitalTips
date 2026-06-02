@@ -18,6 +18,7 @@ import Feather from "@expo/vector-icons/Feather";
 import Menu, {MenuClickableItem, MenuTextItem} from "@/components/maps/Menu";
 import {useToken} from '@/components/login/LoginContext'
 import GoToCoordsComponent from "@/components/create_route/GoToCoordsComponent";
+import {useSafeAreaInsets} from "react-native-safe-area-context";
 
 const {width, height} = Dimensions.get('window');
 const ASPECT_RATIO = width / height;
@@ -45,6 +46,7 @@ export function CreateMapComponent() {
     const router = useRouter();
     const {token, signInApp} = useToken();
     const mapRef = useRef<MapView | null>(null);
+    const insets = useSafeAreaInsets();
 
     useEffect(() => {
         (async () => {
@@ -274,10 +276,14 @@ export function CreateMapComponent() {
 
     return (
         <View style={styles.map}>
-            {state.checkpoints.length > 0 ? <ButtonsComponent.CancelAndContinueButtons
-                onContinue={handleContinue}
-                onCancel={handleNextCancel}
-            />: null}
+            {state.checkpoints.length > 0 ? (
+                <View style={[styles.topBar, {paddingTop: insets.top}]}>
+                    <ButtonsComponent.CancelAndContinueButtons
+                        onContinue={handleContinue}
+                        onCancel={handleNextCancel}
+                    />
+                </View>
+            ): null}
 
             <MapView
                 ref={mapRef}
@@ -379,6 +385,9 @@ export function CreateMapComponent() {
 const styles = StyleSheet.create({
     map: {
         flex: 1,
+    },
+    topBar: {
+        backgroundColor: 'white',
     },
 
 })
